@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package tags;
+
+option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
+
+
+service TagsService {
+  rpc GetTag(GetTagRequest) returns (GetTagResponse) {}
+  rpc GetTags(google.protobuf.Empty) returns (GetTagsResponse) {}
+}
+
+message GetTagRequest {
+  uint32 ID = 1;
+}
+
+message GetTagResponse {
+  uint32 ID = 1;
+  string name = 2;
+}
+
+message GetTagsResponse {
+  repeated GetTagResponse tags = 1;
+}

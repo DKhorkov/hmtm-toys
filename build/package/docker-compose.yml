@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  hmtm_toys:
+    container_name: hmtm_toys
+    image: hmtm_toys
+    build:
+      context: ../..
+      dockerfile: ./build/package/Dockerfile
+    ports:
+      - "8060:8060"
+    depends_on:
+      - hmtm_toys_database
+    volumes:
+      - ../../logs/:/app/logs/
+
+  hmtm_toys_database:
+    container_name: hmtm_toys_database
+    hostname: hmtm_toys_database
+    image: postgres
+    restart: always
+    env_file:
+      - ../../.env
+    volumes:
+      - ../../postgres_data:/var/lib/postgresql/data
+      - ../../postgres_backups:/backups
+      - ../../scripts/postgres:/scripts
+    ports:
+      - "5432:5432"

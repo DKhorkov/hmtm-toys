@@ -1,0 +1,192 @@
+version: '3'
+
+tasks:
+  docker_prod:
+    desc: "Docker build and run."
+    aliases:
+      - prod
+    cmds:
+      - task: create_logs_folder
+      - task: docker_build
+      - task: docker_run
+
+  create_postgres_folders:
+    desc: "Create postgres folders for other tasks purposes."
+    internal: true
+    dir: ../
+    cmds:
+      - mkdir -p postgres_data
+      - mkdir -p postgres_backups
+
+  create_logs_folder:
+    desc: "Create logs folder for docker volume purposes."
+    internal: true
+    dir: ../
+    cmds:
+      - mkdir -p logs
+
+  docker_build:
+    desc: "Build docker container."
+    aliases:
+      - build
+    cmd: sudo docker compose -f ../build/package/docker-compose.yml build
+
+  docker_run:
+    desc: "Launch docker container."
+    aliases:
+      - run
+    cmd: sudo docker compose -f ../build/package/docker-compose.yml up
+
+  docker_stop:
+    desc: "Stop all docker containers."
+    aliases:
+      - stop
+    cmd:  sudo docker stop $(sudo docker ps -a -q)
+
+  docker_clean:
+    desc: "Clean docker containers, images and volumes."
+    aliases:
+      - clean
+    cmd: sudo docker system prune -a --volumes
+
+  setup_proto:
+    desc: "Install all go-proto requirements."
+    aliases:
+      - setup
+    cmds:
+      - sudo snap install protobuf --classic
+      - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      - export PATH="$PATH:$(go env GOPATH)/bin"
+      - task: create_protobuf_folders
+
+  create_protobuf_folders:
+    desc: "Create folders structure for protobuf usage."
+    internal: true
+    dir: ../
+    cmds:
+      - mkdir -p api/protobuf/protofiles
+      - mkdir -p api/protobuf/generated/go
+
+  grpc_generate:
+    desc: "Generate code from .proto files."
+    aliases:
+      - gen
+      - generate
+      - grpc
+    dir: ../
+    cmds:
+      - protoc --proto_path=api/protobuf/protofiles ./api/protobuf/protofiles/toys/masters.proto --go_out=./api/protobuf/generated/go --go_opt=paths=source_relative --go-grpc_out=./api/protobuf/generated/go --go-grpc_opt=paths=source_relative
+      - protoc --proto_path=api/protobuf/protofiles ./api/protobuf/protofiles/toys/categories.proto --go_out=./api/protobuf/generated/go --go_opt=paths=source_relative --go-grpc_out=./api/protobuf/generated/go --go-grpc_opt=paths=source_relative
+      - protoc --proto_path=api/protobuf/protofiles ./api/protobuf/protofiles/toys/tags.proto --go_out=./api/protobuf/generated/go --go_opt=paths=source_relative --go-grpc_out=./api/protobuf/generated/go --go-grpc_opt=paths=source_relative
+      - protoc --proto_path=api/protobuf/protofiles ./api/protobuf/protofiles/toys/toys.proto --go_out=./api/protobuf/generated/go --go_opt=paths=source_relative --go-grpc_out=./api/protobuf/generated/go --go-grpc_opt=paths=source_relative
+
+  tests:
+    desc: "Run tests and save coverage to ./tests/coverage folder."
+    aliases:
+      - test
+    dir: ../
+    cmds:
+      - task: create_postgres_folders
+      - sudo chmod -R 777 postgres_data
+      - sudo chmod -R 777 postgres_backups
+      - mkdir -p ./coverage
+      - go test -v -coverprofile ./coverage/coverage.out -coverpkg=./... ./...
+      - go tool cover -html ./coverage/coverage.out -o ./coverage/coverage.html
+
+  linters:
+    desc: "Run linters."
+    aliases:
+      - lint
+    dir: ../
+    cmds:
+      - task: create_postgres_folders
+      - sudo chmod -R 777 postgres_data
+      - sudo chmod -R 777 postgres_backups
+      - golangci-lint run -v --fix
+
+  makemigrations:
+    desc: "Create migration file with provided name."
+    requires: # Make sure these variables are set before running
+      vars: [ NAME ]
+    vars:
+      DIR: ./migrations
+    dir: ../
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+      - goose -dir {{.DIR}} create {{.NAME}} sql
+
+  migrate:
+    desc: "Apply all available migrations."
+    aliases:
+      - create_database
+    vars:
+      DIR: ./migrations
+      DRIVER: postgres
+      DATABASE_URL: "postgresql://hmtm_toys:hmtm_toys@0.0.0.0:5432/hmtm_toys"
+    dir: ../
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+      - goose -dir {{.DIR}} {{.DRIVER}} {{.DATABASE_URL}} up
+
+  migrate_to:
+    desc: "Migrate up to a specific version."
+    requires:
+      vars: [ VERSION ]
+    vars:
+      DIR: ./migrations
+      DRIVER: postgres
+      DATABASE_URL: "postgresql://hmtm_toys:hmtm_toys@0.0.0.0:5432/hmtm_toys"
+    dir: ../
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+      - goose -dir {{.DIR}} {{.DRIVER}} {{.DATABASE_URL}} up-to {{.VERSION}}
+
+  downgrade_to:
+    desc: "Rollback migrations to a specific version."
+    requires:
+      vars: [ VERSION ]
+    vars:
+      DIR: ./migrations
+      DRIVER: postgres
+      DATABASE_URL: "postgresql://hmtm_toys:hmtm_toys@0.0.0.0:5432/hmtm_toys"
+    dir: ../
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+      - goose -dir {{.DIR}} {{.DRIVER}} {{.DATABASE_URL}} down-to {{.VERSION}}
+
+  downgrade_to_base:
+    desc: "Rollback all migrations (careful!)."
+    aliases:
+      - drop_tables
+    vars:
+      DIR: ./migrations
+      DRIVER: postgres
+      DATABASE_URL: "postgresql://hmtm_toys:hmtm_toys@0.0.0.0:5432/hmtm_toys"
+    dir: ../
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+      - goose -dir {{.DIR}} {{.DRIVER}} {{.DATABASE_URL}} down-to 0
+
+  migrations_status:
+    desc: "Print status of all migrations."
+    aliases:
+      - status
+    vars:
+      DIR: ./migrations
+      DRIVER: postgres
+      DATABASE_URL: "postgresql://hmtm_toys:hmtm_toys@0.0.0.0:5432/hmtm_toys"
+    dir: ../
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+      - goose -dir {{.DIR}} {{.DRIVER}} {{.DATABASE_URL}} status
+
+  upload_docker_image:
+    desc: "Uploads docker image to dockerhub."
+    aliases:
+      - upload
+    dir: ../
+    cmds:
+      - task: docker_build
+      - sudo docker tag hmtm_toys d3m0s/hmtm_toys
+      - sudo docker push d3m0s/hmtm_toys

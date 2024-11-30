@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "toys/toys.proto";
+
+package masters;
+
+option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
+
+
+service MastersService {
+  rpc RegisterMaster(RegisterMasterRequest) returns (RegisterMasterResponse) {}
+  rpc GetMaster(GetMasterRequest) returns (GetMasterResponse) {}
+  rpc GetMasters(google.protobuf.Empty) returns (GetMastersResponse) {}
+}
+
+message RegisterMasterRequest {
+  string accessToken = 1;
+  string info = 2;
+}
+
+message RegisterMasterResponse {
+  uint64 masterID = 1;
+}
+
+message GetMasterRequest {
+  uint64 ID = 1;
+}
+
+message GetMasterResponse {
+  uint64 ID = 1;
+  uint64 userID = 2;
+  string info = 3;
+  repeated toys.GetToyResponse toys = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  google.protobuf.Timestamp updatedAt = 6;
+}
+
+message GetMastersResponse {
+  repeated GetMasterResponse masters = 1;
+}

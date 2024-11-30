@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package categories;
+
+option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
+
+
+service CategoriesService {
+  rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse) {}
+  rpc GetCategories(google.protobuf.Empty) returns (GetCategoriesResponse) {}
+}
+
+message GetCategoryRequest {
+  uint32 ID = 1;
+}
+
+message GetCategoryResponse {
+  uint32 ID = 1;
+  string name = 2;
+}
+
+message GetCategoriesResponse {
+  repeated GetCategoryResponse categories = 1;
+}
+
