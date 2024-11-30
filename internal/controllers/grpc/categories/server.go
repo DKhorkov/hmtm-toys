@@ -3,6 +3,7 @@ package categories
 import (
 	"context"
 	"errors"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"log/slog"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -59,8 +60,10 @@ func (api *ServerAPI) GetCategory(
 	}
 
 	return &toys.GetCategoryResponse{
-		ID:   category.ID,
-		Name: category.Name,
+		ID:        category.ID,
+		Name:      category.Name,
+		CreatedAt: timestamppb.New(category.CreatedAt),
+		UpdatedAt: timestamppb.New(category.UpdatedAt),
 	}, nil
 }
 
@@ -94,8 +97,10 @@ func (api *ServerAPI) GetCategories(ctx context.Context, request *emptypb.Empty)
 	categoriesForResponse := make([]*toys.GetCategoryResponse, len(categories))
 	for i, category := range categories {
 		categoriesForResponse[i] = &toys.GetCategoryResponse{
-			ID:   category.ID,
-			Name: category.Name,
+			ID:        category.ID,
+			Name:      category.Name,
+			CreatedAt: timestamppb.New(category.CreatedAt),
+			UpdatedAt: timestamppb.New(category.UpdatedAt),
 		}
 	}
 
