@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -56,8 +58,10 @@ func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (
 	}
 
 	return &toys.GetTagResponse{
-		ID:   tag.ID,
-		Name: tag.Name,
+		ID:        tag.ID,
+		Name:      tag.Name,
+		CreatedAt: timestamppb.New(tag.CreatedAt),
+		UpdatedAt: timestamppb.New(tag.UpdatedAt),
 	}, nil
 }
 
@@ -91,8 +95,10 @@ func (api *ServerAPI) GetTags(ctx context.Context, request *emptypb.Empty) (*toy
 	tagsForResponse := make([]*toys.GetTagResponse, len(tags))
 	for i, tag := range tags {
 		tagsForResponse[i] = &toys.GetTagResponse{
-			ID:   tag.ID,
-			Name: tag.Name,
+			ID:        tag.ID,
+			Name:      tag.Name,
+			CreatedAt: timestamppb.New(tag.CreatedAt),
+			UpdatedAt: timestamppb.New(tag.UpdatedAt),
 		}
 	}
 

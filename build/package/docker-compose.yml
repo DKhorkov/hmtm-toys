@@ -8,7 +8,7 @@ services:
       context: ../..
       dockerfile: ./build/package/Dockerfile
     ports:
-      - "8060:8060"
+      - "${HMTM_TOYS_OUTER_PORT}:${HMTM_TOYS_INNER_PORT}"
     depends_on:
       - hmtm_toys_database
     volumes:
@@ -26,4 +26,4 @@ services:
       - ../../postgres_backups:/backups
       - ../../scripts/postgres:/scripts
     ports:
-      - "5432:5432"
+      - "${HMTM_TOYS_DB_OUTER_PORT}:${HMTM_TOYS_DB_INNER_PORT}"

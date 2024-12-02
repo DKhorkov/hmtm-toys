@@ -63,8 +63,10 @@ func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequ
 		tags := make([]*toys.GetTagResponse, len(toy.Tags))
 		for j, tag := range toy.Tags {
 			tags[j] = &toys.GetTagResponse{
-				ID:   tag.ID,
-				Name: tag.Name,
+				ID:        tag.ID,
+				Name:      tag.Name,
+				CreatedAt: timestamppb.New(tag.CreatedAt),
+				UpdatedAt: timestamppb.New(tag.UpdatedAt),
 			}
 		}
 
@@ -126,8 +128,10 @@ func (api *ServerAPI) GetMasters(ctx context.Context, request *emptypb.Empty) (*
 			tags := make([]*toys.GetTagResponse, len(toy.Tags))
 			for k, tag := range toy.Tags {
 				tags[k] = &toys.GetTagResponse{
-					ID:   tag.ID,
-					Name: tag.Name,
+					ID:        tag.ID,
+					Name:      tag.Name,
+					CreatedAt: timestamppb.New(tag.CreatedAt),
+					UpdatedAt: timestamppb.New(tag.UpdatedAt),
 				}
 			}
 
