@@ -373,3 +373,6 @@ issues:
       linters:
         - mnd
         - gosec
+    - path: "internal/services/utils_test.go"
+      linters:
+        - testpackage
