@@ -11,4 +11,5 @@ type UseCases interface {
 	AddToy(rawToyData entities.RawAddToyDTO) (toyID uint64, err error)
 	GetAllToys() ([]*entities.Toy, error)
 	GetToyByID(id uint64) (*entities.Toy, error)
+	GetMasterToys(masterID uint64) ([]*entities.Toy, error)
 }

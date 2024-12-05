@@ -22,6 +22,7 @@ type ToysServiceClient interface {
 	AddToy(ctx context.Context, in *AddToyRequest, opts ...grpc.CallOption) (*AddToyResponse, error)
 	GetToy(ctx context.Context, in *GetToyRequest, opts ...grpc.CallOption) (*GetToyResponse, error)
 	GetToys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetToysResponse, error)
+	GetMasterToys(ctx context.Context, in *GetMasterToysRequest, opts ...grpc.CallOption) (*GetToysResponse, error)
 }
 
 type toysServiceClient struct {
@@ -59,6 +60,15 @@ func (c *toysServiceClient) GetToys(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
+func (c *toysServiceClient) GetMasterToys(ctx context.Context, in *GetMasterToysRequest, opts ...grpc.CallOption) (*GetToysResponse, error) {
+	out := new(GetToysResponse)
+	err := c.cc.Invoke(ctx, "/toys.ToysService/GetMasterToys", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ToysServiceServer is the server API for ToysService service.
 // All implementations must embed UnimplementedToysServiceServer
 // for forward compatibility
@@ -66,6 +76,7 @@ type ToysServiceServer interface {
 	AddToy(context.Context, *AddToyRequest) (*AddToyResponse, error)
 	GetToy(context.Context, *GetToyRequest) (*GetToyResponse, error)
 	GetToys(context.Context, *emptypb.Empty) (*GetToysResponse, error)
+	GetMasterToys(context.Context, *GetMasterToysRequest) (*GetToysResponse, error)
 	mustEmbedUnimplementedToysServiceServer()
 }
 
@@ -81,6 +92,9 @@ func (UnimplementedToysServiceServer) GetToy(context.Context, *GetToyRequest) (*
 }
 func (UnimplementedToysServiceServer) GetToys(context.Context, *emptypb.Empty) (*GetToysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToys not implemented")
+}
+func (UnimplementedToysServiceServer) GetMasterToys(context.Context, *GetMasterToysRequest) (*GetToysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMasterToys not implemented")
 }
 func (UnimplementedToysServiceServer) mustEmbedUnimplementedToysServiceServer() {}
 
@@ -149,6 +163,24 @@ func _ToysService_GetToys_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ToysService_GetMasterToys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMasterToysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToysServiceServer).GetMasterToys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/toys.ToysService/GetMasterToys",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToysServiceServer).GetMasterToys(ctx, req.(*GetMasterToysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ToysService_ServiceDesc is the grpc.ServiceDesc for ToysService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -167,6 +199,10 @@ var ToysService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetToys",
 			Handler:    _ToysService_GetToys_Handler,
+		},
+		{
+			MethodName: "GetMasterToys",
+			Handler:    _ToysService_GetMasterToys_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

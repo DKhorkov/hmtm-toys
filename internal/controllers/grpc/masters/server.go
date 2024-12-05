@@ -58,37 +58,10 @@ func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequ
 		}
 	}
 
-	masterToys := make([]*toys.GetToyResponse, len(master.Toys))
-	for i, toy := range master.Toys {
-		tags := make([]*toys.GetTagResponse, len(toy.Tags))
-		for j, tag := range toy.Tags {
-			tags[j] = &toys.GetTagResponse{
-				ID:        tag.ID,
-				Name:      tag.Name,
-				CreatedAt: timestamppb.New(tag.CreatedAt),
-				UpdatedAt: timestamppb.New(tag.UpdatedAt),
-			}
-		}
-
-		masterToys[i] = &toys.GetToyResponse{
-			ID:          toy.ID,
-			MasterID:    toy.MasterID,
-			Name:        toy.Name,
-			Description: toy.Description,
-			Price:       toy.Price,
-			Quantity:    toy.Quantity,
-			CategoryID:  toy.CategoryID,
-			Tags:        tags,
-			CreatedAt:   timestamppb.New(toy.CreatedAt),
-			UpdatedAt:   timestamppb.New(toy.UpdatedAt),
-		}
-	}
-
 	return &toys.GetMasterResponse{
 		ID:        master.ID,
 		UserID:    master.UserID,
 		Info:      master.Info,
-		Toys:      masterToys,
 		CreatedAt: timestamppb.New(master.CreatedAt),
 		UpdatedAt: timestamppb.New(master.UpdatedAt),
 	}, nil
@@ -123,37 +96,10 @@ func (api *ServerAPI) GetMasters(ctx context.Context, request *emptypb.Empty) (*
 
 	mastersForResponse := make([]*toys.GetMasterResponse, len(masters))
 	for i, master := range masters {
-		masterToys := make([]*toys.GetToyResponse, len(master.Toys))
-		for j, toy := range master.Toys {
-			tags := make([]*toys.GetTagResponse, len(toy.Tags))
-			for k, tag := range toy.Tags {
-				tags[k] = &toys.GetTagResponse{
-					ID:        tag.ID,
-					Name:      tag.Name,
-					CreatedAt: timestamppb.New(tag.CreatedAt),
-					UpdatedAt: timestamppb.New(tag.UpdatedAt),
-				}
-			}
-
-			masterToys[j] = &toys.GetToyResponse{
-				ID:          toy.ID,
-				MasterID:    toy.MasterID,
-				Name:        toy.Name,
-				Description: toy.Description,
-				Price:       toy.Price,
-				Quantity:    toy.Quantity,
-				CategoryID:  toy.CategoryID,
-				Tags:        tags,
-				CreatedAt:   timestamppb.New(toy.CreatedAt),
-				UpdatedAt:   timestamppb.New(toy.UpdatedAt),
-			}
-		}
-
 		mastersForResponse[i] = &toys.GetMasterResponse{
 			ID:        master.ID,
 			UserID:    master.UserID,
 			Info:      master.Info,
-			Toys:      masterToys,
 			CreatedAt: timestamppb.New(master.CreatedAt),
 			UpdatedAt: timestamppb.New(master.UpdatedAt),
 		}

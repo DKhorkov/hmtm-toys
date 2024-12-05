@@ -46,8 +46,6 @@ func main() {
 
 	mastersService := services.NewCommonMastersService(
 		mastersRepository,
-		toysRepository,
-		tagsRepository,
 		logger,
 	)
 

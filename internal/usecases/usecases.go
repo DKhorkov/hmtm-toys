@@ -49,6 +49,10 @@ func (useCases *CommonUseCases) GetAllToys() ([]*entities.Toy, error) {
 	return useCases.toysService.GetAllToys()
 }
 
+func (useCases *CommonUseCases) GetMasterToys(masterID uint64) ([]*entities.Toy, error) {
+	return useCases.toysService.GetMasterToys(masterID)
+}
+
 func (useCases *CommonUseCases) AddToy(rawToyData entities.RawAddToyDTO) (uint64, error) {
 	userID, err := useCases.parseAccessToken(rawToyData.AccessToken)
 	if err != nil {

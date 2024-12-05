@@ -13,6 +13,7 @@ service ToysService {
   rpc AddToy(AddToyRequest) returns (AddToyResponse) {}
   rpc GetToy(GetToyRequest) returns (GetToyResponse) {}
   rpc GetToys(google.protobuf.Empty) returns (GetToysResponse) {}
+  rpc GetMasterToys(GetMasterToysRequest) returns (GetToysResponse) {}
 }
 
 message AddToyRequest {
@@ -44,6 +45,10 @@ message GetToyResponse {
   repeated tags.GetTagResponse tags = 8;
   google.protobuf.Timestamp createdAt = 9;
   google.protobuf.Timestamp updatedAt = 10;
+}
+
+message GetMasterToysRequest {
+  uint64 masterID = 1;
 }
 
 message GetToysResponse {
