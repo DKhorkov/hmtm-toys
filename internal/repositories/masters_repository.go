@@ -26,7 +26,6 @@ func (repo *CommonMastersRepository) GetAllMasters() ([]*entities.Master, error)
 	for rows.Next() {
 		master := &entities.Master{}
 		columns := db.GetEntityColumns(master)
-		columns = columns[:len(columns)-1] // not to paste toys field ([]*Toy) to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -45,7 +44,6 @@ func (repo *CommonMastersRepository) GetAllMasters() ([]*entities.Master, error)
 func (repo *CommonMastersRepository) GetMasterByUserID(userID uint64) (*entities.Master, error) {
 	master := &entities.Master{}
 	columns := db.GetEntityColumns(master)
-	columns = columns[:len(columns)-1] // not to paste toys field ([]*Toy) to Scan function.
 	connection := repo.dbConnector.GetConnection()
 	err := connection.QueryRow(
 		`
@@ -66,7 +64,6 @@ func (repo *CommonMastersRepository) GetMasterByUserID(userID uint64) (*entities
 func (repo *CommonMastersRepository) GetMasterByID(id uint64) (*entities.Master, error) {
 	master := &entities.Master{}
 	columns := db.GetEntityColumns(master)
-	columns = columns[:len(columns)-1] // not to paste toys field ([]*Toy) to Scan function.
 	connection := repo.dbConnector.GetConnection()
 	err := connection.QueryRow(
 		`

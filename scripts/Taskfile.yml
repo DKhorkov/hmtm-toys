@@ -215,6 +215,7 @@ tasks:
       - upload
     dir: ../
     cmds:
+      - task: copy_env_file_for_docker
       - task: docker_build
       - sudo docker tag hmtm_toys d3m0s/hmtm_toys
       - sudo docker push d3m0s/hmtm_toys
