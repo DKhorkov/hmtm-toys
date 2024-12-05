@@ -81,7 +81,7 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 		tagsRepository.EXPECT().GetToyTags(uint64(1)).DoAndReturn(
-			func(toyID uint64) ([]*entities.Tag, error) {
+			func(_ uint64) ([]*entities.Tag, error) {
 				return expectedTags, nil
 			},
 		).MaxTimes(1)
@@ -144,14 +144,14 @@ func TestCommonToysServiceGetMasterToys(t *testing.T) {
 		mockController := gomock.NewController(t)
 		toysRepository := mockrepositories.NewMockToysRepository(mockController)
 		toysRepository.EXPECT().GetMasterToys(masterID).DoAndReturn(
-			func(masterID uint64) ([]*entities.Toy, error) {
+			func(_ uint64) ([]*entities.Toy, error) {
 				return expectedToys, nil
 			},
 		).MaxTimes(1)
 
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 		tagsRepository.EXPECT().GetToyTags(toyID).DoAndReturn(
-			func(toyID uint64) ([]*entities.Tag, error) {
+			func(_ uint64) ([]*entities.Tag, error) {
 				return expectedTags, nil
 			},
 		).MaxTimes(1)

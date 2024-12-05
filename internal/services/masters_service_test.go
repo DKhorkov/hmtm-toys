@@ -39,7 +39,7 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
 	mastersRepository.EXPECT().GetMasterByID(uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
 	mastersRepository.EXPECT().GetMasterByID(uint64(2)).DoAndReturn(
-		func(masterID uint64) (*entities.Master, error) {
+		func(_ uint64) (*entities.Master, error) {
 			return nil, &customerrors.MasterNotFoundError{}
 		},
 	).MaxTimes(1)
@@ -82,7 +82,7 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
 	mastersRepository.EXPECT().GetMasterByUserID(uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
 	mastersRepository.EXPECT().GetMasterByUserID(uint64(2)).DoAndReturn(
-		func(masterID uint64) (*entities.Master, error) {
+		func(_ uint64) (*entities.Master, error) {
 			return nil, &customerrors.MasterNotFoundError{}
 		},
 	).MaxTimes(1)
