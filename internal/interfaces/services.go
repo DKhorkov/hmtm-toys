@@ -3,9 +3,7 @@ package interfaces
 import "github.com/DKhorkov/hmtm-toys/pkg/entities"
 
 type ToysService interface {
-	AddToy(toyData entities.AddToyDTO) (toyID uint64, err error)
-	GetAllToys() ([]*entities.Toy, error)
-	GetToyByID(id uint64) (*entities.Toy, error)
+	ToysRepository
 }
 
 type TagsService interface {

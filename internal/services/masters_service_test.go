@@ -39,16 +39,13 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
 	mastersRepository.EXPECT().GetMasterByID(uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
 	mastersRepository.EXPECT().GetMasterByID(uint64(2)).DoAndReturn(
-		func(_ any) (*entities.Master, error) {
+		func(masterID uint64) (*entities.Master, error) {
 			return nil, &customerrors.MasterNotFoundError{}
 		},
 	).MaxTimes(1)
 
-	toysRepository := mockrepositories.NewMockToysRepository(mockController)
-	toysRepository.EXPECT().GetMasterToys(uint64(1)).Return([]*entities.Toy{}, nil).MaxTimes(1)
-
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	mastersService := services.NewCommonMastersService(mastersRepository, toysRepository, nil, logger)
+	mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 	for _, tc := range testCases {
 		master, err := mastersService.GetMasterByID(tc.masterID)
@@ -85,16 +82,13 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
 	mastersRepository.EXPECT().GetMasterByUserID(uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
 	mastersRepository.EXPECT().GetMasterByUserID(uint64(2)).DoAndReturn(
-		func(_ any) (*entities.Master, error) {
+		func(masterID uint64) (*entities.Master, error) {
 			return nil, &customerrors.MasterNotFoundError{}
 		},
 	).MaxTimes(1)
 
-	toysRepository := mockrepositories.NewMockToysRepository(mockController)
-	toysRepository.EXPECT().GetMasterToys(uint64(1)).Return([]*entities.Toy{}, nil).MaxTimes(1)
-
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	mastersService := services.NewCommonMastersService(mastersRepository, toysRepository, nil, logger)
+	mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 	for _, tc := range testCases {
 		master, err := mastersService.GetMasterByUserID(tc.userID)
@@ -122,11 +116,8 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 			},
 		).MaxTimes(1)
 
-		toysRepository := mockrepositories.NewMockToysRepository(mockController)
-		toysRepository.EXPECT().GetMasterToys(uint64(1)).Return([]*entities.Toy{}, nil).MaxTimes(1)
-
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, toysRepository, nil, logger)
+		mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 		masters, err := mastersService.GetAllMasters()
 		require.NoError(t, err)
@@ -140,7 +131,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 		mastersRepository.EXPECT().GetAllMasters().Return([]*entities.Master{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, nil, nil, logger)
+		mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 		masters, err := mastersService.GetAllMasters()
 		require.NoError(t, err)
@@ -153,7 +144,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 		mastersRepository.EXPECT().GetAllMasters().Return(nil, errors.New("test error")).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, nil, nil, logger)
+		mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 		masters, err := mastersService.GetAllMasters()
 		require.Error(t, err)
@@ -174,7 +165,7 @@ func TestCommonMastersServiceRegisterMaster(t *testing.T) {
 		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, nil, nil, logger)
+		mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 		masterID, err := mastersService.RegisterMaster(entities.RegisterMasterDTO{})
 		require.NoError(t, err)
@@ -190,7 +181,7 @@ func TestCommonMastersServiceRegisterMaster(t *testing.T) {
 		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any()).Return(&entities.Master{}, nil).MaxTimes(1)
 		mastersRepository.EXPECT().RegisterMaster(gomock.Any()).Return(expectedMasterID, expectedError).MaxTimes(1)
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, nil, nil, logger)
+		mastersService := services.NewCommonMastersService(mastersRepository, logger)
 
 		masterID, err := mastersService.RegisterMaster(entities.RegisterMasterDTO{})
 		require.Error(t, err)

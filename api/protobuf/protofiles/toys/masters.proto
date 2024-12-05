@@ -2,7 +2,6 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-import "toys/toys.proto";
 
 package masters;
 
@@ -32,7 +31,6 @@ message GetMasterResponse {
   uint64 ID = 1;
   uint64 userID = 2;
   string info = 3;
-  repeated toys.GetToyResponse toys = 4;
   google.protobuf.Timestamp createdAt = 5;
   google.protobuf.Timestamp updatedAt = 6;
 }

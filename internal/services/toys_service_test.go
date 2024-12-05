@@ -60,12 +60,14 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 
 func TestCommonToysServiceGetAllToys(t *testing.T) {
 	t.Run("all toys with existing toys", func(t *testing.T) {
+		expectedTags := []*entities.Tag{
+			{ID: 1},
+		}
+
 		expectedToys := []*entities.Toy{
 			{
-				ID: 1,
-				Tags: []*entities.Tag{
-					{ID: 1},
-				},
+				ID:   1,
+				Tags: expectedTags,
 			},
 		}
 
@@ -79,10 +81,8 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 		tagsRepository.EXPECT().GetToyTags(uint64(1)).DoAndReturn(
-			func(_ any) ([]*entities.Tag, error) {
-				return []*entities.Tag{
-					{ID: 1},
-				}, nil
+			func(toyID uint64) ([]*entities.Tag, error) {
+				return expectedTags, nil
 			},
 		).MaxTimes(1)
 
@@ -117,6 +117,65 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 		toysService := services.NewCommonToysService(toysRepository, nil, logger)
 
 		toys, err := toysService.GetAllToys()
+		require.Error(t, err)
+		assert.Nil(t, toys)
+	})
+}
+
+func TestCommonToysServiceGetMasterToys(t *testing.T) {
+	t.Run("master toys with existing masterID", func(t *testing.T) {
+		const (
+			masterID uint64 = 1
+			toyID    uint64 = 1
+		)
+
+		expectedTags := []*entities.Tag{
+			{ID: 1},
+		}
+
+		expectedToys := []*entities.Toy{
+			{
+				ID:       toyID,
+				MasterID: masterID,
+				Tags:     expectedTags,
+			},
+		}
+
+		mockController := gomock.NewController(t)
+		toysRepository := mockrepositories.NewMockToysRepository(mockController)
+		toysRepository.EXPECT().GetMasterToys(masterID).DoAndReturn(
+			func(masterID uint64) ([]*entities.Toy, error) {
+				return expectedToys, nil
+			},
+		).MaxTimes(1)
+
+		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
+		tagsRepository.EXPECT().GetToyTags(toyID).DoAndReturn(
+			func(toyID uint64) ([]*entities.Tag, error) {
+				return expectedTags, nil
+			},
+		).MaxTimes(1)
+
+		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+		toysService := services.NewCommonToysService(toysRepository, tagsRepository, logger)
+
+		toys, err := toysService.GetMasterToys(masterID)
+		require.NoError(t, err)
+		assert.Len(t, toys, len(expectedToys))
+		assert.Equal(t, expectedToys, toys)
+	})
+
+	t.Run("master toys with non-existing masterID", func(t *testing.T) {
+		const masterID uint64 = 1
+
+		mockController := gomock.NewController(t)
+		toysRepository := mockrepositories.NewMockToysRepository(mockController)
+		toysRepository.EXPECT().GetMasterToys(masterID).Return(nil, errors.New("test error")).MaxTimes(1)
+
+		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+		toysService := services.NewCommonToysService(toysRepository, nil, logger)
+
+		toys, err := toysService.GetMasterToys(masterID)
 		require.Error(t, err)
 		assert.Nil(t, toys)
 	})

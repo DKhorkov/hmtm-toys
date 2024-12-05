@@ -11,8 +11,6 @@ import (
 
 type CommonMastersService struct {
 	mastersRepository interfaces.MastersRepository
-	toysRepository    interfaces.ToysRepository
-	tagsRepository    interfaces.TagsRepository
 	logger            *slog.Logger
 }
 
@@ -28,10 +26,6 @@ func (service *CommonMastersService) GetMasterByID(id uint64) (*entities.Master,
 		)
 
 		return nil, &customerrors.MasterNotFoundError{}
-	}
-
-	if err = processMasterToys(master, service.toysRepository, service.tagsRepository, service.logger); err != nil {
-		return nil, err
 	}
 
 	return master, nil
@@ -51,10 +45,6 @@ func (service *CommonMastersService) GetMasterByUserID(userID uint64) (*entities
 		return nil, &customerrors.MasterNotFoundError{}
 	}
 
-	if err = processMasterToys(master, service.toysRepository, service.tagsRepository, service.logger); err != nil {
-		return nil, err
-	}
-
 	return master, nil
 }
 
@@ -72,12 +62,6 @@ func (service *CommonMastersService) GetAllMasters() ([]*entities.Master, error)
 		return nil, err
 	}
 
-	for _, master := range masters {
-		if err = processMasterToys(master, service.toysRepository, service.tagsRepository, service.logger); err != nil {
-			return nil, err
-		}
-	}
-
 	return masters, nil
 }
 
@@ -92,14 +76,10 @@ func (service *CommonMastersService) RegisterMaster(masterData entities.Register
 
 func NewCommonMastersService(
 	mastersRepository interfaces.MastersRepository,
-	toysRepository interfaces.ToysRepository,
-	tagsRepository interfaces.TagsRepository,
 	logger *slog.Logger,
 ) *CommonMastersService {
 	return &CommonMastersService{
 		mastersRepository: mastersRepository,
-		toysRepository:    toysRepository,
-		tagsRepository:    tagsRepository,
 		logger:            logger,
 	}
 }

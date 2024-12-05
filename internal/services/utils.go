@@ -30,32 +30,3 @@ func processToyTags(
 	toy.Tags = toyTags
 	return nil
 }
-
-func processMasterToys(
-	master *entities.Master,
-	toysRepository interfaces.ToysRepository,
-	tagsRepository interfaces.TagsRepository,
-	logger *slog.Logger,
-) error {
-	masterToys, err := toysRepository.GetMasterToys(master.ID)
-	if err != nil {
-		logger.Error(
-			fmt.Sprintf("Error occurred while trying to get toys for master with ID=%d", master.ID),
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
-		return err
-	}
-
-	for _, toy := range masterToys {
-		if err = processToyTags(toy, tagsRepository, logger); err != nil {
-			return err
-		}
-	}
-
-	master.Toys = masterToys
-	return nil
-}

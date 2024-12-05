@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"log/slog"
 
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -41,6 +42,29 @@ func (service *CommonToysService) GetAllToys() ([]*entities.Toy, error) {
 	if err != nil {
 		service.logger.Error(
 			"Error occurred while trying to get all toys",
+			"Traceback",
+			logging.GetLogTraceback(),
+			"Error",
+			err,
+		)
+
+		return nil, err
+	}
+
+	for _, toy := range toys {
+		if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {
+			return nil, err
+		}
+	}
+
+	return toys, nil
+}
+
+func (service *CommonToysService) GetMasterToys(masterID uint64) ([]*entities.Toy, error) {
+	toys, err := service.toysRepository.GetMasterToys(masterID)
+	if err != nil {
+		service.logger.Error(
+			fmt.Sprintf("Error occurred while trying to get all toys for master with ID=%d", masterID),
 			"Traceback",
 			logging.GetLogTraceback(),
 			"Error",

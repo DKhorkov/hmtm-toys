@@ -3,6 +3,7 @@ package toys
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/hmtm-toys/pkg/entities"
@@ -109,6 +110,63 @@ func (api *ServerAPI) GetToys(ctx context.Context, request *emptypb.Empty) (*toy
 
 	toysForResponse := make([]*toys.GetToyResponse, len(allToys))
 	for i, toy := range allToys {
+		tags := make([]*toys.GetTagResponse, len(toy.Tags))
+		for j, tag := range toy.Tags {
+			tags[j] = &toys.GetTagResponse{
+				ID:   tag.ID,
+				Name: tag.Name,
+			}
+		}
+
+		toysForResponse[i] = &toys.GetToyResponse{
+			ID:          toy.ID,
+			MasterID:    toy.MasterID,
+			Name:        toy.Name,
+			Description: toy.Description,
+			Price:       toy.Price,
+			Quantity:    toy.Quantity,
+			CategoryID:  toy.CategoryID,
+			Tags:        tags,
+			CreatedAt:   timestamppb.New(toy.CreatedAt),
+			UpdatedAt:   timestamppb.New(toy.UpdatedAt),
+		}
+	}
+
+	return &toys.GetToysResponse{Toys: toysForResponse}, nil
+}
+
+// GetMasterToys handler returns all Toys for master with provided ID.
+func (api *ServerAPI) GetMasterToys(
+	ctx context.Context,
+	request *toys.GetMasterToysRequest,
+) (*toys.GetToysResponse, error) {
+	api.logger.InfoContext(
+		ctx,
+		"Received new request",
+		"Request",
+		request,
+		"Context",
+		ctx,
+		"Traceback",
+		logging.GetLogTraceback(),
+	)
+
+	masterToys, err := api.useCases.GetMasterToys(request.GetMasterID())
+	if err != nil {
+		api.logger.ErrorContext(
+			ctx,
+			fmt.Sprintf("Error occurred while trying to get all toys for master with ID=%d", request.GetMasterID()),
+			"Traceback",
+			logging.GetLogTraceback(),
+			"Error",
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	toysForResponse := make([]*toys.GetToyResponse, len(masterToys))
+	for i, toy := range masterToys {
 		tags := make([]*toys.GetTagResponse, len(toy.Tags))
 		for j, tag := range toy.Tags {
 			tags[j] = &toys.GetTagResponse{

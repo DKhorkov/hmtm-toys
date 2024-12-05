@@ -8,7 +8,6 @@ type Master struct {
 	Info      string    `json:"info"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	Toys      []*Toy    `json:"toys"`
 }
 
 type RegisterMasterDTO struct {
