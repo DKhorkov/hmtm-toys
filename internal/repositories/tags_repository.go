@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 )
 
@@ -9,7 +9,7 @@ type CommonTagsRepository struct {
 	dbConnector db.Connector
 }
 
-func (repo *CommonTagsRepository) GetAllTags() ([]*entities.Tag, error) {
+func (repo *CommonTagsRepository) GetAllTags() ([]entities.Tag, error) {
 	connection := repo.dbConnector.GetConnection()
 	rows, err := connection.Query(
 		`
@@ -22,10 +22,10 @@ func (repo *CommonTagsRepository) GetAllTags() ([]*entities.Tag, error) {
 		return nil, err
 	}
 
-	var tags []*entities.Tag
+	var tags []entities.Tag
 	for rows.Next() {
-		tag := &entities.Tag{}
-		columns := db.GetEntityColumns(tag)
+		tag := entities.Tag{}
+		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -41,7 +41,7 @@ func (repo *CommonTagsRepository) GetAllTags() ([]*entities.Tag, error) {
 	return tags, nil
 }
 
-func (repo *CommonTagsRepository) GetToyTags(toyID uint64) ([]*entities.Tag, error) {
+func (repo *CommonTagsRepository) GetToyTags(toyID uint64) ([]entities.Tag, error) {
 	connection := repo.dbConnector.GetConnection()
 	rows, err := connection.Query(
 		`
@@ -60,10 +60,10 @@ func (repo *CommonTagsRepository) GetToyTags(toyID uint64) ([]*entities.Tag, err
 		return nil, err
 	}
 
-	var tags []*entities.Tag
+	var tags []entities.Tag
 	for rows.Next() {
-		tag := &entities.Tag{}
-		columns := db.GetEntityColumns(tag)
+		tag := entities.Tag{}
+		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err

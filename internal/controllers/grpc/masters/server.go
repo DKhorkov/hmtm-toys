@@ -5,7 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/DKhorkov/libs/security"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"

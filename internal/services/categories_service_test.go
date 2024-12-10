@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -13,7 +15,6 @@ import (
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 )
 
 func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
@@ -60,14 +61,14 @@ func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 
 func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 	t.Run("all categories with existing categories", func(t *testing.T) {
-		expectedCategories := []*entities.Category{
+		expectedCategories := []entities.Category{
 			{ID: 1},
 		}
 
 		mockController := gomock.NewController(t)
 		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
 		categoriesRepository.EXPECT().GetAllCategories().DoAndReturn(
-			func() ([]*entities.Category, error) {
+			func() ([]entities.Category, error) {
 				return expectedCategories, nil
 			},
 		).MaxTimes(1)
@@ -84,7 +85,7 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 	t.Run("all categories without existing categories", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories().Return([]*entities.Category{}, nil).MaxTimes(1)
+		categoriesRepository.EXPECT().GetAllCategories().Return([]entities.Category{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)

@@ -3,9 +3,10 @@ package services
 import (
 	"log/slog"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
@@ -31,7 +32,7 @@ func (service *CommonTagsService) GetTagByID(id uint32) (*entities.Tag, error) {
 	return tag, nil
 }
 
-func (service *CommonTagsService) GetAllTags() ([]*entities.Tag, error) {
+func (service *CommonTagsService) GetAllTags() ([]entities.Tag, error) {
 	return service.tagsRepository.GetAllTags()
 }
 

@@ -12,7 +12,7 @@ type Toy struct {
 	Quantity    uint32    `json:"quantity"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
-	Tags        []*Tag    `json:"tags"`
+	Tags        []Tag     `json:"tags"`
 }
 
 type AddToyDTO struct {

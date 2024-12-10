@@ -12,7 +12,7 @@ package mockrepositories
 import (
 	reflect "reflect"
 
-	entities "github.com/DKhorkov/hmtm-toys/pkg/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,10 +41,10 @@ func (m *MockTagsRepository) EXPECT() *MockTagsRepositoryMockRecorder {
 }
 
 // GetAllTags mocks base method.
-func (m *MockTagsRepository) GetAllTags() ([]*entities.Tag, error) {
+func (m *MockTagsRepository) GetAllTags() ([]entities.Tag, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllTags")
-	ret0, _ := ret[0].([]*entities.Tag)
+	ret0, _ := ret[0].([]entities.Tag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -71,10 +71,10 @@ func (mr *MockTagsRepositoryMockRecorder) GetTagByID(id any) *gomock.Call {
 }
 
 // GetToyTags mocks base method.
-func (m *MockTagsRepository) GetToyTags(toyID uint64) ([]*entities.Tag, error) {
+func (m *MockTagsRepository) GetToyTags(toyID uint64) ([]entities.Tag, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetToyTags", toyID)
-	ret0, _ := ret[0].([]*entities.Tag)
+	ret0, _ := ret[0].([]entities.Tag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

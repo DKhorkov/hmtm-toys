@@ -12,7 +12,7 @@ package mockrepositories
 import (
 	reflect "reflect"
 
-	entities "github.com/DKhorkov/hmtm-toys/pkg/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -56,10 +56,10 @@ func (mr *MockToysRepositoryMockRecorder) AddToy(toyData any) *gomock.Call {
 }
 
 // GetAllToys mocks base method.
-func (m *MockToysRepository) GetAllToys() ([]*entities.Toy, error) {
+func (m *MockToysRepository) GetAllToys() ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllToys")
-	ret0, _ := ret[0].([]*entities.Toy)
+	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -71,10 +71,10 @@ func (mr *MockToysRepositoryMockRecorder) GetAllToys() *gomock.Call {
 }
 
 // GetMasterToys mocks base method.
-func (m *MockToysRepository) GetMasterToys(masterID uint64) ([]*entities.Toy, error) {
+func (m *MockToysRepository) GetMasterToys(masterID uint64) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMasterToys", masterID)
-	ret0, _ := ret[0].([]*entities.Toy)
+	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

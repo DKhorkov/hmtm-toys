@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -13,7 +15,6 @@ import (
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 )
 
 func TestCommonTagsServiceGetTagByID(t *testing.T) {
@@ -60,14 +61,14 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 
 func TestCommonTagsServiceGetAllTags(t *testing.T) {
 	t.Run("all tags with existing tags", func(t *testing.T) {
-		expectedTags := []*entities.Tag{
+		expectedTags := []entities.Tag{
 			{ID: 1},
 		}
 
 		mockController := gomock.NewController(t)
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 		tagsRepository.EXPECT().GetAllTags().DoAndReturn(
-			func() ([]*entities.Tag, error) {
+			func() ([]entities.Tag, error) {
 				return expectedTags, nil
 			},
 		).MaxTimes(1)
@@ -84,7 +85,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 	t.Run("all tags without existing tags", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags().Return([]*entities.Tag{}, nil).MaxTimes(1)
+		tagsRepository.EXPECT().GetAllTags().Return([]entities.Tag{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)

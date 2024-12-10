@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 )
 
@@ -9,7 +9,7 @@ type CommonCategoriesRepository struct {
 	dbConnector db.Connector
 }
 
-func (repo *CommonCategoriesRepository) GetAllCategories() ([]*entities.Category, error) {
+func (repo *CommonCategoriesRepository) GetAllCategories() ([]entities.Category, error) {
 	connection := repo.dbConnector.GetConnection()
 	rows, err := connection.Query(
 		`
@@ -22,10 +22,10 @@ func (repo *CommonCategoriesRepository) GetAllCategories() ([]*entities.Category
 		return nil, err
 	}
 
-	var categories []*entities.Category
+	var categories []entities.Category
 	for rows.Next() {
-		category := &entities.Category{}
-		columns := db.GetEntityColumns(category)
+		category := entities.Category{}
+		columns := db.GetEntityColumns(&category) // Only pointer to use rows.Scan() successfully
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err

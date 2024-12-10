@@ -3,9 +3,10 @@ package services
 import (
 	"log/slog"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
@@ -31,7 +32,7 @@ func (service *CommonCategoriesService) GetCategoryByID(id uint32) (*entities.Ca
 	return category, nil
 }
 
-func (service *CommonCategoriesService) GetAllCategories() ([]*entities.Category, error) {
+func (service *CommonCategoriesService) GetAllCategories() ([]entities.Category, error) {
 	return service.categoriesRepository.GetAllCategories()
 }
 

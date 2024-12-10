@@ -12,7 +12,7 @@ package mockrepositories
 import (
 	reflect "reflect"
 
-	entities "github.com/DKhorkov/hmtm-toys/pkg/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,10 +41,10 @@ func (m *MockCategoriesRepository) EXPECT() *MockCategoriesRepositoryMockRecorde
 }
 
 // GetAllCategories mocks base method.
-func (m *MockCategoriesRepository) GetAllCategories() ([]*entities.Category, error) {
+func (m *MockCategoriesRepository) GetAllCategories() ([]entities.Category, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllCategories")
-	ret0, _ := ret[0].([]*entities.Category)
+	ret0, _ := ret[0].([]entities.Category)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

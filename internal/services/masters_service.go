@@ -3,9 +3,10 @@ package services
 import (
 	"log/slog"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
@@ -48,7 +49,7 @@ func (service *CommonMastersService) GetMasterByUserID(userID uint64) (*entities
 	return master, nil
 }
 
-func (service *CommonMastersService) GetAllMasters() ([]*entities.Master, error) {
+func (service *CommonMastersService) GetAllMasters() ([]entities.Master, error) {
 	masters, err := service.mastersRepository.GetAllMasters()
 	if err != nil {
 		service.logger.Error(

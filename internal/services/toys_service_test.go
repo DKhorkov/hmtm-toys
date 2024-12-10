@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"testing"
 
+	entities2 "github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -13,7 +15,6 @@ import (
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 )
 
 func TestCommonToysServiceGetToyByID(t *testing.T) {
@@ -35,14 +36,14 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	toysRepository := mockrepositories.NewMockToysRepository(mockController)
-	toysRepository.EXPECT().GetToyByID(uint64(1)).Return(&entities.Toy{ID: 1}, nil).MaxTimes(1)
+	toysRepository.EXPECT().GetToyByID(uint64(1)).Return(&entities2.Toy{ID: 1}, nil).MaxTimes(1)
 	toysRepository.EXPECT().GetToyByID(uint64(2)).Return(
 		nil,
 		&customerrors.ToyNotFoundError{},
 	).MaxTimes(1)
 
 	tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-	tagsRepository.EXPECT().GetToyTags(uint64(1)).Return([]*entities.Tag{}, nil).MaxTimes(1)
+	tagsRepository.EXPECT().GetToyTags(uint64(1)).Return([]entities2.Tag{}, nil).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 	toysService := services.NewCommonToysService(toysRepository, tagsRepository, logger)
@@ -60,11 +61,11 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 
 func TestCommonToysServiceGetAllToys(t *testing.T) {
 	t.Run("all toys with existing toys", func(t *testing.T) {
-		expectedTags := []*entities.Tag{
+		expectedTags := []entities2.Tag{
 			{ID: 1},
 		}
 
-		expectedToys := []*entities.Toy{
+		expectedToys := []entities2.Toy{
 			{
 				ID:   1,
 				Tags: expectedTags,
@@ -74,14 +75,14 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 		mockController := gomock.NewController(t)
 		toysRepository := mockrepositories.NewMockToysRepository(mockController)
 		toysRepository.EXPECT().GetAllToys().DoAndReturn(
-			func() ([]*entities.Toy, error) {
+			func() ([]entities2.Toy, error) {
 				return expectedToys, nil
 			},
 		).MaxTimes(1)
 
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 		tagsRepository.EXPECT().GetToyTags(uint64(1)).DoAndReturn(
-			func(_ uint64) ([]*entities.Tag, error) {
+			func(_ uint64) ([]entities2.Tag, error) {
 				return expectedTags, nil
 			},
 		).MaxTimes(1)
@@ -98,7 +99,7 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 	t.Run("all toys without existing toys", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		toysRepository := mockrepositories.NewMockToysRepository(mockController)
-		toysRepository.EXPECT().GetAllToys().Return([]*entities.Toy{}, nil).MaxTimes(1)
+		toysRepository.EXPECT().GetAllToys().Return([]entities2.Toy{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		toysService := services.NewCommonToysService(toysRepository, nil, logger)
@@ -129,11 +130,11 @@ func TestCommonToysServiceGetMasterToys(t *testing.T) {
 			toyID    uint64 = 1
 		)
 
-		expectedTags := []*entities.Tag{
+		expectedTags := []entities2.Tag{
 			{ID: 1},
 		}
 
-		expectedToys := []*entities.Toy{
+		expectedToys := []entities2.Toy{
 			{
 				ID:       toyID,
 				MasterID: masterID,
@@ -144,14 +145,14 @@ func TestCommonToysServiceGetMasterToys(t *testing.T) {
 		mockController := gomock.NewController(t)
 		toysRepository := mockrepositories.NewMockToysRepository(mockController)
 		toysRepository.EXPECT().GetMasterToys(masterID).DoAndReturn(
-			func(_ uint64) ([]*entities.Toy, error) {
+			func(_ uint64) ([]entities2.Toy, error) {
 				return expectedToys, nil
 			},
 		).MaxTimes(1)
 
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 		tagsRepository.EXPECT().GetToyTags(toyID).DoAndReturn(
-			func(_ uint64) ([]*entities.Tag, error) {
+			func(_ uint64) ([]entities2.Tag, error) {
 				return expectedTags, nil
 			},
 		).MaxTimes(1)
@@ -192,7 +193,7 @@ func TestCommonToysServiceAddToy(t *testing.T) {
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		toysService := services.NewCommonToysService(toysRepository, nil, logger)
 
-		toyID, err := toysService.AddToy(entities.AddToyDTO{})
+		toyID, err := toysService.AddToy(entities2.AddToyDTO{})
 		require.NoError(t, err)
 		assert.Equal(t, expectedToyID, toyID)
 	})
@@ -207,7 +208,7 @@ func TestCommonToysServiceAddToy(t *testing.T) {
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		toysService := services.NewCommonToysService(toysRepository, nil, logger)
 
-		toyID, err := toysService.AddToy(entities.AddToyDTO{})
+		toyID, err := toysService.AddToy(entities2.AddToyDTO{})
 		require.Error(t, err)
 		require.IsType(t, expectedError, err)
 		assert.Equal(t, expectedToyID, toyID)
