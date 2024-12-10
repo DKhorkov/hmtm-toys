@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 )
 
@@ -9,7 +9,7 @@ type CommonMastersRepository struct {
 	dbConnector db.Connector
 }
 
-func (repo *CommonMastersRepository) GetAllMasters() ([]*entities.Master, error) {
+func (repo *CommonMastersRepository) GetAllMasters() ([]entities.Master, error) {
 	connection := repo.dbConnector.GetConnection()
 	rows, err := connection.Query(
 		`
@@ -22,10 +22,10 @@ func (repo *CommonMastersRepository) GetAllMasters() ([]*entities.Master, error)
 		return nil, err
 	}
 
-	var masters []*entities.Master
+	var masters []entities.Master
 	for rows.Next() {
-		master := &entities.Master{}
-		columns := db.GetEntityColumns(master)
+		master := entities.Master{}
+		columns := db.GetEntityColumns(&master) // Only pointer to use rows.Scan() successfully
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err

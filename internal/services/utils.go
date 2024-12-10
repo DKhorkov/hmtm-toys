@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 

@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -13,7 +15,6 @@ import (
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 )
 
 func TestCommonMastersServiceGetMasterByID(t *testing.T) {
@@ -104,14 +105,14 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 
 func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 	t.Run("all masters with existing masters", func(t *testing.T) {
-		expectedMasters := []*entities.Master{
+		expectedMasters := []entities.Master{
 			{ID: 1},
 		}
 
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
 		mastersRepository.EXPECT().GetAllMasters().DoAndReturn(
-			func() ([]*entities.Master, error) {
+			func() ([]entities.Master, error) {
 				return expectedMasters, nil
 			},
 		).MaxTimes(1)
@@ -128,7 +129,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 	t.Run("all masters without existing masters", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters().Return([]*entities.Master{}, nil).MaxTimes(1)
+		mastersRepository.EXPECT().GetAllMasters().Return([]entities.Master{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		mastersService := services.NewCommonMastersService(mastersRepository, logger)

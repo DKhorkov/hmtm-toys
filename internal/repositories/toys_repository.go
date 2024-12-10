@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"github.com/DKhorkov/libs/db"
 )
 
@@ -12,7 +13,7 @@ type CommonToysRepository struct {
 	dbConnector db.Connector
 }
 
-func (repo *CommonToysRepository) GetAllToys() ([]*entities.Toy, error) {
+func (repo *CommonToysRepository) GetAllToys() ([]entities.Toy, error) {
 	connection := repo.dbConnector.GetConnection()
 	rows, err := connection.Query(
 		`
@@ -25,11 +26,11 @@ func (repo *CommonToysRepository) GetAllToys() ([]*entities.Toy, error) {
 		return nil, err
 	}
 
-	var toys []*entities.Toy
+	var toys []entities.Toy
 	for rows.Next() {
-		toy := &entities.Toy{}
-		columns := db.GetEntityColumns(toy)
-		columns = columns[:len(columns)-1] // not to paste tags field ([]*Tag) to Scan function.
+		toy := entities.Toy{}
+		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
+		columns = columns[:len(columns)-1]   // not to paste tags field ([]*Tag) to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -45,7 +46,7 @@ func (repo *CommonToysRepository) GetAllToys() ([]*entities.Toy, error) {
 	return toys, nil
 }
 
-func (repo *CommonToysRepository) GetMasterToys(masterID uint64) ([]*entities.Toy, error) {
+func (repo *CommonToysRepository) GetMasterToys(masterID uint64) ([]entities.Toy, error) {
 	connection := repo.dbConnector.GetConnection()
 	rows, err := connection.Query(
 		`
@@ -60,11 +61,11 @@ func (repo *CommonToysRepository) GetMasterToys(masterID uint64) ([]*entities.To
 		return nil, err
 	}
 
-	var toys []*entities.Toy
+	var toys []entities.Toy
 	for rows.Next() {
-		toy := &entities.Toy{}
-		columns := db.GetEntityColumns(toy)
-		columns = columns[:len(columns)-1] // not to paste tags field ([]*Tag) to Scan function.
+		toy := entities.Toy{}
+		columns := db.GetEntityColumns(toy) // Only pointer to use rows.Scan() successfully
+		columns = columns[:len(columns)-1]  // not to paste tags field ([]*Tag) to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err

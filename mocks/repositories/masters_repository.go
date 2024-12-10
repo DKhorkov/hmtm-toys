@@ -12,7 +12,7 @@ package mockrepositories
 import (
 	reflect "reflect"
 
-	entities "github.com/DKhorkov/hmtm-toys/pkg/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,10 +41,10 @@ func (m *MockMastersRepository) EXPECT() *MockMastersRepositoryMockRecorder {
 }
 
 // GetAllMasters mocks base method.
-func (m *MockMastersRepository) GetAllMasters() ([]*entities.Master, error) {
+func (m *MockMastersRepository) GetAllMasters() ([]entities.Master, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllMasters")
-	ret0, _ := ret[0].([]*entities.Master)
+	ret0, _ := ret[0].([]entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

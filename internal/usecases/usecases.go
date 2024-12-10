@@ -1,8 +1,8 @@
 package usecases
 
 import (
+	entities2 "github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/security"
 )
 
@@ -25,35 +25,35 @@ func (useCases *CommonUseCases) parseAccessToken(accessToken string) (uint64, er
 	return userID, nil
 }
 
-func (useCases *CommonUseCases) GetTagByID(id uint32) (*entities.Tag, error) {
+func (useCases *CommonUseCases) GetTagByID(id uint32) (*entities2.Tag, error) {
 	return useCases.tagsService.GetTagByID(id)
 }
 
-func (useCases *CommonUseCases) GetAllTags() ([]*entities.Tag, error) {
+func (useCases *CommonUseCases) GetAllTags() ([]entities2.Tag, error) {
 	return useCases.tagsService.GetAllTags()
 }
 
-func (useCases *CommonUseCases) GetCategoryByID(id uint32) (*entities.Category, error) {
+func (useCases *CommonUseCases) GetCategoryByID(id uint32) (*entities2.Category, error) {
 	return useCases.categoriesService.GetCategoryByID(id)
 }
 
-func (useCases *CommonUseCases) GetAllCategories() ([]*entities.Category, error) {
+func (useCases *CommonUseCases) GetAllCategories() ([]entities2.Category, error) {
 	return useCases.categoriesService.GetAllCategories()
 }
 
-func (useCases *CommonUseCases) GetToyByID(id uint64) (*entities.Toy, error) {
+func (useCases *CommonUseCases) GetToyByID(id uint64) (*entities2.Toy, error) {
 	return useCases.toysService.GetToyByID(id)
 }
 
-func (useCases *CommonUseCases) GetAllToys() ([]*entities.Toy, error) {
+func (useCases *CommonUseCases) GetAllToys() ([]entities2.Toy, error) {
 	return useCases.toysService.GetAllToys()
 }
 
-func (useCases *CommonUseCases) GetMasterToys(masterID uint64) ([]*entities.Toy, error) {
+func (useCases *CommonUseCases) GetMasterToys(masterID uint64) ([]entities2.Toy, error) {
 	return useCases.toysService.GetMasterToys(masterID)
 }
 
-func (useCases *CommonUseCases) AddToy(rawToyData entities.RawAddToyDTO) (uint64, error) {
+func (useCases *CommonUseCases) AddToy(rawToyData entities2.RawAddToyDTO) (uint64, error) {
 	userID, err := useCases.parseAccessToken(rawToyData.AccessToken)
 	if err != nil {
 		return 0, err
@@ -74,7 +74,7 @@ func (useCases *CommonUseCases) AddToy(rawToyData entities.RawAddToyDTO) (uint64
 		}
 	}
 
-	toyData := entities.AddToyDTO{
+	toyData := entities2.AddToyDTO{
 		MasterID:    master.ID,
 		Name:        rawToyData.Name,
 		Description: rawToyData.Description,
@@ -87,21 +87,21 @@ func (useCases *CommonUseCases) AddToy(rawToyData entities.RawAddToyDTO) (uint64
 	return useCases.toysService.AddToy(toyData)
 }
 
-func (useCases *CommonUseCases) GetMasterByID(id uint64) (*entities.Master, error) {
+func (useCases *CommonUseCases) GetMasterByID(id uint64) (*entities2.Master, error) {
 	return useCases.mastersService.GetMasterByID(id)
 }
 
-func (useCases *CommonUseCases) GetAllMasters() ([]*entities.Master, error) {
+func (useCases *CommonUseCases) GetAllMasters() ([]entities2.Master, error) {
 	return useCases.mastersService.GetAllMasters()
 }
 
-func (useCases *CommonUseCases) RegisterMaster(rawMasterData entities.RawRegisterMasterDTO) (uint64, error) {
+func (useCases *CommonUseCases) RegisterMaster(rawMasterData entities2.RawRegisterMasterDTO) (uint64, error) {
 	userID, err := useCases.parseAccessToken(rawMasterData.AccessToken)
 	if err != nil {
 		return 0, err
 	}
 
-	masterData := entities.RegisterMasterDTO{
+	masterData := entities2.RegisterMasterDTO{
 		UserID: userID,
 		Info:   rawMasterData.Info,
 	}

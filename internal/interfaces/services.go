@@ -1,13 +1,15 @@
 package interfaces
 
-import "github.com/DKhorkov/hmtm-toys/pkg/entities"
+import (
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+)
 
 type ToysService interface {
 	ToysRepository
 }
 
 type TagsService interface {
-	GetAllTags() ([]*entities.Tag, error)
+	GetAllTags() ([]entities.Tag, error)
 	GetTagByID(id uint32) (*entities.Tag, error)
 }
 

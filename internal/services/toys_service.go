@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/hmtm-toys/pkg/entities"
 	"github.com/DKhorkov/libs/logging"
 )
 
@@ -37,7 +38,7 @@ func (service *CommonToysService) GetToyByID(id uint64) (*entities.Toy, error) {
 	return toy, nil
 }
 
-func (service *CommonToysService) GetAllToys() ([]*entities.Toy, error) {
+func (service *CommonToysService) GetAllToys() ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetAllToys()
 	if err != nil {
 		service.logger.Error(
@@ -52,7 +53,7 @@ func (service *CommonToysService) GetAllToys() ([]*entities.Toy, error) {
 	}
 
 	for _, toy := range toys {
-		if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {
+		if err = processToyTags(&toy, service.tagsRepository, service.logger); err != nil {
 			return nil, err
 		}
 	}
@@ -60,7 +61,7 @@ func (service *CommonToysService) GetAllToys() ([]*entities.Toy, error) {
 	return toys, nil
 }
 
-func (service *CommonToysService) GetMasterToys(masterID uint64) ([]*entities.Toy, error) {
+func (service *CommonToysService) GetMasterToys(masterID uint64) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetMasterToys(masterID)
 	if err != nil {
 		service.logger.Error(
@@ -75,7 +76,7 @@ func (service *CommonToysService) GetMasterToys(masterID uint64) ([]*entities.To
 	}
 
 	for _, toy := range toys {
-		if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {
+		if err = processToyTags(&toy, service.tagsRepository, service.logger); err != nil {
 			return nil, err
 		}
 	}
