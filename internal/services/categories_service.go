@@ -26,7 +26,7 @@ func (service *CommonCategoriesService) GetCategoryByID(id uint32) (*entities.Ca
 			err,
 		)
 
-		return nil, &customerrors.CategoryNotFoundError{}
+		return nil, &customerrors.CategoryNotFoundError{BaseErr: err}
 	}
 
 	return category, nil

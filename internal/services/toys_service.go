@@ -28,7 +28,7 @@ func (service *CommonToysService) GetToyByID(id uint64) (*entities.Toy, error) {
 			err,
 		)
 
-		return nil, &customerrors.ToyNotFoundError{}
+		return nil, &customerrors.ToyNotFoundError{BaseErr: err}
 	}
 
 	if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {

@@ -26,7 +26,7 @@ func (service *CommonMastersService) GetMasterByID(id uint64) (*entities.Master,
 			err,
 		)
 
-		return nil, &customerrors.MasterNotFoundError{}
+		return nil, &customerrors.MasterNotFoundError{BaseErr: err}
 	}
 
 	return master, nil
@@ -43,7 +43,7 @@ func (service *CommonMastersService) GetMasterByUserID(userID uint64) (*entities
 			err,
 		)
 
-		return nil, &customerrors.MasterNotFoundError{}
+		return nil, &customerrors.MasterNotFoundError{BaseErr: err}
 	}
 
 	return master, nil
