@@ -26,7 +26,7 @@ func (service *CommonTagsService) GetTagByID(id uint32) (*entities.Tag, error) {
 			err,
 		)
 
-		return nil, &customerrors.TagNotFoundError{}
+		return nil, &customerrors.TagNotFoundError{BaseErr: err}
 	}
 
 	return tag, nil

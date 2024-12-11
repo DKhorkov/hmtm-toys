@@ -1,13 +1,21 @@
 package errors
 
+import "fmt"
+
 type CategoryNotFoundError struct {
 	Message string
+	BaseErr error
 }
 
 func (e CategoryNotFoundError) Error() string {
+	template := "category not found"
 	if e.Message != "" {
-		return e.Message
+		template = e.Message
 	}
 
-	return "category not found"
+	if e.BaseErr != nil {
+		return fmt.Sprintf(template+". Base error: %v", e.BaseErr)
+	}
+
+	return template
 }
