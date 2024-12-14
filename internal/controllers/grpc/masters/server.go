@@ -3,6 +3,7 @@ package masters
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/libs/contextlib"
@@ -36,7 +37,12 @@ func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequ
 
 	master, err := api.useCases.GetMasterByID(ctx, request.GetID())
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get master", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Master with ID=%d", request.GetID()),
+			err,
+		)
 
 		switch {
 		case errors.As(err, &customerrors.MasterNotFoundError{}):
@@ -65,7 +71,7 @@ func (api *ServerAPI) GetMasters(
 
 	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all masters", err)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
@@ -98,7 +104,7 @@ func (api *ServerAPI) RegisterMaster(
 
 	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to register master", err)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to register Master", err)
 
 		switch {
 		case errors.As(err, &security.InvalidJWTError{}):

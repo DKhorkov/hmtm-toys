@@ -3,6 +3,7 @@ package tags
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/libs/contextlib"
@@ -33,7 +34,12 @@ func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (
 
 	tag, err := api.useCases.GetTagByID(ctx, request.GetID())
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get tag", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Tag with ID=%d", request.GetID()),
+			err,
+		)
 
 		switch {
 		case errors.As(err, &customerrors.TagNotFoundError{}):
@@ -58,7 +64,7 @@ func (api *ServerAPI) GetTags(ctx context.Context, request *toys.GetTagsRequest)
 
 	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all tags", err)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Tags", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 

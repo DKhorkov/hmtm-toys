@@ -37,7 +37,12 @@ func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (
 
 	toy, err := api.useCases.GetToyByID(ctx, request.GetID())
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get toy", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", request.GetID()),
+			err,
+		)
 
 		switch {
 		case errors.As(err, &customerrors.ToyNotFoundError{}):
@@ -76,7 +81,7 @@ func (api *ServerAPI) GetToys(ctx context.Context, request *toys.GetToysRequest)
 
 	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all toys", err)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
@@ -120,7 +125,7 @@ func (api *ServerAPI) GetMasterToys(
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get all toys for master with ID=%d", request.GetMasterID()),
+			fmt.Sprintf("Error occurred while trying to get all Toys for Master with ID=%d", request.GetMasterID()),
 			err,
 		)
 
@@ -171,7 +176,7 @@ func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (
 
 	toyID, err := api.useCases.AddToy(ctx, toyData)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to add new toy", err)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to add new Toy", err)
 
 		switch {
 		case errors.As(err, &security.InvalidJWTError{}):

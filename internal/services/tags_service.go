@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
@@ -19,8 +19,14 @@ type CommonTagsService struct {
 func (service *CommonTagsService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	tag, err := service.tagsRepository.GetTagByID(id)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get tag by id", err)
-		return nil, &customerrors.TagNotFoundError{BaseErr: err}
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Tag with ID=%d", id),
+			err,
+		)
+
+		return nil, &customerrors.TagNotFoundError{}
 	}
 
 	return tag, nil

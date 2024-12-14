@@ -19,7 +19,7 @@ func processToyTags(
 	if err != nil {
 		logging.LogError(
 			logger,
-			fmt.Sprintf("Error occurred while trying to get tags for toy with ID=%d", toy.ID),
+			fmt.Sprintf("Error occurred while trying to get Tags for Toy with ID=%d", toy.ID),
 			err,
 		)
 

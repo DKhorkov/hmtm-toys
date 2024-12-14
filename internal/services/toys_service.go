@@ -6,7 +6,6 @@ import (
 	"log/slog"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
@@ -21,8 +20,14 @@ type CommonToysService struct {
 func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	toy, err := service.toysRepository.GetToyByID(id)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get toy by id", err)
-		return nil, &customerrors.ToyNotFoundError{BaseErr: err}
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", id),
+			err,
+		)
+
+		return nil, &customerrors.ToyNotFoundError{}
 	}
 
 	if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {
@@ -35,7 +40,6 @@ func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*e
 func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetAllToys()
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all toys", err)
 		return nil, err
 	}
 
@@ -51,13 +55,6 @@ func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.To
 func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetMasterToys(masterID)
 	if err != nil {
-		logging.LogErrorContext(
-			ctx,
-			service.logger,
-			fmt.Sprintf("Error occurred while trying to get all toys for master with ID=%d", masterID),
-			err,
-		)
-
 		return nil, err
 	}
 

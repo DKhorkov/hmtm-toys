@@ -3,6 +3,7 @@ package categories
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/libs/contextlib"
@@ -36,7 +37,12 @@ func (api *ServerAPI) GetCategory(
 
 	category, err := api.useCases.GetCategoryByID(ctx, request.GetID())
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get category", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Category with ID=%d", request.GetID()),
+			err,
+		)
 
 		switch {
 		case errors.As(err, &customerrors.CategoryNotFoundError{}):
@@ -64,7 +70,7 @@ func (api *ServerAPI) GetCategories(
 
 	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all categories", err)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Categories", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
