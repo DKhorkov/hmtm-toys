@@ -1,10 +1,11 @@
 package services
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
@@ -15,24 +16,23 @@ type CommonCategoriesService struct {
 	logger               *slog.Logger
 }
 
-func (service *CommonCategoriesService) GetCategoryByID(id uint32) (*entities.Category, error) {
+func (service *CommonCategoriesService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	category, err := service.categoriesRepository.GetCategoryByID(id)
 	if err != nil {
-		service.logger.Error(
-			"Error occurred while trying to get category by id",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Category with ID=%d", id),
 			err,
 		)
 
-		return nil, &customerrors.CategoryNotFoundError{BaseErr: err}
+		return nil, &customerrors.CategoryNotFoundError{}
 	}
 
 	return category, nil
 }
 
-func (service *CommonCategoriesService) GetAllCategories() ([]entities.Category, error) {
+func (service *CommonCategoriesService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	return service.categoriesRepository.GetAllCategories()
 }
 

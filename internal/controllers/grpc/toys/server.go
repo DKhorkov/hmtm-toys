@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/requestid"
+
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 
 	"github.com/DKhorkov/libs/security"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -30,25 +32,15 @@ type ServerAPI struct {
 
 // GetToy handler returns Toy for provided ID.
 func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (*toys.GetToyResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	toy, err := api.useCases.GetToyByID(request.GetID())
+	toy, err := api.useCases.GetToyByID(ctx, request.GetID())
 	if err != nil {
-		api.logger.ErrorContext(
+		logging.LogErrorContext(
 			ctx,
-			"Error occurred while trying to get toy",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", request.GetID()),
 			err,
 		)
 
@@ -83,29 +75,13 @@ func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (
 }
 
 // GetToys handler returns all Toys.
-func (api *ServerAPI) GetToys(ctx context.Context, request *emptypb.Empty) (*toys.GetToysResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+func (api *ServerAPI) GetToys(ctx context.Context, request *toys.GetToysRequest) (*toys.GetToysResponse, error) {
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	allToys, err := api.useCases.GetAllToys()
+	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to get all toys",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
@@ -141,25 +117,15 @@ func (api *ServerAPI) GetMasterToys(
 	ctx context.Context,
 	request *toys.GetMasterToysRequest,
 ) (*toys.GetToysResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	masterToys, err := api.useCases.GetMasterToys(request.GetMasterID())
+	masterToys, err := api.useCases.GetMasterToys(ctx, request.GetMasterID())
 	if err != nil {
-		api.logger.ErrorContext(
+		logging.LogErrorContext(
 			ctx,
-			fmt.Sprintf("Error occurred while trying to get all toys for master with ID=%d", request.GetMasterID()),
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get all Toys for Master with ID=%d", request.GetMasterID()),
 			err,
 		)
 
@@ -195,16 +161,8 @@ func (api *ServerAPI) GetMasterToys(
 
 // AddToy handler adds new Toy for Master.
 func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (*toys.AddToyResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
 	toyData := entities.RawAddToyDTO{
 		AccessToken: request.GetAccessToken(),
@@ -216,16 +174,9 @@ func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (
 		TagsIDs:     request.GetTagIDs(),
 	}
 
-	toyID, err := api.useCases.AddToy(toyData)
+	toyID, err := api.useCases.AddToy(ctx, toyData)
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to add new toy",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to add new Toy", err)
 
 		switch {
 		case errors.As(err, &security.InvalidJWTError{}):

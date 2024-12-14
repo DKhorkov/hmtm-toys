@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 package categories;
@@ -10,11 +9,16 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 
 service CategoriesService {
   rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse) {}
-  rpc GetCategories(google.protobuf.Empty) returns (GetCategoriesResponse) {}
+  rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse) {}
 }
 
 message GetCategoryRequest {
-  uint32 ID = 1;
+  string requestID = 1;
+  uint32 ID = 2;
+}
+
+message GetCategoriesRequest {
+  string requestID = 1;
 }
 
 message GetCategoryResponse {

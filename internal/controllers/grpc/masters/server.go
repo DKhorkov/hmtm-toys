@@ -3,12 +3,15 @@ package masters
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
+
+	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/requestid"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 
 	"github.com/DKhorkov/libs/security"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -29,25 +32,15 @@ type ServerAPI struct {
 
 // GetMaster handler returns Master for provided ID.
 func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequest) (*toys.GetMasterResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	master, err := api.useCases.GetMasterByID(request.GetID())
+	master, err := api.useCases.GetMasterByID(ctx, request.GetID())
 	if err != nil {
-		api.logger.ErrorContext(
+		logging.LogErrorContext(
 			ctx,
-			"Error occurred while trying to get master",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Master with ID=%d", request.GetID()),
 			err,
 		)
 
@@ -69,29 +62,16 @@ func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequ
 }
 
 // GetMasters handler returns all Masters.
-func (api *ServerAPI) GetMasters(ctx context.Context, request *emptypb.Empty) (*toys.GetMastersResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+func (api *ServerAPI) GetMasters(
+	ctx context.Context,
+	request *toys.GetMastersRequest,
+) (*toys.GetMastersResponse, error) {
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	masters, err := api.useCases.GetAllMasters()
+	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to get all masters",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
@@ -114,32 +94,17 @@ func (api *ServerAPI) RegisterMaster(
 	ctx context.Context,
 	request *toys.RegisterMasterRequest,
 ) (*toys.RegisterMasterResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
 	masterData := entities.RawRegisterMasterDTO{
 		AccessToken: request.GetAccessToken(),
 		Info:        request.GetInfo(),
 	}
 
-	masterID, err := api.useCases.RegisterMaster(masterData)
+	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to register master",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to register Master", err)
 
 		switch {
 		case errors.As(err, &security.InvalidJWTError{}):

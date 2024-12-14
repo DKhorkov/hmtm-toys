@@ -376,3 +376,15 @@ issues:
     - path: "internal/services/utils_test.go"
       linters:
         - testpackage
+    - path: "internal/services/tags_service.go"
+      linters:
+        - revive
+    - path: "internal/services/masters_service.go"
+      linters:
+        - revive
+    - path: "internal/services/categories_service.go"
+      linters:
+        - revive
+    - path: "internal/services/toys_service.go"
+      linters:
+        - revive

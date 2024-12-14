@@ -2,16 +2,16 @@ package services_test
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"log/slog"
 	"testing"
-
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
@@ -46,9 +46,10 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 	tagsService := services.NewCommonTagsService(tagsRepository, logger)
+	ctx := context.Background()
 
 	for _, tc := range testCases {
-		tag, err := tagsService.GetTagByID(tc.tagID)
+		tag, err := tagsService.GetTagByID(ctx, tc.tagID)
 		if tc.errorExpected {
 			require.Error(t, err)
 			require.IsType(t, tc.err, err)
@@ -75,8 +76,9 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)
+		ctx := context.Background()
 
-		tags, err := tagsService.GetAllTags()
+		tags, err := tagsService.GetAllTags(ctx)
 		require.NoError(t, err)
 		assert.Len(t, tags, len(expectedTags))
 		assert.Equal(t, expectedTags, tags)
@@ -89,8 +91,9 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)
+		ctx := context.Background()
 
-		tags, err := tagsService.GetAllTags()
+		tags, err := tagsService.GetAllTags(ctx)
 		require.NoError(t, err)
 		assert.Empty(t, tags)
 	})
@@ -102,8 +105,9 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)
+		ctx := context.Background()
 
-		tags, err := tagsService.GetAllTags()
+		tags, err := tagsService.GetAllTags(ctx)
 		require.Error(t, err)
 		assert.Nil(t, tags)
 	})

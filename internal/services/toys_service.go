@@ -1,11 +1,11 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	"github.com/DKhorkov/libs/logging"
@@ -17,18 +17,17 @@ type CommonToysService struct {
 	logger         *slog.Logger
 }
 
-func (service *CommonToysService) GetToyByID(id uint64) (*entities.Toy, error) {
+func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	toy, err := service.toysRepository.GetToyByID(id)
 	if err != nil {
-		service.logger.Error(
-			"Error occurred while trying to get toy by id",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", id),
 			err,
 		)
 
-		return nil, &customerrors.ToyNotFoundError{BaseErr: err}
+		return nil, &customerrors.ToyNotFoundError{}
 	}
 
 	if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {
@@ -38,17 +37,9 @@ func (service *CommonToysService) GetToyByID(id uint64) (*entities.Toy, error) {
 	return toy, nil
 }
 
-func (service *CommonToysService) GetAllToys() ([]entities.Toy, error) {
+func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetAllToys()
 	if err != nil {
-		service.logger.Error(
-			"Error occurred while trying to get all toys",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
 		return nil, err
 	}
 
@@ -61,17 +52,9 @@ func (service *CommonToysService) GetAllToys() ([]entities.Toy, error) {
 	return toys, nil
 }
 
-func (service *CommonToysService) GetMasterToys(masterID uint64) ([]entities.Toy, error) {
+func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	toys, err := service.toysRepository.GetMasterToys(masterID)
 	if err != nil {
-		service.logger.Error(
-			fmt.Sprintf("Error occurred while trying to get all toys for master with ID=%d", masterID),
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
 		return nil, err
 	}
 
@@ -84,7 +67,7 @@ func (service *CommonToysService) GetMasterToys(masterID uint64) ([]entities.Toy
 	return toys, nil
 }
 
-func (service *CommonToysService) AddToy(toyData entities.AddToyDTO) (uint64, error) {
+func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
 	return service.toysRepository.AddToy(toyData)
 }
 

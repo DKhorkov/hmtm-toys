@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 package masters;
 
@@ -11,12 +10,13 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 service MastersService {
   rpc RegisterMaster(RegisterMasterRequest) returns (RegisterMasterResponse) {}
   rpc GetMaster(GetMasterRequest) returns (GetMasterResponse) {}
-  rpc GetMasters(google.protobuf.Empty) returns (GetMastersResponse) {}
+  rpc GetMasters(GetMastersRequest) returns (GetMastersResponse) {}
 }
 
 message RegisterMasterRequest {
-  string accessToken = 1;
-  string info = 2;
+  string requestID = 1;
+  string accessToken = 2;
+  string info = 3;
 }
 
 message RegisterMasterResponse {
@@ -24,7 +24,12 @@ message RegisterMasterResponse {
 }
 
 message GetMasterRequest {
-  uint64 ID = 1;
+  string requestID = 1;
+  uint64 ID = 2;
+}
+
+message GetMastersRequest {
+  string requestID = 1;
 }
 
 message GetMasterResponse {
