@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
@@ -15,24 +16,17 @@ type CommonTagsService struct {
 	logger         *slog.Logger
 }
 
-func (service *CommonTagsService) GetTagByID(id uint32) (*entities.Tag, error) {
+func (service *CommonTagsService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	tag, err := service.tagsRepository.GetTagByID(id)
 	if err != nil {
-		service.logger.Error(
-			"Error occurred while trying to get tag by id",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
+		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get tag by id", err)
 		return nil, &customerrors.TagNotFoundError{BaseErr: err}
 	}
 
 	return tag, nil
 }
 
-func (service *CommonTagsService) GetAllTags() ([]entities.Tag, error) {
+func (service *CommonTagsService) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	return service.tagsRepository.GetAllTags()
 }
 

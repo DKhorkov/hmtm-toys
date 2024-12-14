@@ -17,11 +17,9 @@ func processToyTags(
 ) error {
 	toyTags, err := tagsRepository.GetToyTags(toy.ID)
 	if err != nil {
-		logger.Error(
+		logging.LogError(
+			logger,
 			fmt.Sprintf("Error occurred while trying to get tags for toy with ID=%d", toy.ID),
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
 			err,
 		)
 

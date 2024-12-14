@@ -5,9 +5,10 @@ import (
 	"errors"
 	"log/slog"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/requestid"
 
-	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -27,27 +28,12 @@ type ServerAPI struct {
 
 // GetTag handler returns Tag for provided ID.
 func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (*toys.GetTagResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	tag, err := api.useCases.GetTagByID(request.GetID())
+	tag, err := api.useCases.GetTagByID(ctx, request.GetID())
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to get tag",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get tag", err)
 
 		switch {
 		case errors.As(err, &customerrors.TagNotFoundError{}):
@@ -66,29 +52,13 @@ func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (
 }
 
 // GetTags handler returns all Tags.
-func (api *ServerAPI) GetTags(ctx context.Context, request *emptypb.Empty) (*toys.GetTagsResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+func (api *ServerAPI) GetTags(ctx context.Context, request *toys.GetTagsRequest) (*toys.GetTagsResponse, error) {
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	tags, err := api.useCases.GetAllTags()
+	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to get all tags",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all tags", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 

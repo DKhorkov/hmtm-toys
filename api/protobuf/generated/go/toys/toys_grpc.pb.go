@@ -7,7 +7,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ToysServiceClient interface {
 	AddToy(ctx context.Context, in *AddToyRequest, opts ...grpc.CallOption) (*AddToyResponse, error)
 	GetToy(ctx context.Context, in *GetToyRequest, opts ...grpc.CallOption) (*GetToyResponse, error)
-	GetToys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetToysResponse, error)
+	GetToys(ctx context.Context, in *GetToysRequest, opts ...grpc.CallOption) (*GetToysResponse, error)
 	GetMasterToys(ctx context.Context, in *GetMasterToysRequest, opts ...grpc.CallOption) (*GetToysResponse, error)
 }
 
@@ -51,7 +50,7 @@ func (c *toysServiceClient) GetToy(ctx context.Context, in *GetToyRequest, opts 
 	return out, nil
 }
 
-func (c *toysServiceClient) GetToys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetToysResponse, error) {
+func (c *toysServiceClient) GetToys(ctx context.Context, in *GetToysRequest, opts ...grpc.CallOption) (*GetToysResponse, error) {
 	out := new(GetToysResponse)
 	err := c.cc.Invoke(ctx, "/toys.ToysService/GetToys", in, out, opts...)
 	if err != nil {
@@ -75,7 +74,7 @@ func (c *toysServiceClient) GetMasterToys(ctx context.Context, in *GetMasterToys
 type ToysServiceServer interface {
 	AddToy(context.Context, *AddToyRequest) (*AddToyResponse, error)
 	GetToy(context.Context, *GetToyRequest) (*GetToyResponse, error)
-	GetToys(context.Context, *emptypb.Empty) (*GetToysResponse, error)
+	GetToys(context.Context, *GetToysRequest) (*GetToysResponse, error)
 	GetMasterToys(context.Context, *GetMasterToysRequest) (*GetToysResponse, error)
 	mustEmbedUnimplementedToysServiceServer()
 }
@@ -90,7 +89,7 @@ func (UnimplementedToysServiceServer) AddToy(context.Context, *AddToyRequest) (*
 func (UnimplementedToysServiceServer) GetToy(context.Context, *GetToyRequest) (*GetToyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToy not implemented")
 }
-func (UnimplementedToysServiceServer) GetToys(context.Context, *emptypb.Empty) (*GetToysResponse, error) {
+func (UnimplementedToysServiceServer) GetToys(context.Context, *GetToysRequest) (*GetToysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToys not implemented")
 }
 func (UnimplementedToysServiceServer) GetMasterToys(context.Context, *GetMasterToysRequest) (*GetToysResponse, error) {
@@ -146,7 +145,7 @@ func _ToysService_GetToy_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _ToysService_GetToys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetToysRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -158,7 +157,7 @@ func _ToysService_GetToys_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/toys.ToysService/GetToys",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ToysServiceServer).GetToys(ctx, req.(*emptypb.Empty))
+		return srv.(ToysServiceServer).GetToys(ctx, req.(*GetToysRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

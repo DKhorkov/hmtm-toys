@@ -7,7 +7,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CategoriesServiceClient interface {
 	GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error)
-	GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
+	GetCategories(ctx context.Context, in *GetCategoriesRequest, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
 }
 
 type categoriesServiceClient struct {
@@ -40,7 +39,7 @@ func (c *categoriesServiceClient) GetCategory(ctx context.Context, in *GetCatego
 	return out, nil
 }
 
-func (c *categoriesServiceClient) GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error) {
+func (c *categoriesServiceClient) GetCategories(ctx context.Context, in *GetCategoriesRequest, opts ...grpc.CallOption) (*GetCategoriesResponse, error) {
 	out := new(GetCategoriesResponse)
 	err := c.cc.Invoke(ctx, "/categories.CategoriesService/GetCategories", in, out, opts...)
 	if err != nil {
@@ -54,7 +53,7 @@ func (c *categoriesServiceClient) GetCategories(ctx context.Context, in *emptypb
 // for forward compatibility
 type CategoriesServiceServer interface {
 	GetCategory(context.Context, *GetCategoryRequest) (*GetCategoryResponse, error)
-	GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error)
+	GetCategories(context.Context, *GetCategoriesRequest) (*GetCategoriesResponse, error)
 	mustEmbedUnimplementedCategoriesServiceServer()
 }
 
@@ -65,7 +64,7 @@ type UnimplementedCategoriesServiceServer struct {
 func (UnimplementedCategoriesServiceServer) GetCategory(context.Context, *GetCategoryRequest) (*GetCategoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCategory not implemented")
 }
-func (UnimplementedCategoriesServiceServer) GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error) {
+func (UnimplementedCategoriesServiceServer) GetCategories(context.Context, *GetCategoriesRequest) (*GetCategoriesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
 }
 func (UnimplementedCategoriesServiceServer) mustEmbedUnimplementedCategoriesServiceServer() {}
@@ -100,7 +99,7 @@ func _CategoriesService_GetCategory_Handler(srv interface{}, ctx context.Context
 }
 
 func _CategoriesService_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetCategoriesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -112,7 +111,7 @@ func _CategoriesService_GetCategories_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/categories.CategoriesService/GetCategories",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoriesServiceServer).GetCategories(ctx, req.(*emptypb.Empty))
+		return srv.(CategoriesServiceServer).GetCategories(ctx, req.(*GetCategoriesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

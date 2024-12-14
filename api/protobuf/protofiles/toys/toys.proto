@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 import "toys/tags.proto";
 
 package toys;
@@ -12,18 +11,19 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 service ToysService {
   rpc AddToy(AddToyRequest) returns (AddToyResponse) {}
   rpc GetToy(GetToyRequest) returns (GetToyResponse) {}
-  rpc GetToys(google.protobuf.Empty) returns (GetToysResponse) {}
+  rpc GetToys(GetToysRequest) returns (GetToysResponse) {}
   rpc GetMasterToys(GetMasterToysRequest) returns (GetToysResponse) {}
 }
 
 message AddToyRequest {
-  string accessToken = 1;
-  string name = 2;
-  string description = 3;
-  float price = 4;
-  uint32 quantity = 5;
-  uint32 categoryID = 6;
-  repeated uint32 tagIDs = 7;
+  string requestID = 1;
+  string accessToken = 2;
+  string name = 3;
+  string description = 4;
+  float price = 5;
+  uint32 quantity = 6;
+  uint32 categoryID = 7;
+  repeated uint32 tagIDs = 8;
 }
 
 message AddToyResponse {
@@ -31,7 +31,12 @@ message AddToyResponse {
 }
 
 message GetToyRequest {
-  uint64 ID = 1;
+  string requestID = 1;
+  uint64 ID = 2;
+}
+
+message GetToysRequest {
+  string requestID = 1;
 }
 
 message GetToyResponse {
@@ -48,7 +53,8 @@ message GetToyResponse {
 }
 
 message GetMasterToysRequest {
-  uint64 masterID = 1;
+  string requestID = 1;
+  uint64 masterID = 2;
 }
 
 message GetToysResponse {

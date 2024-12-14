@@ -12,7 +12,7 @@ package mockrepositories
 import (
 	reflect "reflect"
 
-	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 

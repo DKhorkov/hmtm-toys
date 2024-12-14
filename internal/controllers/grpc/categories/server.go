@@ -5,9 +5,10 @@ import (
 	"errors"
 	"log/slog"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/DKhorkov/libs/contextlib"
+	"github.com/DKhorkov/libs/requestid"
 
-	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -30,27 +31,12 @@ func (api *ServerAPI) GetCategory(
 	ctx context.Context,
 	request *toys.GetCategoryRequest,
 ) (*toys.GetCategoryResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	category, err := api.useCases.GetCategoryByID(request.GetID())
+	category, err := api.useCases.GetCategoryByID(ctx, request.GetID())
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to get category",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get category", err)
 
 		switch {
 		case errors.As(err, &customerrors.CategoryNotFoundError{}):
@@ -69,29 +55,16 @@ func (api *ServerAPI) GetCategory(
 }
 
 // GetCategories handler returns all Categories.
-func (api *ServerAPI) GetCategories(ctx context.Context, request *emptypb.Empty) (*toys.GetCategoriesResponse, error) {
-	api.logger.InfoContext(
-		ctx,
-		"Received new request",
-		"Request",
-		request,
-		"Context",
-		ctx,
-		"Traceback",
-		logging.GetLogTraceback(),
-	)
+func (api *ServerAPI) GetCategories(
+	ctx context.Context,
+	request *toys.GetCategoriesRequest,
+) (*toys.GetCategoriesResponse, error) {
+	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
+	logging.LogRequest(ctx, api.logger, request)
 
-	categories, err := api.useCases.GetAllCategories()
+	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
-		api.logger.ErrorContext(
-			ctx,
-			"Error occurred while trying to get all categories",
-			"Traceback",
-			logging.GetLogTraceback(),
-			"Error",
-			err,
-		)
-
+		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all categories", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
