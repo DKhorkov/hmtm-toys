@@ -38,8 +38,8 @@ func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-	categoriesRepository.EXPECT().GetCategoryByID(uint32(1)).Return(&entities.Category{}, nil).MaxTimes(1)
-	categoriesRepository.EXPECT().GetCategoryByID(uint32(2)).Return(
+	categoriesRepository.EXPECT().GetCategoryByID(gomock.Any(), uint32(1)).Return(&entities.Category{}, nil).MaxTimes(1)
+	categoriesRepository.EXPECT().GetCategoryByID(gomock.Any(), uint32(2)).Return(
 		nil,
 		&customerrors.CategoryNotFoundError{},
 	).MaxTimes(1)
@@ -68,11 +68,7 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 
 		mockController := gomock.NewController(t)
 		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories().DoAndReturn(
-			func() ([]entities.Category, error) {
-				return expectedCategories, nil
-			},
-		).MaxTimes(1)
+		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return(expectedCategories, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)
@@ -87,7 +83,7 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 	t.Run("all categories without existing categories", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories().Return([]entities.Category{}, nil).MaxTimes(1)
+		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return([]entities.Category{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)
@@ -101,7 +97,10 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 	t.Run("all categories fail", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories().Return(nil, errors.New("test error")).MaxTimes(1)
+		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return(
+			nil,
+			errors.New("test error"),
+		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)

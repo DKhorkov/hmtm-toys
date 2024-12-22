@@ -11,6 +11,18 @@ import (
 	"github.com/DKhorkov/libs/logging"
 )
 
+func NewCommonToysService(
+	toysRepository interfaces.ToysRepository,
+	tagsRepository interfaces.TagsRepository,
+	logger *slog.Logger,
+) *CommonToysService {
+	return &CommonToysService{
+		toysRepository: toysRepository,
+		tagsRepository: tagsRepository,
+		logger:         logger,
+	}
+}
+
 type CommonToysService struct {
 	toysRepository interfaces.ToysRepository
 	tagsRepository interfaces.TagsRepository
@@ -18,7 +30,7 @@ type CommonToysService struct {
 }
 
 func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
-	toy, err := service.toysRepository.GetToyByID(id)
+	toy, err := service.toysRepository.GetToyByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -30,7 +42,7 @@ func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*e
 		return nil, &customerrors.ToyNotFoundError{}
 	}
 
-	if err = processToyTags(toy, service.tagsRepository, service.logger); err != nil {
+	if err = service.processToyTags(ctx, toy); err != nil {
 		return nil, err
 	}
 
@@ -38,13 +50,13 @@ func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*e
 }
 
 func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	toys, err := service.toysRepository.GetAllToys()
+	toys, err := service.toysRepository.GetAllToys(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, toy := range toys {
-		if err = processToyTags(&toy, service.tagsRepository, service.logger); err != nil {
+		if err = service.processToyTags(ctx, &toy); err != nil {
 			return nil, err
 		}
 	}
@@ -53,13 +65,13 @@ func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.To
 }
 
 func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
-	toys, err := service.toysRepository.GetMasterToys(masterID)
+	toys, err := service.toysRepository.GetMasterToys(ctx, masterID)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, toy := range toys {
-		if err = processToyTags(&toy, service.tagsRepository, service.logger); err != nil {
+		if err = service.processToyTags(ctx, &toy); err != nil {
 			return nil, err
 		}
 	}
@@ -68,17 +80,21 @@ func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID ui
 }
 
 func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
-	return service.toysRepository.AddToy(toyData)
+	return service.toysRepository.AddToy(ctx, toyData)
 }
 
-func NewCommonToysService(
-	toysRepository interfaces.ToysRepository,
-	tagsRepository interfaces.TagsRepository,
-	logger *slog.Logger,
-) *CommonToysService {
-	return &CommonToysService{
-		toysRepository: toysRepository,
-		tagsRepository: tagsRepository,
-		logger:         logger,
+func (service *CommonToysService) processToyTags(ctx context.Context, toy *entities.Toy) error {
+	toyTags, err := service.tagsRepository.GetToyTags(ctx, toy.ID)
+	if err != nil {
+		logging.LogError(
+			service.logger,
+			fmt.Sprintf("Error occurred while trying to get Tags for Toy with ID=%d", toy.ID),
+			err,
+		)
+
+		return err
 	}
+
+	toy.Tags = toyTags
+	return nil
 }

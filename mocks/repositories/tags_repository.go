@@ -10,9 +10,10 @@
 package mockrepositories
 
 import (
+	context "context"
 	reflect "reflect"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -40,47 +41,61 @@ func (m *MockTagsRepository) EXPECT() *MockTagsRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetAllTags mocks base method.
-func (m *MockTagsRepository) GetAllTags() ([]entities.Tag, error) {
+// Close mocks base method.
+func (m *MockTagsRepository) Close() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllTags")
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockTagsRepositoryMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockTagsRepository)(nil).Close))
+}
+
+// GetAllTags mocks base method.
+func (m *MockTagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllTags", ctx)
 	ret0, _ := ret[0].([]entities.Tag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllTags indicates an expected call of GetAllTags.
-func (mr *MockTagsRepositoryMockRecorder) GetAllTags() *gomock.Call {
+func (mr *MockTagsRepositoryMockRecorder) GetAllTags(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTags", reflect.TypeOf((*MockTagsRepository)(nil).GetAllTags))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTags", reflect.TypeOf((*MockTagsRepository)(nil).GetAllTags), ctx)
 }
 
 // GetTagByID mocks base method.
-func (m *MockTagsRepository) GetTagByID(id uint32) (*entities.Tag, error) {
+func (m *MockTagsRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTagByID", id)
+	ret := m.ctrl.Call(m, "GetTagByID", ctx, id)
 	ret0, _ := ret[0].(*entities.Tag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTagByID indicates an expected call of GetTagByID.
-func (mr *MockTagsRepositoryMockRecorder) GetTagByID(id any) *gomock.Call {
+func (mr *MockTagsRepositoryMockRecorder) GetTagByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagByID", reflect.TypeOf((*MockTagsRepository)(nil).GetTagByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagByID", reflect.TypeOf((*MockTagsRepository)(nil).GetTagByID), ctx, id)
 }
 
 // GetToyTags mocks base method.
-func (m *MockTagsRepository) GetToyTags(toyID uint64) ([]entities.Tag, error) {
+func (m *MockTagsRepository) GetToyTags(ctx context.Context, toyID uint64) ([]entities.Tag, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetToyTags", toyID)
+	ret := m.ctrl.Call(m, "GetToyTags", ctx, toyID)
 	ret0, _ := ret[0].([]entities.Tag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetToyTags indicates an expected call of GetToyTags.
-func (mr *MockTagsRepositoryMockRecorder) GetToyTags(toyID any) *gomock.Call {
+func (mr *MockTagsRepositoryMockRecorder) GetToyTags(ctx, toyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyTags", reflect.TypeOf((*MockTagsRepository)(nil).GetToyTags), toyID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyTags", reflect.TypeOf((*MockTagsRepository)(nil).GetToyTags), ctx, toyID)
 }

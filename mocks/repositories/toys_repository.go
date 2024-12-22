@@ -10,9 +10,10 @@
 package mockrepositories
 
 import (
+	context "context"
 	reflect "reflect"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,61 +42,75 @@ func (m *MockToysRepository) EXPECT() *MockToysRepositoryMockRecorder {
 }
 
 // AddToy mocks base method.
-func (m *MockToysRepository) AddToy(toyData entities.AddToyDTO) (uint64, error) {
+func (m *MockToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddToy", toyData)
+	ret := m.ctrl.Call(m, "AddToy", ctx, toyData)
 	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddToy indicates an expected call of AddToy.
-func (mr *MockToysRepositoryMockRecorder) AddToy(toyData any) *gomock.Call {
+func (mr *MockToysRepositoryMockRecorder) AddToy(ctx, toyData any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToy", reflect.TypeOf((*MockToysRepository)(nil).AddToy), toyData)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToy", reflect.TypeOf((*MockToysRepository)(nil).AddToy), ctx, toyData)
+}
+
+// Close mocks base method.
+func (m *MockToysRepository) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockToysRepositoryMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockToysRepository)(nil).Close))
 }
 
 // GetAllToys mocks base method.
-func (m *MockToysRepository) GetAllToys() ([]entities.Toy, error) {
+func (m *MockToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllToys")
+	ret := m.ctrl.Call(m, "GetAllToys", ctx)
 	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllToys indicates an expected call of GetAllToys.
-func (mr *MockToysRepositoryMockRecorder) GetAllToys() *gomock.Call {
+func (mr *MockToysRepositoryMockRecorder) GetAllToys(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllToys", reflect.TypeOf((*MockToysRepository)(nil).GetAllToys))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllToys", reflect.TypeOf((*MockToysRepository)(nil).GetAllToys), ctx)
 }
 
 // GetMasterToys mocks base method.
-func (m *MockToysRepository) GetMasterToys(masterID uint64) ([]entities.Toy, error) {
+func (m *MockToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasterToys", masterID)
+	ret := m.ctrl.Call(m, "GetMasterToys", ctx, masterID)
 	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasterToys indicates an expected call of GetMasterToys.
-func (mr *MockToysRepositoryMockRecorder) GetMasterToys(masterID any) *gomock.Call {
+func (mr *MockToysRepositoryMockRecorder) GetMasterToys(ctx, masterID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterToys", reflect.TypeOf((*MockToysRepository)(nil).GetMasterToys), masterID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterToys", reflect.TypeOf((*MockToysRepository)(nil).GetMasterToys), ctx, masterID)
 }
 
 // GetToyByID mocks base method.
-func (m *MockToysRepository) GetToyByID(id uint64) (*entities.Toy, error) {
+func (m *MockToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetToyByID", id)
+	ret := m.ctrl.Call(m, "GetToyByID", ctx, id)
 	ret0, _ := ret[0].(*entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetToyByID indicates an expected call of GetToyByID.
-func (mr *MockToysRepositoryMockRecorder) GetToyByID(id any) *gomock.Call {
+func (mr *MockToysRepositoryMockRecorder) GetToyByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyByID", reflect.TypeOf((*MockToysRepository)(nil).GetToyByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyByID", reflect.TypeOf((*MockToysRepository)(nil).GetToyByID), ctx, id)
 }

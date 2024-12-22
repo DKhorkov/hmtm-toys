@@ -10,9 +10,10 @@
 package mockrepositories
 
 import (
+	context "context"
 	reflect "reflect"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -40,32 +41,46 @@ func (m *MockCategoriesRepository) EXPECT() *MockCategoriesRepositoryMockRecorde
 	return m.recorder
 }
 
-// GetAllCategories mocks base method.
-func (m *MockCategoriesRepository) GetAllCategories() ([]entities.Category, error) {
+// Close mocks base method.
+func (m *MockCategoriesRepository) Close() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllCategories")
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockCategoriesRepositoryMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockCategoriesRepository)(nil).Close))
+}
+
+// GetAllCategories mocks base method.
+func (m *MockCategoriesRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllCategories", ctx)
 	ret0, _ := ret[0].([]entities.Category)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllCategories indicates an expected call of GetAllCategories.
-func (mr *MockCategoriesRepositoryMockRecorder) GetAllCategories() *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) GetAllCategories(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockCategoriesRepository)(nil).GetAllCategories))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockCategoriesRepository)(nil).GetAllCategories), ctx)
 }
 
 // GetCategoryByID mocks base method.
-func (m *MockCategoriesRepository) GetCategoryByID(id uint32) (*entities.Category, error) {
+func (m *MockCategoriesRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCategoryByID", id)
+	ret := m.ctrl.Call(m, "GetCategoryByID", ctx, id)
 	ret0, _ := ret[0].(*entities.Category)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCategoryByID indicates an expected call of GetCategoryByID.
-func (mr *MockCategoriesRepositoryMockRecorder) GetCategoryByID(id any) *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) GetCategoryByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoryByID", reflect.TypeOf((*MockCategoriesRepository)(nil).GetCategoryByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoryByID", reflect.TypeOf((*MockCategoriesRepository)(nil).GetCategoryByID), ctx, id)
 }

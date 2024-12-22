@@ -23,6 +23,11 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
+// RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
+func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
+	toys.RegisterToysServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
+}
+
 type ServerAPI struct {
 	// Helps to test single endpoints, if others is not implemented yet
 	toys.UnimplementedToysServiceServer
@@ -193,9 +198,4 @@ func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (
 	}
 
 	return &toys.AddToyResponse{ToyID: toyID}, nil
-}
-
-// RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
-func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
-	toys.RegisterToysServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
 }

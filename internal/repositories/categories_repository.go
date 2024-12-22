@@ -1,17 +1,37 @@
 package repositories
 
 import (
+	"context"
+	"log/slog"
+
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
+	"github.com/DKhorkov/libs/logging"
 )
+
+func NewCommonCategoriesRepository(
+	dbConnector db.Connector,
+	logger *slog.Logger,
+) *CommonCategoriesRepository {
+	return &CommonCategoriesRepository{
+		dbConnector: dbConnector,
+		logger:      logger,
+	}
+}
 
 type CommonCategoriesRepository struct {
 	dbConnector db.Connector
+	logger      *slog.Logger
 }
 
-func (repo *CommonCategoriesRepository) GetAllCategories() ([]entities.Category, error) {
-	connection := repo.dbConnector.GetConnection()
-	rows, err := connection.Query(
+func (repo *CommonCategoriesRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
 		`
 			SELECT * 
 			FROM categories
@@ -21,6 +41,17 @@ func (repo *CommonCategoriesRepository) GetAllCategories() ([]entities.Category,
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
 
 	var categories []entities.Category
 	for rows.Next() {
@@ -34,18 +65,23 @@ func (repo *CommonCategoriesRepository) GetAllCategories() ([]entities.Category,
 		categories = append(categories, category)
 	}
 
-	if err = rows.Close(); err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return categories, nil
 }
 
-func (repo *CommonCategoriesRepository) GetCategoryByID(id uint32) (*entities.Category, error) {
+func (repo *CommonCategoriesRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	category := &entities.Category{}
 	columns := db.GetEntityColumns(category)
-	connection := repo.dbConnector.GetConnection()
-	err := connection.QueryRow(
+	err = connection.QueryRowContext(
+		ctx,
 		`
 			SELECT * 
 			FROM categories AS c
@@ -61,6 +97,6 @@ func (repo *CommonCategoriesRepository) GetCategoryByID(id uint32) (*entities.Ca
 	return category, nil
 }
 
-func NewCommonCategoriesRepository(dbConnector db.Connector) *CommonCategoriesRepository {
-	return &CommonCategoriesRepository{dbConnector: dbConnector}
+func (repo *CommonCategoriesRepository) Close() error {
+	return nil
 }

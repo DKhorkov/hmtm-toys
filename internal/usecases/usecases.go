@@ -8,6 +8,22 @@ import (
 	"github.com/DKhorkov/libs/security"
 )
 
+func NewCommonUseCases(
+	tagsService interfaces.TagsService,
+	categoriesService interfaces.CategoriesService,
+	mastersService interfaces.MastersService,
+	toysService interfaces.ToysService,
+	jwtConfig security.JWTConfig,
+) *CommonUseCases {
+	return &CommonUseCases{
+		tagsService:       tagsService,
+		categoriesService: categoriesService,
+		mastersService:    mastersService,
+		toysService:       toysService,
+		jwtConfig:         jwtConfig,
+	}
+}
+
 type CommonUseCases struct {
 	tagsService       interfaces.TagsService
 	categoriesService interfaces.CategoriesService
@@ -112,20 +128,4 @@ func (useCases *CommonUseCases) RegisterMaster(
 	}
 
 	return useCases.mastersService.RegisterMaster(ctx, masterData)
-}
-
-func NewCommonUseCases(
-	tagsService interfaces.TagsService,
-	categoriesService interfaces.CategoriesService,
-	mastersService interfaces.MastersService,
-	toysService interfaces.ToysService,
-	jwtConfig security.JWTConfig,
-) *CommonUseCases {
-	return &CommonUseCases{
-		tagsService:       tagsService,
-		categoriesService: categoriesService,
-		mastersService:    mastersService,
-		toysService:       toysService,
-		jwtConfig:         jwtConfig,
-	}
 }

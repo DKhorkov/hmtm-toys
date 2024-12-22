@@ -38,11 +38,10 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-	mastersRepository.EXPECT().GetMasterByID(uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
-	mastersRepository.EXPECT().GetMasterByID(uint64(2)).DoAndReturn(
-		func(_ uint64) (*entities.Master, error) {
-			return nil, &customerrors.MasterNotFoundError{}
-		},
+	mastersRepository.EXPECT().GetMasterByID(gomock.Any(), uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
+	mastersRepository.EXPECT().GetMasterByID(gomock.Any(), uint64(2)).Return(
+		nil,
+		&customerrors.MasterNotFoundError{},
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
@@ -82,11 +81,10 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-	mastersRepository.EXPECT().GetMasterByUserID(uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
-	mastersRepository.EXPECT().GetMasterByUserID(uint64(2)).DoAndReturn(
-		func(_ uint64) (*entities.Master, error) {
-			return nil, &customerrors.MasterNotFoundError{}
-		},
+	mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
+	mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), uint64(2)).Return(
+		nil,
+		&customerrors.MasterNotFoundError{},
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
@@ -113,11 +111,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters().DoAndReturn(
-			func() ([]entities.Master, error) {
-				return expectedMasters, nil
-			},
-		).MaxTimes(1)
+		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return(expectedMasters, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		mastersService := services.NewCommonMastersService(mastersRepository, logger)
@@ -132,7 +126,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 	t.Run("all masters without existing masters", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters().Return([]entities.Master{}, nil).MaxTimes(1)
+		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return([]entities.Master{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		mastersService := services.NewCommonMastersService(mastersRepository, logger)
@@ -146,7 +140,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 	t.Run("all masters fail", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters().Return(nil, errors.New("test error")).MaxTimes(1)
+		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		mastersService := services.NewCommonMastersService(mastersRepository, logger)
@@ -164,8 +158,8 @@ func TestCommonMastersServiceRegisterMaster(t *testing.T) {
 
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().RegisterMaster(gomock.Any()).Return(expectedMasterID, nil).MaxTimes(1)
-		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any()).Return(
+		mastersRepository.EXPECT().RegisterMaster(gomock.Any(), gomock.Any()).Return(expectedMasterID, nil).MaxTimes(1)
+		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), gomock.Any()).Return(
 			nil,
 			&customerrors.MasterNotFoundError{},
 		).MaxTimes(1)
@@ -185,8 +179,15 @@ func TestCommonMastersServiceRegisterMaster(t *testing.T) {
 
 		mockController := gomock.NewController(t)
 		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any()).Return(&entities.Master{}, nil).MaxTimes(1)
-		mastersRepository.EXPECT().RegisterMaster(gomock.Any()).Return(expectedMasterID, expectedError).MaxTimes(1)
+		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), gomock.Any()).Return(
+			&entities.Master{},
+			nil,
+		).MaxTimes(1)
+
+		mastersRepository.EXPECT().RegisterMaster(gomock.Any(), gomock.Any()).Return(
+			expectedMasterID,
+			expectedError,
+		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		mastersService := services.NewCommonMastersService(mastersRepository, logger)

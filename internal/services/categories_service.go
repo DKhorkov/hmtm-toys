@@ -11,13 +11,23 @@ import (
 	"github.com/DKhorkov/libs/logging"
 )
 
+func NewCommonCategoriesService(
+	categoriesRepository interfaces.CategoriesRepository,
+	logger *slog.Logger,
+) *CommonCategoriesService {
+	return &CommonCategoriesService{
+		categoriesRepository: categoriesRepository,
+		logger:               logger,
+	}
+}
+
 type CommonCategoriesService struct {
 	categoriesRepository interfaces.CategoriesRepository
 	logger               *slog.Logger
 }
 
 func (service *CommonCategoriesService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
-	category, err := service.categoriesRepository.GetCategoryByID(id)
+	category, err := service.categoriesRepository.GetCategoryByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -33,15 +43,5 @@ func (service *CommonCategoriesService) GetCategoryByID(ctx context.Context, id 
 }
 
 func (service *CommonCategoriesService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
-	return service.categoriesRepository.GetAllCategories()
-}
-
-func NewCommonCategoriesService(
-	categoriesRepository interfaces.CategoriesRepository,
-	logger *slog.Logger,
-) *CommonCategoriesService {
-	return &CommonCategoriesService{
-		categoriesRepository: categoriesRepository,
-		logger:               logger,
-	}
+	return service.categoriesRepository.GetAllCategories(ctx)
 }
