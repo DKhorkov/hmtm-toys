@@ -1,17 +1,37 @@
 package repositories
 
 import (
+	"context"
+	"log/slog"
+
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
+	"github.com/DKhorkov/libs/logging"
 )
+
+func NewCommonTagsRepository(
+	dbConnector db.Connector,
+	logger *slog.Logger,
+) *CommonTagsRepository {
+	return &CommonTagsRepository{
+		dbConnector: dbConnector,
+		logger:      logger,
+	}
+}
 
 type CommonTagsRepository struct {
 	dbConnector db.Connector
+	logger      *slog.Logger
 }
 
-func (repo *CommonTagsRepository) GetAllTags() ([]entities.Tag, error) {
-	connection := repo.dbConnector.GetConnection()
-	rows, err := connection.Query(
+func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
 		`
 			SELECT * 
 			FROM tags
@@ -21,6 +41,17 @@ func (repo *CommonTagsRepository) GetAllTags() ([]entities.Tag, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
 
 	var tags []entities.Tag
 	for rows.Next() {
@@ -34,16 +65,21 @@ func (repo *CommonTagsRepository) GetAllTags() ([]entities.Tag, error) {
 		tags = append(tags, tag)
 	}
 
-	if err = rows.Close(); err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return tags, nil
 }
 
-func (repo *CommonTagsRepository) GetToyTags(toyID uint64) ([]entities.Tag, error) {
-	connection := repo.dbConnector.GetConnection()
-	rows, err := connection.Query(
+func (repo *CommonTagsRepository) GetToyTags(ctx context.Context, toyID uint64) ([]entities.Tag, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
 		`
 			SELECT * 
 			FROM tags AS t
@@ -60,6 +96,17 @@ func (repo *CommonTagsRepository) GetToyTags(toyID uint64) ([]entities.Tag, erro
 		return nil, err
 	}
 
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
+
 	var tags []entities.Tag
 	for rows.Next() {
 		tag := entities.Tag{}
@@ -72,18 +119,23 @@ func (repo *CommonTagsRepository) GetToyTags(toyID uint64) ([]entities.Tag, erro
 		tags = append(tags, tag)
 	}
 
-	if err = rows.Close(); err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return tags, nil
 }
 
-func (repo *CommonTagsRepository) GetTagByID(id uint32) (*entities.Tag, error) {
+func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	tag := &entities.Tag{}
 	columns := db.GetEntityColumns(tag)
-	connection := repo.dbConnector.GetConnection()
-	err := connection.QueryRow(
+	err = connection.QueryRowContext(
+		ctx,
 		`
 			SELECT * 
 			FROM tags AS t
@@ -99,6 +151,6 @@ func (repo *CommonTagsRepository) GetTagByID(id uint32) (*entities.Tag, error) {
 	return tag, nil
 }
 
-func NewCommonTagsRepository(dbConnector db.Connector) *CommonTagsRepository {
-	return &CommonTagsRepository{dbConnector: dbConnector}
+func (repo *CommonTagsRepository) Close() error {
+	return nil
 }

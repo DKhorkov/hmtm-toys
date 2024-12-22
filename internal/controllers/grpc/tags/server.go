@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"google.golang.org/grpc"
+
 	"github.com/DKhorkov/libs/contextlib"
 	"github.com/DKhorkov/libs/requestid"
 
@@ -16,9 +18,13 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
+
+// RegisterServer handler (serverAPI) for TagsServer to gRPC server:.
+func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
+	toys.RegisterTagsServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
+}
 
 type ServerAPI struct {
 	// Helps to test single endpoints, if others is not implemented yet
@@ -79,9 +85,4 @@ func (api *ServerAPI) GetTags(ctx context.Context, request *toys.GetTagsRequest)
 	}
 
 	return &toys.GetTagsResponse{Tags: tagsForResponse}, nil
-}
-
-// RegisterServer handler (serverAPI) for TagsServer to gRPC server:.
-func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
-	toys.RegisterTagsServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
 }

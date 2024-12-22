@@ -38,8 +38,8 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-	tagsRepository.EXPECT().GetTagByID(uint32(1)).Return(&entities.Tag{}, nil).MaxTimes(1)
-	tagsRepository.EXPECT().GetTagByID(uint32(2)).Return(
+	tagsRepository.EXPECT().GetTagByID(gomock.Any(), uint32(1)).Return(&entities.Tag{}, nil).MaxTimes(1)
+	tagsRepository.EXPECT().GetTagByID(gomock.Any(), uint32(2)).Return(
 		nil,
 		&customerrors.TagNotFoundError{},
 	).MaxTimes(1)
@@ -68,11 +68,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 
 		mockController := gomock.NewController(t)
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags().DoAndReturn(
-			func() ([]entities.Tag, error) {
-				return expectedTags, nil
-			},
-		).MaxTimes(1)
+		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return(expectedTags, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)
@@ -87,7 +83,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 	t.Run("all tags without existing tags", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags().Return([]entities.Tag{}, nil).MaxTimes(1)
+		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return([]entities.Tag{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)
@@ -101,7 +97,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 	t.Run("all tags fail", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags().Return(nil, errors.New("test error")).MaxTimes(1)
+		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		tagsService := services.NewCommonTagsService(tagsRepository, logger)

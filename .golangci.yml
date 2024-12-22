@@ -373,6 +373,7 @@ issues:
       linters:
         - mnd
         - gosec
+        - dupl
     - path: "internal/services/utils_test.go"
       linters:
         - testpackage
@@ -388,3 +389,15 @@ issues:
     - path: "internal/services/toys_service.go"
       linters:
         - revive
+    - path: "internal/services/toys_service_test.go"
+      linters:
+        - testpackage
+    - path: "internal/repositories/tags_repository.go"
+      linters:
+        - dupl
+    - path: "internal/repositories/masters_repository.go"
+      linters:
+        - dupl
+    - path: "internal/repositories/categories_repository.go"
+      linters:
+        - dupl

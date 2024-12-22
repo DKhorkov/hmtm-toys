@@ -1,21 +1,41 @@
 package repositories
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"strings"
+
+	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 
 	"github.com/DKhorkov/libs/db"
 )
 
-type CommonToysRepository struct {
-	dbConnector db.Connector
+func NewCommonToysRepository(
+	dbConnector db.Connector,
+	logger *slog.Logger,
+) *CommonToysRepository {
+	return &CommonToysRepository{
+		dbConnector: dbConnector,
+		logger:      logger,
+	}
 }
 
-func (repo *CommonToysRepository) GetAllToys() ([]entities.Toy, error) {
-	connection := repo.dbConnector.GetConnection()
-	rows, err := connection.Query(
+type CommonToysRepository struct {
+	dbConnector db.Connector
+	logger      *slog.Logger
+}
+
+func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
 		`
 			SELECT * 
 			FROM toys
@@ -25,6 +45,17 @@ func (repo *CommonToysRepository) GetAllToys() ([]entities.Toy, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
 
 	var toys []entities.Toy
 	for rows.Next() {
@@ -39,16 +70,21 @@ func (repo *CommonToysRepository) GetAllToys() ([]entities.Toy, error) {
 		toys = append(toys, toy)
 	}
 
-	if err = rows.Close(); err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return toys, nil
 }
 
-func (repo *CommonToysRepository) GetMasterToys(masterID uint64) ([]entities.Toy, error) {
-	connection := repo.dbConnector.GetConnection()
-	rows, err := connection.Query(
+func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
 		`
 			SELECT * 
 			FROM toys AS t
@@ -60,6 +96,17 @@ func (repo *CommonToysRepository) GetMasterToys(masterID uint64) ([]entities.Toy
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
 
 	var toys []entities.Toy
 	for rows.Next() {
@@ -74,19 +121,24 @@ func (repo *CommonToysRepository) GetMasterToys(masterID uint64) ([]entities.Toy
 		toys = append(toys, toy)
 	}
 
-	if err = rows.Close(); err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return toys, nil
 }
 
-func (repo *CommonToysRepository) GetToyByID(id uint64) (*entities.Toy, error) {
+func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	toy := &entities.Toy{}
 	columns := db.GetEntityColumns(toy)
 	columns = columns[:len(columns)-1] // not to paste tags field ([]*Tag) to Scan function.
-	connection := repo.dbConnector.GetConnection()
-	err := connection.QueryRow(
+	err = connection.QueryRowContext(
+		ctx,
 		`
 			SELECT * 
 			FROM toys AS t
@@ -102,13 +154,13 @@ func (repo *CommonToysRepository) GetToyByID(id uint64) (*entities.Toy, error) {
 	return toy, nil
 }
 
-func (repo *CommonToysRepository) AddToy(toyData entities.AddToyDTO) (uint64, error) {
-	var toyID uint64
-	transaction, err := repo.dbConnector.GetTransaction()
+func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+	transaction, err := repo.dbConnector.Transaction(ctx)
 	if err != nil {
 		return 0, err
 	}
 
+	var toyID uint64
 	err = transaction.QueryRow(
 		`
 			INSERT INTO toys (master_id, category_id, name, description, price, quantity) 
@@ -160,6 +212,6 @@ func (repo *CommonToysRepository) AddToy(toyData entities.AddToyDTO) (uint64, er
 	return toyID, nil
 }
 
-func NewCommonToysRepository(dbConnector db.Connector) *CommonToysRepository {
-	return &CommonToysRepository{dbConnector: dbConnector}
+func (repo *CommonToysRepository) Close() error {
+	return nil
 }

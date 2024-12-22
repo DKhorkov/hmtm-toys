@@ -10,9 +10,10 @@
 package mockrepositories
 
 import (
+	context "context"
 	reflect "reflect"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
+	entities "github.com/DKhorkov/hmtm-toys/internal/entities"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -40,62 +41,76 @@ func (m *MockMastersRepository) EXPECT() *MockMastersRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetAllMasters mocks base method.
-func (m *MockMastersRepository) GetAllMasters() ([]entities.Master, error) {
+// Close mocks base method.
+func (m *MockMastersRepository) Close() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllMasters")
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockMastersRepositoryMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockMastersRepository)(nil).Close))
+}
+
+// GetAllMasters mocks base method.
+func (m *MockMastersRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllMasters", ctx)
 	ret0, _ := ret[0].([]entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllMasters indicates an expected call of GetAllMasters.
-func (mr *MockMastersRepositoryMockRecorder) GetAllMasters() *gomock.Call {
+func (mr *MockMastersRepositoryMockRecorder) GetAllMasters(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllMasters", reflect.TypeOf((*MockMastersRepository)(nil).GetAllMasters))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllMasters", reflect.TypeOf((*MockMastersRepository)(nil).GetAllMasters), ctx)
 }
 
 // GetMasterByID mocks base method.
-func (m *MockMastersRepository) GetMasterByID(id uint64) (*entities.Master, error) {
+func (m *MockMastersRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasterByID", id)
+	ret := m.ctrl.Call(m, "GetMasterByID", ctx, id)
 	ret0, _ := ret[0].(*entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasterByID indicates an expected call of GetMasterByID.
-func (mr *MockMastersRepositoryMockRecorder) GetMasterByID(id any) *gomock.Call {
+func (mr *MockMastersRepositoryMockRecorder) GetMasterByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByID", reflect.TypeOf((*MockMastersRepository)(nil).GetMasterByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByID", reflect.TypeOf((*MockMastersRepository)(nil).GetMasterByID), ctx, id)
 }
 
 // GetMasterByUserID mocks base method.
-func (m *MockMastersRepository) GetMasterByUserID(userID uint64) (*entities.Master, error) {
+func (m *MockMastersRepository) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasterByUserID", userID)
+	ret := m.ctrl.Call(m, "GetMasterByUserID", ctx, userID)
 	ret0, _ := ret[0].(*entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasterByUserID indicates an expected call of GetMasterByUserID.
-func (mr *MockMastersRepositoryMockRecorder) GetMasterByUserID(userID any) *gomock.Call {
+func (mr *MockMastersRepositoryMockRecorder) GetMasterByUserID(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByUserID", reflect.TypeOf((*MockMastersRepository)(nil).GetMasterByUserID), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByUserID", reflect.TypeOf((*MockMastersRepository)(nil).GetMasterByUserID), ctx, userID)
 }
 
 // RegisterMaster mocks base method.
-func (m *MockMastersRepository) RegisterMaster(masterData entities.RegisterMasterDTO) (uint64, error) {
+func (m *MockMastersRepository) RegisterMaster(ctx context.Context, masterData entities.RegisterMasterDTO) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterMaster", masterData)
+	ret := m.ctrl.Call(m, "RegisterMaster", ctx, masterData)
 	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RegisterMaster indicates an expected call of RegisterMaster.
-func (mr *MockMastersRepositoryMockRecorder) RegisterMaster(masterData any) *gomock.Call {
+func (mr *MockMastersRepositoryMockRecorder) RegisterMaster(ctx, masterData any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterMaster", reflect.TypeOf((*MockMastersRepository)(nil).RegisterMaster), masterData)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterMaster", reflect.TypeOf((*MockMastersRepository)(nil).RegisterMaster), ctx, masterData)
 }

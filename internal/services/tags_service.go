@@ -11,13 +11,23 @@ import (
 	"github.com/DKhorkov/libs/logging"
 )
 
+func NewCommonTagsService(
+	tagsRepository interfaces.TagsRepository,
+	logger *slog.Logger,
+) *CommonTagsService {
+	return &CommonTagsService{
+		tagsRepository: tagsRepository,
+		logger:         logger,
+	}
+}
+
 type CommonTagsService struct {
 	tagsRepository interfaces.TagsRepository
 	logger         *slog.Logger
 }
 
 func (service *CommonTagsService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
-	tag, err := service.tagsRepository.GetTagByID(id)
+	tag, err := service.tagsRepository.GetTagByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -33,15 +43,5 @@ func (service *CommonTagsService) GetTagByID(ctx context.Context, id uint32) (*e
 }
 
 func (service *CommonTagsService) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
-	return service.tagsRepository.GetAllTags()
-}
-
-func NewCommonTagsService(
-	tagsRepository interfaces.TagsRepository,
-	logger *slog.Logger,
-) *CommonTagsService {
-	return &CommonTagsService{
-		tagsRepository: tagsRepository,
-		logger:         logger,
-	}
+	return service.tagsRepository.GetAllTags(ctx)
 }
