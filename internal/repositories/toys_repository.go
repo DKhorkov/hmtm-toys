@@ -211,7 +211,3 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 
 	return toyID, nil
 }
-
-func (repo *CommonToysRepository) Close() error {
-	return nil
-}

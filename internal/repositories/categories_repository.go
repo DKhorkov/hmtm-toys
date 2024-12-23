@@ -96,7 +96,3 @@ func (repo *CommonCategoriesRepository) GetCategoryByID(ctx context.Context, id 
 
 	return category, nil
 }
-
-func (repo *CommonCategoriesRepository) Close() error {
-	return nil
-}

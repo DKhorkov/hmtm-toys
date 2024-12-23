@@ -35,48 +35,24 @@ func main() {
 	}()
 
 	tagsRepository := repositories.NewCommonTagsRepository(dbConnector, logger)
-	defer func() {
-		if err = tagsRepository.Close(); err != nil {
-			logging.LogError(logger, "Failed to close Tags repository", err)
-		}
-	}()
-
 	tagsService := services.NewCommonTagsService(
 		tagsRepository,
 		logger,
 	)
 
 	categoriesRepository := repositories.NewCommonCategoriesRepository(dbConnector, logger)
-	defer func() {
-		if err = categoriesRepository.Close(); err != nil {
-			logging.LogError(logger, "Failed to close Categories repository", err)
-		}
-	}()
-
 	categoriesService := services.NewCommonCategoriesService(
 		categoriesRepository,
 		logger,
 	)
 
 	mastersRepository := repositories.NewCommonMastersRepository(dbConnector, logger)
-	defer func() {
-		if err = mastersRepository.Close(); err != nil {
-			logging.LogError(logger, "Failed to close Masters repository", err)
-		}
-	}()
-
 	mastersService := services.NewCommonMastersService(
 		mastersRepository,
 		logger,
 	)
 
 	toysRepository := repositories.NewCommonToysRepository(dbConnector, logger)
-	defer func() {
-		if err = toysRepository.Close(); err != nil {
-			logging.LogError(logger, "Failed to close Toys repository", err)
-		}
-	}()
-
 	toysService := services.NewCommonToysService(
 		toysRepository,
 		tagsRepository,
