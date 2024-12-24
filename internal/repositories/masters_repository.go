@@ -149,7 +149,3 @@ func (repo *CommonMastersRepository) RegisterMaster(
 
 	return masterID, nil
 }
-
-func (repo *CommonMastersRepository) Close() error {
-	return nil
-}

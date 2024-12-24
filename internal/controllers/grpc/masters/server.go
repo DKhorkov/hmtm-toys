@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
-
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 
 	"github.com/DKhorkov/libs/security"
@@ -37,9 +34,6 @@ type ServerAPI struct {
 
 // GetMaster handler returns Master for provided ID.
 func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequest) (*toys.GetMasterResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	master, err := api.useCases.GetMasterByID(ctx, request.GetID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -71,9 +65,6 @@ func (api *ServerAPI) GetMasters(
 	ctx context.Context,
 	request *toys.GetMastersRequest,
 ) (*toys.GetMastersResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)
@@ -99,9 +90,6 @@ func (api *ServerAPI) RegisterMaster(
 	ctx context.Context,
 	request *toys.RegisterMasterRequest,
 ) (*toys.RegisterMasterResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	masterData := entities.RawRegisterMasterDTO{
 		AccessToken: request.GetAccessToken(),
 		Info:        request.GetInfo(),

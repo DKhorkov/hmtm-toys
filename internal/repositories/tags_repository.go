@@ -150,7 +150,3 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 
 	return tag, nil
 }
-
-func (repo *CommonTagsRepository) Close() error {
-	return nil
-}

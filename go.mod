@@ -3,7 +3,7 @@ module github.com/DKhorkov/hmtm-toys
 go 1.23.1
 
 require (
-	github.com/DKhorkov/libs v1.1.4
+	github.com/DKhorkov/libs v1.1.6
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.5.0
 	google.golang.org/grpc v1.68.0

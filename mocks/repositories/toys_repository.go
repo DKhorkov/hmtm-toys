@@ -56,20 +56,6 @@ func (mr *MockToysRepositoryMockRecorder) AddToy(ctx, toyData any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToy", reflect.TypeOf((*MockToysRepository)(nil).AddToy), ctx, toyData)
 }
 
-// Close mocks base method.
-func (m *MockToysRepository) Close() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Close")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Close indicates an expected call of Close.
-func (mr *MockToysRepositoryMockRecorder) Close() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockToysRepository)(nil).Close))
-}
-
 // GetAllToys mocks base method.
 func (m *MockToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
