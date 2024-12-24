@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
-
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 
 	"github.com/DKhorkov/libs/security"
@@ -37,9 +34,6 @@ type ServerAPI struct {
 
 // GetToy handler returns Toy for provided ID.
 func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (*toys.GetToyResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	toy, err := api.useCases.GetToyByID(ctx, request.GetID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -81,9 +75,6 @@ func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (
 
 // GetToys handler returns all Toys.
 func (api *ServerAPI) GetToys(ctx context.Context, request *toys.GetToysRequest) (*toys.GetToysResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
@@ -122,9 +113,6 @@ func (api *ServerAPI) GetMasterToys(
 	ctx context.Context,
 	request *toys.GetMasterToysRequest,
 ) (*toys.GetToysResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	masterToys, err := api.useCases.GetMasterToys(ctx, request.GetMasterID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -166,9 +154,6 @@ func (api *ServerAPI) GetMasterToys(
 
 // AddToy handler adds new Toy for Master.
 func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (*toys.AddToyResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	toyData := entities.RawAddToyDTO{
 		AccessToken: request.GetAccessToken(),
 		Name:        request.GetName(),

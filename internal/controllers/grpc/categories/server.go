@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
-
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -37,9 +34,6 @@ func (api *ServerAPI) GetCategory(
 	ctx context.Context,
 	request *toys.GetCategoryRequest,
 ) (*toys.GetCategoryResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	category, err := api.useCases.GetCategoryByID(ctx, request.GetID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -70,9 +64,6 @@ func (api *ServerAPI) GetCategories(
 	ctx context.Context,
 	request *toys.GetCategoriesRequest,
 ) (*toys.GetCategoriesResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Categories", err)

@@ -10,13 +10,20 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/tags"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
+	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
 	"google.golang.org/grpc"
 )
 
 // New creates an instance of gRPC Controller.
 func New(host string, port int, useCases interfaces.UseCases, logger *slog.Logger) *Controller {
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			customgrpc.ServerLoggingUnaryInterceptor(
+				logger,
+			),
+		),
+	)
 
 	// Connects our gRPC services to grpcServer:
 	tags.RegisterServer(grpcServer, useCases, logger)

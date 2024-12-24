@@ -8,9 +8,6 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/DKhorkov/libs/contextlib"
-	"github.com/DKhorkov/libs/requestid"
-
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -35,9 +32,6 @@ type ServerAPI struct {
 
 // GetTag handler returns Tag for provided ID.
 func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (*toys.GetTagResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	tag, err := api.useCases.GetTagByID(ctx, request.GetID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -65,9 +59,6 @@ func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (
 
 // GetTags handler returns all Tags.
 func (api *ServerAPI) GetTags(ctx context.Context, request *toys.GetTagsRequest) (*toys.GetTagsResponse, error) {
-	ctx = contextlib.SetValue(ctx, requestid.Key, request.GetRequestID())
-	logging.LogRequest(ctx, api.logger, request)
-
 	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Tags", err)
