@@ -160,6 +160,13 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 		return 0, err
 	}
 
+	// Rollback transaction according Go best practises https://go.dev/doc/database/execute-transactions.
+	defer func() {
+		if err = transaction.Rollback(); err != nil {
+			logging.LogErrorContext(ctx, repo.logger, "failed to rollback db transaction", err)
+		}
+	}()
+
 	var toyID uint64
 	err = transaction.QueryRow(
 		`

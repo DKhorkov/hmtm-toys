@@ -19,17 +19,20 @@ import (
 
 func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 	testCases := []struct {
+		name          string
 		categoryID    uint32
 		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
+			name:          "successfully got Category by id",
 			categoryID:    1,
 			resultLength:  1,
 			errorExpected: false,
 		},
 		{
+			name:          "failed to get Category by id",
 			categoryID:    2,
 			errorExpected: true,
 			err:           &customerrors.CategoryNotFoundError{},
@@ -49,14 +52,16 @@ func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tc := range testCases {
-		category, err := categoriesService.GetCategoryByID(ctx, tc.categoryID)
-		if tc.errorExpected {
-			require.Error(t, err)
-			require.IsType(t, tc.err, err)
-			assert.Nil(t, category)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			category, err := categoriesService.GetCategoryByID(ctx, tc.categoryID)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.IsType(t, tc.err, err)
+				assert.Nil(t, category)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
 
