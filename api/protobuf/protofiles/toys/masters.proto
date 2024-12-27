@@ -8,31 +8,31 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 
 
 service MastersService {
-  rpc RegisterMaster(RegisterMasterRequest) returns (RegisterMasterResponse) {}
-  rpc GetMaster(GetMasterRequest) returns (GetMasterResponse) {}
-  rpc GetMasters(GetMastersRequest) returns (GetMastersResponse) {}
+  rpc RegisterMaster(RegisterMasterIn) returns (RegisterMasterOut) {}
+  rpc GetMaster(GetMasterIn) returns (GetMasterOut) {}
+  rpc GetMasters(GetMastersIn) returns (GetMastersOut) {}
 }
 
-message RegisterMasterRequest {
+message RegisterMasterIn {
   string requestID = 1;
   string accessToken = 2;
   string info = 3;
 }
 
-message RegisterMasterResponse {
+message RegisterMasterOut {
   uint64 masterID = 1;
 }
 
-message GetMasterRequest {
+message GetMasterIn {
   string requestID = 1;
   uint64 ID = 2;
 }
 
-message GetMastersRequest {
+message GetMastersIn {
   string requestID = 1;
 }
 
-message GetMasterResponse {
+message GetMasterOut {
   uint64 ID = 1;
   uint64 userID = 2;
   string info = 3;
@@ -40,6 +40,6 @@ message GetMasterResponse {
   google.protobuf.Timestamp updatedAt = 6;
 }
 
-message GetMastersResponse {
-  repeated GetMasterResponse masters = 1;
+message GetMastersOut {
+  repeated GetMasterOut masters = 1;
 }

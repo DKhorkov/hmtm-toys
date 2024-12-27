@@ -33,13 +33,13 @@ type ServerAPI struct {
 }
 
 // GetMaster handler returns Master for provided ID.
-func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequest) (*toys.GetMasterResponse, error) {
-	master, err := api.useCases.GetMasterByID(ctx, request.GetID())
+func (api *ServerAPI) GetMaster(ctx context.Context, in *toys.GetMasterIn) (*toys.GetMasterOut, error) {
+	master, err := api.useCases.GetMasterByID(ctx, in.GetID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get Master with ID=%d", request.GetID()),
+			fmt.Sprintf("Error occurred while trying to get Master with ID=%d", in.GetID()),
 			err,
 		)
 
@@ -51,7 +51,7 @@ func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequ
 		}
 	}
 
-	return &toys.GetMasterResponse{
+	return &toys.GetMasterOut{
 		ID:        master.ID,
 		UserID:    master.UserID,
 		Info:      master.Info,
@@ -61,19 +61,16 @@ func (api *ServerAPI) GetMaster(ctx context.Context, request *toys.GetMasterRequ
 }
 
 // GetMasters handler returns all Masters.
-func (api *ServerAPI) GetMasters(
-	ctx context.Context,
-	request *toys.GetMastersRequest,
-) (*toys.GetMastersResponse, error) {
+func (api *ServerAPI) GetMasters(ctx context.Context, in *toys.GetMastersIn) (*toys.GetMastersOut, error) {
 	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
-	mastersForResponse := make([]*toys.GetMasterResponse, len(masters))
+	processedMasters := make([]*toys.GetMasterOut, len(masters))
 	for i, master := range masters {
-		mastersForResponse[i] = &toys.GetMasterResponse{
+		processedMasters[i] = &toys.GetMasterOut{
 			ID:        master.ID,
 			UserID:    master.UserID,
 			Info:      master.Info,
@@ -82,17 +79,14 @@ func (api *ServerAPI) GetMasters(
 		}
 	}
 
-	return &toys.GetMastersResponse{Masters: mastersForResponse}, nil
+	return &toys.GetMastersOut{Masters: processedMasters}, nil
 }
 
 // RegisterMaster handler register new Master for User.
-func (api *ServerAPI) RegisterMaster(
-	ctx context.Context,
-	request *toys.RegisterMasterRequest,
-) (*toys.RegisterMasterResponse, error) {
+func (api *ServerAPI) RegisterMaster(ctx context.Context, in *toys.RegisterMasterIn) (*toys.RegisterMasterOut, error) {
 	masterData := entities.RawRegisterMasterDTO{
-		AccessToken: request.GetAccessToken(),
-		Info:        request.GetInfo(),
+		AccessToken: in.GetAccessToken(),
+		Info:        in.GetInfo(),
 	}
 
 	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
@@ -109,5 +103,5 @@ func (api *ServerAPI) RegisterMaster(
 		}
 	}
 
-	return &toys.RegisterMasterResponse{MasterID: masterID}, nil
+	return &toys.RegisterMasterOut{MasterID: masterID}, nil
 }

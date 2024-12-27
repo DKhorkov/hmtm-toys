@@ -18,9 +18,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MastersServiceClient interface {
-	RegisterMaster(ctx context.Context, in *RegisterMasterRequest, opts ...grpc.CallOption) (*RegisterMasterResponse, error)
-	GetMaster(ctx context.Context, in *GetMasterRequest, opts ...grpc.CallOption) (*GetMasterResponse, error)
-	GetMasters(ctx context.Context, in *GetMastersRequest, opts ...grpc.CallOption) (*GetMastersResponse, error)
+	RegisterMaster(ctx context.Context, in *RegisterMasterIn, opts ...grpc.CallOption) (*RegisterMasterOut, error)
+	GetMaster(ctx context.Context, in *GetMasterIn, opts ...grpc.CallOption) (*GetMasterOut, error)
+	GetMasters(ctx context.Context, in *GetMastersIn, opts ...grpc.CallOption) (*GetMastersOut, error)
 }
 
 type mastersServiceClient struct {
@@ -31,8 +31,8 @@ func NewMastersServiceClient(cc grpc.ClientConnInterface) MastersServiceClient {
 	return &mastersServiceClient{cc}
 }
 
-func (c *mastersServiceClient) RegisterMaster(ctx context.Context, in *RegisterMasterRequest, opts ...grpc.CallOption) (*RegisterMasterResponse, error) {
-	out := new(RegisterMasterResponse)
+func (c *mastersServiceClient) RegisterMaster(ctx context.Context, in *RegisterMasterIn, opts ...grpc.CallOption) (*RegisterMasterOut, error) {
+	out := new(RegisterMasterOut)
 	err := c.cc.Invoke(ctx, "/masters.MastersService/RegisterMaster", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -40,8 +40,8 @@ func (c *mastersServiceClient) RegisterMaster(ctx context.Context, in *RegisterM
 	return out, nil
 }
 
-func (c *mastersServiceClient) GetMaster(ctx context.Context, in *GetMasterRequest, opts ...grpc.CallOption) (*GetMasterResponse, error) {
-	out := new(GetMasterResponse)
+func (c *mastersServiceClient) GetMaster(ctx context.Context, in *GetMasterIn, opts ...grpc.CallOption) (*GetMasterOut, error) {
+	out := new(GetMasterOut)
 	err := c.cc.Invoke(ctx, "/masters.MastersService/GetMaster", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -49,8 +49,8 @@ func (c *mastersServiceClient) GetMaster(ctx context.Context, in *GetMasterReque
 	return out, nil
 }
 
-func (c *mastersServiceClient) GetMasters(ctx context.Context, in *GetMastersRequest, opts ...grpc.CallOption) (*GetMastersResponse, error) {
-	out := new(GetMastersResponse)
+func (c *mastersServiceClient) GetMasters(ctx context.Context, in *GetMastersIn, opts ...grpc.CallOption) (*GetMastersOut, error) {
+	out := new(GetMastersOut)
 	err := c.cc.Invoke(ctx, "/masters.MastersService/GetMasters", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,9 +62,9 @@ func (c *mastersServiceClient) GetMasters(ctx context.Context, in *GetMastersReq
 // All implementations must embed UnimplementedMastersServiceServer
 // for forward compatibility
 type MastersServiceServer interface {
-	RegisterMaster(context.Context, *RegisterMasterRequest) (*RegisterMasterResponse, error)
-	GetMaster(context.Context, *GetMasterRequest) (*GetMasterResponse, error)
-	GetMasters(context.Context, *GetMastersRequest) (*GetMastersResponse, error)
+	RegisterMaster(context.Context, *RegisterMasterIn) (*RegisterMasterOut, error)
+	GetMaster(context.Context, *GetMasterIn) (*GetMasterOut, error)
+	GetMasters(context.Context, *GetMastersIn) (*GetMastersOut, error)
 	mustEmbedUnimplementedMastersServiceServer()
 }
 
@@ -72,13 +72,13 @@ type MastersServiceServer interface {
 type UnimplementedMastersServiceServer struct {
 }
 
-func (UnimplementedMastersServiceServer) RegisterMaster(context.Context, *RegisterMasterRequest) (*RegisterMasterResponse, error) {
+func (UnimplementedMastersServiceServer) RegisterMaster(context.Context, *RegisterMasterIn) (*RegisterMasterOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterMaster not implemented")
 }
-func (UnimplementedMastersServiceServer) GetMaster(context.Context, *GetMasterRequest) (*GetMasterResponse, error) {
+func (UnimplementedMastersServiceServer) GetMaster(context.Context, *GetMasterIn) (*GetMasterOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMaster not implemented")
 }
-func (UnimplementedMastersServiceServer) GetMasters(context.Context, *GetMastersRequest) (*GetMastersResponse, error) {
+func (UnimplementedMastersServiceServer) GetMasters(context.Context, *GetMastersIn) (*GetMastersOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasters not implemented")
 }
 func (UnimplementedMastersServiceServer) mustEmbedUnimplementedMastersServiceServer() {}
@@ -95,7 +95,7 @@ func RegisterMastersServiceServer(s grpc.ServiceRegistrar, srv MastersServiceSer
 }
 
 func _MastersService_RegisterMaster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterMasterRequest)
+	in := new(RegisterMasterIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -107,13 +107,13 @@ func _MastersService_RegisterMaster_Handler(srv interface{}, ctx context.Context
 		FullMethod: "/masters.MastersService/RegisterMaster",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MastersServiceServer).RegisterMaster(ctx, req.(*RegisterMasterRequest))
+		return srv.(MastersServiceServer).RegisterMaster(ctx, req.(*RegisterMasterIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _MastersService_GetMaster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMasterRequest)
+	in := new(GetMasterIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -125,13 +125,13 @@ func _MastersService_GetMaster_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/masters.MastersService/GetMaster",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MastersServiceServer).GetMaster(ctx, req.(*GetMasterRequest))
+		return srv.(MastersServiceServer).GetMaster(ctx, req.(*GetMasterIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _MastersService_GetMasters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMastersRequest)
+	in := new(GetMastersIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func _MastersService_GetMasters_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/masters.MastersService/GetMasters",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MastersServiceServer).GetMasters(ctx, req.(*GetMastersRequest))
+		return srv.(MastersServiceServer).GetMasters(ctx, req.(*GetMastersIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }

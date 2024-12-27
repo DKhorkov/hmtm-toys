@@ -30,16 +30,13 @@ type ServerAPI struct {
 }
 
 // GetCategory handler returns Category for provided ID.
-func (api *ServerAPI) GetCategory(
-	ctx context.Context,
-	request *toys.GetCategoryRequest,
-) (*toys.GetCategoryResponse, error) {
-	category, err := api.useCases.GetCategoryByID(ctx, request.GetID())
+func (api *ServerAPI) GetCategory(ctx context.Context, in *toys.GetCategoryIn) (*toys.GetCategoryOut, error) {
+	category, err := api.useCases.GetCategoryByID(ctx, in.GetID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get Category with ID=%d", request.GetID()),
+			fmt.Sprintf("Error occurred while trying to get Category with ID=%d", in.GetID()),
 			err,
 		)
 
@@ -51,7 +48,7 @@ func (api *ServerAPI) GetCategory(
 		}
 	}
 
-	return &toys.GetCategoryResponse{
+	return &toys.GetCategoryOut{
 		ID:        category.ID,
 		Name:      category.Name,
 		CreatedAt: timestamppb.New(category.CreatedAt),
@@ -60,19 +57,16 @@ func (api *ServerAPI) GetCategory(
 }
 
 // GetCategories handler returns all Categories.
-func (api *ServerAPI) GetCategories(
-	ctx context.Context,
-	request *toys.GetCategoriesRequest,
-) (*toys.GetCategoriesResponse, error) {
+func (api *ServerAPI) GetCategories(ctx context.Context, in *toys.GetCategoriesIn) (*toys.GetCategoriesOut, error) {
 	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Categories", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
-	categoriesForResponse := make([]*toys.GetCategoryResponse, len(categories))
+	processedCategories := make([]*toys.GetCategoryOut, len(categories))
 	for i, category := range categories {
-		categoriesForResponse[i] = &toys.GetCategoryResponse{
+		processedCategories[i] = &toys.GetCategoryOut{
 			ID:        category.ID,
 			Name:      category.Name,
 			CreatedAt: timestamppb.New(category.CreatedAt),
@@ -80,5 +74,5 @@ func (api *ServerAPI) GetCategories(
 		}
 	}
 
-	return &toys.GetCategoriesResponse{Categories: categoriesForResponse}, nil
+	return &toys.GetCategoriesOut{Categories: processedCategories}, nil
 }

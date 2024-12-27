@@ -356,27 +356,14 @@ issues:
         - gosec
         - noctx
         - wrapcheck
-    - path: "internal/repositories/lifespan_test.go"
-      linters:
-        - gochecknoglobals
-    - path: "internal/usecases/usecases.go"
-      linters:
-        - govet
     - path: "internal/usecases/usecases.go"
       linters:
         - errcheck
+        - govet
     - path: "cmd/client/client.go"
       linters:
         - mnd
         - govet
-    - path: "internal/repositories/toys_repository.go"
-      linters:
-        - mnd
-        - gosec
-        - dupl
-    - path: "internal/services/utils_test.go"
-      linters:
-        - testpackage
     - path: "internal/services/tags_service.go"
       linters:
         - revive
@@ -400,4 +387,9 @@ issues:
         - dupl
     - path: "internal/repositories/categories_repository.go"
       linters:
+        - dupl
+    - path: "internal/repositories/toys_repository.go"
+      linters:
+        - mnd
+        - gosec
         - dupl

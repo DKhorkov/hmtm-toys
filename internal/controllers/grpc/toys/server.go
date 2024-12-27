@@ -33,13 +33,13 @@ type ServerAPI struct {
 }
 
 // GetToy handler returns Toy for provided ID.
-func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (*toys.GetToyResponse, error) {
-	toy, err := api.useCases.GetToyByID(ctx, request.GetID())
+func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetToyOut, error) {
+	toy, err := api.useCases.GetToyByID(ctx, in.GetID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", request.GetID()),
+			fmt.Sprintf("Error occurred while trying to get Toy with ID=%d", in.GetID()),
 			err,
 		)
 
@@ -51,15 +51,15 @@ func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (
 		}
 	}
 
-	tags := make([]*toys.GetTagResponse, len(toy.Tags))
+	tags := make([]*toys.GetTagOut, len(toy.Tags))
 	for i, tag := range toy.Tags {
-		tags[i] = &toys.GetTagResponse{
+		tags[i] = &toys.GetTagOut{
 			ID:   tag.ID,
 			Name: tag.Name,
 		}
 	}
 
-	return &toys.GetToyResponse{
+	return &toys.GetToyOut{
 		ID:          toy.ID,
 		MasterID:    toy.MasterID,
 		Name:        toy.Name,
@@ -74,24 +74,24 @@ func (api *ServerAPI) GetToy(ctx context.Context, request *toys.GetToyRequest) (
 }
 
 // GetToys handler returns all Toys.
-func (api *ServerAPI) GetToys(ctx context.Context, request *toys.GetToysRequest) (*toys.GetToysResponse, error) {
+func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.GetToysOut, error) {
 	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
-	toysForResponse := make([]*toys.GetToyResponse, len(allToys))
+	processedToys := make([]*toys.GetToyOut, len(allToys))
 	for i, toy := range allToys {
-		tags := make([]*toys.GetTagResponse, len(toy.Tags))
+		tags := make([]*toys.GetTagOut, len(toy.Tags))
 		for j, tag := range toy.Tags {
-			tags[j] = &toys.GetTagResponse{
+			tags[j] = &toys.GetTagOut{
 				ID:   tag.ID,
 				Name: tag.Name,
 			}
 		}
 
-		toysForResponse[i] = &toys.GetToyResponse{
+		processedToys[i] = &toys.GetToyOut{
 			ID:          toy.ID,
 			MasterID:    toy.MasterID,
 			Name:        toy.Name,
@@ -105,37 +105,34 @@ func (api *ServerAPI) GetToys(ctx context.Context, request *toys.GetToysRequest)
 		}
 	}
 
-	return &toys.GetToysResponse{Toys: toysForResponse}, nil
+	return &toys.GetToysOut{Toys: processedToys}, nil
 }
 
 // GetMasterToys handler returns all Toys for master with provided ID.
-func (api *ServerAPI) GetMasterToys(
-	ctx context.Context,
-	request *toys.GetMasterToysRequest,
-) (*toys.GetToysResponse, error) {
-	masterToys, err := api.useCases.GetMasterToys(ctx, request.GetMasterID())
+func (api *ServerAPI) GetMasterToys(ctx context.Context, in *toys.GetMasterToysIn) (*toys.GetToysOut, error) {
+	masterToys, err := api.useCases.GetMasterToys(ctx, in.GetMasterID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get all Toys for Master with ID=%d", request.GetMasterID()),
+			fmt.Sprintf("Error occurred while trying to get all Toys for Master with ID=%d", in.GetMasterID()),
 			err,
 		)
 
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
-	toysForResponse := make([]*toys.GetToyResponse, len(masterToys))
+	processedToys := make([]*toys.GetToyOut, len(masterToys))
 	for i, toy := range masterToys {
-		tags := make([]*toys.GetTagResponse, len(toy.Tags))
+		tags := make([]*toys.GetTagOut, len(toy.Tags))
 		for j, tag := range toy.Tags {
-			tags[j] = &toys.GetTagResponse{
+			tags[j] = &toys.GetTagOut{
 				ID:   tag.ID,
 				Name: tag.Name,
 			}
 		}
 
-		toysForResponse[i] = &toys.GetToyResponse{
+		processedToys[i] = &toys.GetToyOut{
 			ID:          toy.ID,
 			MasterID:    toy.MasterID,
 			Name:        toy.Name,
@@ -149,19 +146,19 @@ func (api *ServerAPI) GetMasterToys(
 		}
 	}
 
-	return &toys.GetToysResponse{Toys: toysForResponse}, nil
+	return &toys.GetToysOut{Toys: processedToys}, nil
 }
 
 // AddToy handler adds new Toy for Master.
-func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (*toys.AddToyResponse, error) {
+func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddToyOut, error) {
 	toyData := entities.RawAddToyDTO{
-		AccessToken: request.GetAccessToken(),
-		Name:        request.GetName(),
-		Description: request.GetDescription(),
-		Price:       request.GetPrice(),
-		Quantity:    request.GetQuantity(),
-		CategoryID:  request.GetCategoryID(),
-		TagsIDs:     request.GetTagIDs(),
+		AccessToken: in.GetAccessToken(),
+		Name:        in.GetName(),
+		Description: in.GetDescription(),
+		Price:       in.GetPrice(),
+		Quantity:    in.GetQuantity(),
+		CategoryID:  in.GetCategoryID(),
+		TagsIDs:     in.GetTagIDs(),
 	}
 
 	toyID, err := api.useCases.AddToy(ctx, toyData)
@@ -182,5 +179,5 @@ func (api *ServerAPI) AddToy(ctx context.Context, request *toys.AddToyRequest) (
 		}
 	}
 
-	return &toys.AddToyResponse{ToyID: toyID}, nil
+	return &toys.AddToyOut{ToyID: toyID}, nil
 }

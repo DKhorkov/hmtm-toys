@@ -31,13 +31,13 @@ type ServerAPI struct {
 }
 
 // GetTag handler returns Tag for provided ID.
-func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (*toys.GetTagResponse, error) {
-	tag, err := api.useCases.GetTagByID(ctx, request.GetID())
+func (api *ServerAPI) GetTag(ctx context.Context, in *toys.GetTagIn) (*toys.GetTagOut, error) {
+	tag, err := api.useCases.GetTagByID(ctx, in.GetID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get Tag with ID=%d", request.GetID()),
+			fmt.Sprintf("Error occurred while trying to get Tag with ID=%d", in.GetID()),
 			err,
 		)
 
@@ -49,7 +49,7 @@ func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (
 		}
 	}
 
-	return &toys.GetTagResponse{
+	return &toys.GetTagOut{
 		ID:        tag.ID,
 		Name:      tag.Name,
 		CreatedAt: timestamppb.New(tag.CreatedAt),
@@ -58,16 +58,16 @@ func (api *ServerAPI) GetTag(ctx context.Context, request *toys.GetTagRequest) (
 }
 
 // GetTags handler returns all Tags.
-func (api *ServerAPI) GetTags(ctx context.Context, request *toys.GetTagsRequest) (*toys.GetTagsResponse, error) {
+func (api *ServerAPI) GetTags(ctx context.Context, in *toys.GetTagsIn) (*toys.GetTagsOut, error) {
 	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Tags", err)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
-	tagsForResponse := make([]*toys.GetTagResponse, len(tags))
+	processedTags := make([]*toys.GetTagOut, len(tags))
 	for i, tag := range tags {
-		tagsForResponse[i] = &toys.GetTagResponse{
+		processedTags[i] = &toys.GetTagOut{
 			ID:        tag.ID,
 			Name:      tag.Name,
 			CreatedAt: timestamppb.New(tag.CreatedAt),
@@ -75,5 +75,5 @@ func (api *ServerAPI) GetTags(ctx context.Context, request *toys.GetTagsRequest)
 		}
 	}
 
-	return &toys.GetTagsResponse{Tags: tagsForResponse}, nil
+	return &toys.GetTagsOut{Tags: processedTags}, nil
 }

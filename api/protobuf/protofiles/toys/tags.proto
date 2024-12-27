@@ -8,26 +8,26 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 
 
 service TagsService {
-  rpc GetTag(GetTagRequest) returns (GetTagResponse) {}
-  rpc GetTags(GetTagsRequest) returns (GetTagsResponse) {}
+  rpc GetTag(GetTagIn) returns (GetTagOut) {}
+  rpc GetTags(GetTagsIn) returns (GetTagsOut) {}
 }
 
-message GetTagRequest {
+message GetTagIn {
   string requestID = 1;
   uint32 ID = 2;
 }
 
-message GetTagsRequest {
+message GetTagsIn {
   string requestID = 1;
 }
 
-message GetTagResponse {
+message GetTagOut {
   uint32 ID = 1;
   string name = 2;
   google.protobuf.Timestamp createdAt = 3;
   google.protobuf.Timestamp updatedAt = 4;
 }
 
-message GetTagsResponse {
-  repeated GetTagResponse tags = 1;
+message GetTagsOut {
+  repeated GetTagOut tags = 1;
 }
