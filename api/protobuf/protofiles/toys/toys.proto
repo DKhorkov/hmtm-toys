@@ -9,13 +9,13 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 
 
 service ToysService {
-  rpc AddToy(AddToyRequest) returns (AddToyResponse) {}
-  rpc GetToy(GetToyRequest) returns (GetToyResponse) {}
-  rpc GetToys(GetToysRequest) returns (GetToysResponse) {}
-  rpc GetMasterToys(GetMasterToysRequest) returns (GetToysResponse) {}
+  rpc AddToy(AddToyIn) returns (AddToyOut) {}
+  rpc GetToy(GetToyIn) returns (GetToyOut) {}
+  rpc GetToys(GetToysIn) returns (GetToysOut) {}
+  rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
 }
 
-message AddToyRequest {
+message AddToyIn {
   string requestID = 1;
   string accessToken = 2;
   string name = 3;
@@ -26,20 +26,16 @@ message AddToyRequest {
   repeated uint32 tagIDs = 8;
 }
 
-message AddToyResponse {
+message AddToyOut {
   uint64 toyID = 1;
 }
 
-message GetToyRequest {
+message GetToyIn {
   string requestID = 1;
   uint64 ID = 2;
 }
 
-message GetToysRequest {
-  string requestID = 1;
-}
-
-message GetToyResponse {
+message GetToyOut {
   uint64 ID = 1;
   uint64 masterID = 2;
   string name = 3;
@@ -47,16 +43,20 @@ message GetToyResponse {
   float price = 5;
   uint32 quantity = 6;
   uint32 categoryID = 7;
-  repeated tags.GetTagResponse tags = 8;
+  repeated tags.GetTagOut tags = 8;
   google.protobuf.Timestamp createdAt = 9;
   google.protobuf.Timestamp updatedAt = 10;
 }
 
-message GetMasterToysRequest {
+message GetToysIn {
   string requestID = 1;
-  uint64 masterID = 2;
 }
 
-message GetToysResponse {
-  repeated GetToyResponse toys = 1;
+message GetToysOut {
+  repeated GetToyOut toys = 1;
+}
+
+message GetMasterToysIn {
+  string requestID = 1;
+  uint64 masterID = 2;
 }

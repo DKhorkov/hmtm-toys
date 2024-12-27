@@ -19,17 +19,20 @@ import (
 
 func TestCommonTagsServiceGetTagByID(t *testing.T) {
 	testCases := []struct {
+		name          string
 		tagID         uint32
 		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
+			name:          "successfully got Tag by id",
 			tagID:         1,
 			resultLength:  1,
 			errorExpected: false,
 		},
 		{
+			name:          "failed to get Tag by id",
 			tagID:         2,
 			errorExpected: true,
 			err:           &customerrors.TagNotFoundError{},
@@ -49,14 +52,16 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tc := range testCases {
-		tag, err := tagsService.GetTagByID(ctx, tc.tagID)
-		if tc.errorExpected {
-			require.Error(t, err)
-			require.IsType(t, tc.err, err)
-			assert.Nil(t, tag)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			tag, err := tagsService.GetTagByID(ctx, tc.tagID)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.IsType(t, tc.err, err)
+				assert.Nil(t, tag)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
 

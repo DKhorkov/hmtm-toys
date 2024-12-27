@@ -8,27 +8,27 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 
 
 service CategoriesService {
-  rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse) {}
-  rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse) {}
+  rpc GetCategory(GetCategoryIn) returns (GetCategoryOut) {}
+  rpc GetCategories(GetCategoriesIn) returns (GetCategoriesOut) {}
 }
 
-message GetCategoryRequest {
+message GetCategoryIn {
   string requestID = 1;
   uint32 ID = 2;
 }
 
-message GetCategoriesRequest {
+message GetCategoriesIn {
   string requestID = 1;
 }
 
-message GetCategoryResponse {
+message GetCategoryOut {
   uint32 ID = 1;
   string name = 2;
   google.protobuf.Timestamp createdAt = 3;
   google.protobuf.Timestamp updatedAt = 4;
 }
 
-message GetCategoriesResponse {
-  repeated GetCategoryResponse categories = 1;
+message GetCategoriesOut {
+  repeated GetCategoryOut categories = 1;
 }
 

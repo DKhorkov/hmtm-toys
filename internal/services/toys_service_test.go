@@ -20,16 +20,19 @@ import (
 
 func TestCommonToysServiceGetToyByID(t *testing.T) {
 	testCases := []struct {
+		name          string
 		toyID         uint64
 		resultLength  int
 		errorExpected bool
 	}{
 		{
+			name:          "successfully got Toy by id",
 			toyID:         1,
 			resultLength:  1,
 			errorExpected: false,
 		},
 		{
+			name:          "failed to get Toy by id",
 			toyID:         2,
 			errorExpected: true,
 		},
@@ -51,13 +54,15 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tc := range testCases {
-		toy, err := toysService.GetToyByID(ctx, tc.toyID)
-		if tc.errorExpected {
-			require.Error(t, err)
-			assert.Nil(t, toy)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			toy, err := toysService.GetToyByID(ctx, tc.toyID)
+			if tc.errorExpected {
+				require.Error(t, err)
+				assert.Nil(t, toy)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
 
@@ -224,18 +229,21 @@ func TestCommonToysServiceProcessToyTags(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
+		name          string
 		toy           *entities.Toy
 		repository    interfaces.TagsRepository
 		logger        *slog.Logger
 		errorExpected bool
 	}{
 		{
+			name:          "successfully processed Toy Tags",
 			toy:           &entities.Toy{ID: 1},
 			repository:    tagsRepository,
 			logger:        logger,
 			errorExpected: false,
 		},
 		{
+			name:          "failed to process Toy Tags",
 			toy:           &entities.Toy{ID: 2},
 			repository:    tagsRepository,
 			logger:        logger,
@@ -244,11 +252,13 @@ func TestCommonToysServiceProcessToyTags(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := toysService.processToyTags(ctx, tc.toy)
-		if tc.errorExpected {
-			require.Error(t, err)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			err := toysService.processToyTags(ctx, tc.toy)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }

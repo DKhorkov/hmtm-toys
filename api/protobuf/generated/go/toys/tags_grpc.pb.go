@@ -18,8 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TagsServiceClient interface {
-	GetTag(ctx context.Context, in *GetTagRequest, opts ...grpc.CallOption) (*GetTagResponse, error)
-	GetTags(ctx context.Context, in *GetTagsRequest, opts ...grpc.CallOption) (*GetTagsResponse, error)
+	GetTag(ctx context.Context, in *GetTagIn, opts ...grpc.CallOption) (*GetTagOut, error)
+	GetTags(ctx context.Context, in *GetTagsIn, opts ...grpc.CallOption) (*GetTagsOut, error)
 }
 
 type tagsServiceClient struct {
@@ -30,8 +30,8 @@ func NewTagsServiceClient(cc grpc.ClientConnInterface) TagsServiceClient {
 	return &tagsServiceClient{cc}
 }
 
-func (c *tagsServiceClient) GetTag(ctx context.Context, in *GetTagRequest, opts ...grpc.CallOption) (*GetTagResponse, error) {
-	out := new(GetTagResponse)
+func (c *tagsServiceClient) GetTag(ctx context.Context, in *GetTagIn, opts ...grpc.CallOption) (*GetTagOut, error) {
+	out := new(GetTagOut)
 	err := c.cc.Invoke(ctx, "/tags.TagsService/GetTag", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -39,8 +39,8 @@ func (c *tagsServiceClient) GetTag(ctx context.Context, in *GetTagRequest, opts 
 	return out, nil
 }
 
-func (c *tagsServiceClient) GetTags(ctx context.Context, in *GetTagsRequest, opts ...grpc.CallOption) (*GetTagsResponse, error) {
-	out := new(GetTagsResponse)
+func (c *tagsServiceClient) GetTags(ctx context.Context, in *GetTagsIn, opts ...grpc.CallOption) (*GetTagsOut, error) {
+	out := new(GetTagsOut)
 	err := c.cc.Invoke(ctx, "/tags.TagsService/GetTags", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (c *tagsServiceClient) GetTags(ctx context.Context, in *GetTagsRequest, opt
 // All implementations must embed UnimplementedTagsServiceServer
 // for forward compatibility
 type TagsServiceServer interface {
-	GetTag(context.Context, *GetTagRequest) (*GetTagResponse, error)
-	GetTags(context.Context, *GetTagsRequest) (*GetTagsResponse, error)
+	GetTag(context.Context, *GetTagIn) (*GetTagOut, error)
+	GetTags(context.Context, *GetTagsIn) (*GetTagsOut, error)
 	mustEmbedUnimplementedTagsServiceServer()
 }
 
@@ -61,10 +61,10 @@ type TagsServiceServer interface {
 type UnimplementedTagsServiceServer struct {
 }
 
-func (UnimplementedTagsServiceServer) GetTag(context.Context, *GetTagRequest) (*GetTagResponse, error) {
+func (UnimplementedTagsServiceServer) GetTag(context.Context, *GetTagIn) (*GetTagOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTag not implemented")
 }
-func (UnimplementedTagsServiceServer) GetTags(context.Context, *GetTagsRequest) (*GetTagsResponse, error) {
+func (UnimplementedTagsServiceServer) GetTags(context.Context, *GetTagsIn) (*GetTagsOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTags not implemented")
 }
 func (UnimplementedTagsServiceServer) mustEmbedUnimplementedTagsServiceServer() {}
@@ -81,7 +81,7 @@ func RegisterTagsServiceServer(s grpc.ServiceRegistrar, srv TagsServiceServer) {
 }
 
 func _TagsService_GetTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTagRequest)
+	in := new(GetTagIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -93,13 +93,13 @@ func _TagsService_GetTag_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/tags.TagsService/GetTag",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagsServiceServer).GetTag(ctx, req.(*GetTagRequest))
+		return srv.(TagsServiceServer).GetTag(ctx, req.(*GetTagIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TagsService_GetTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTagsRequest)
+	in := new(GetTagsIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func _TagsService_GetTags_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/tags.TagsService/GetTags",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagsServiceServer).GetTags(ctx, req.(*GetTagsRequest))
+		return srv.(TagsServiceServer).GetTags(ctx, req.(*GetTagsIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }

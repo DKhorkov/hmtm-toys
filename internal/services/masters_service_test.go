@@ -19,17 +19,20 @@ import (
 
 func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	testCases := []struct {
+		name          string
 		masterID      uint64
 		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
+			name:          "successfully got Master by id",
 			masterID:      1,
 			resultLength:  1,
 			errorExpected: false,
 		},
 		{
+			name:          "failed to get Master by id",
 			masterID:      2,
 			errorExpected: true,
 			err:           &customerrors.MasterNotFoundError{},
@@ -49,30 +52,35 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tc := range testCases {
-		master, err := mastersService.GetMasterByID(ctx, tc.masterID)
-		if tc.errorExpected {
-			require.Error(t, err)
-			require.IsType(t, tc.err, err)
-			assert.Nil(t, master)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			master, err := mastersService.GetMasterByID(ctx, tc.masterID)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.IsType(t, tc.err, err)
+				assert.Nil(t, master)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
 
 func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	testCases := []struct {
+		name          string
 		userID        uint64
 		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
+			name:          "successfully got Master by userID",
 			userID:        1,
 			resultLength:  1,
 			errorExpected: false,
 		},
 		{
+			name:          "failed to get Master by userID",
 			userID:        2,
 			errorExpected: true,
 			err:           &customerrors.MasterNotFoundError{},
@@ -92,14 +100,16 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tc := range testCases {
-		master, err := mastersService.GetMasterByUserID(ctx, tc.userID)
-		if tc.errorExpected {
-			require.Error(t, err)
-			require.IsType(t, tc.err, err)
-			assert.Nil(t, master)
-		} else {
-			require.NoError(t, err)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			master, err := mastersService.GetMasterByUserID(ctx, tc.userID)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.IsType(t, tc.err, err)
+				assert.Nil(t, master)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
 
