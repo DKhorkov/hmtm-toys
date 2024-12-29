@@ -10,12 +10,13 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 service MastersService {
   rpc RegisterMaster(RegisterMasterIn) returns (RegisterMasterOut) {}
   rpc GetMaster(GetMasterIn) returns (GetMasterOut) {}
+  rpc GetMasterByUser(GetMasterByUserIn) returns (GetMasterOut) {}
   rpc GetMasters(GetMastersIn) returns (GetMastersOut) {}
 }
 
 message RegisterMasterIn {
   string requestID = 1;
-  string accessToken = 2;
+  uint64 userID = 2;
   string info = 3;
 }
 
@@ -42,4 +43,9 @@ message GetMasterOut {
 
 message GetMastersOut {
   repeated GetMasterOut masters = 1;
+}
+
+message GetMasterByUserIn {
+  string requestID = 1;
+  uint64 userID = 2;
 }

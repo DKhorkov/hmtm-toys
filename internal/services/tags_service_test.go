@@ -21,14 +21,12 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		tagID         uint32
-		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
 			name:          "successfully got Tag by id",
 			tagID:         1,
-			resultLength:  1,
 			errorExpected: false,
 		},
 		{

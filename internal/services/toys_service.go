@@ -80,11 +80,28 @@ func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID ui
 }
 
 func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+	if service.checkToyExistence(ctx, toyData) {
+		return 0, &customerrors.ToyAlreadyExistsError{}
+	}
+
 	return service.toysRepository.AddToy(ctx, toyData)
 }
 
+func (service *CommonToysService) checkToyExistence(ctx context.Context, toyData entities.AddToyDTO) bool {
+	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID)
+	if err == nil {
+		for _, toy := range toys {
+			if toy.Name == toyData.Name && toy.CategoryID == toyData.CategoryID && toy.Description == toyData.Description {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (service *CommonToysService) processToyTags(ctx context.Context, toy *entities.Toy) error {
-	toyTags, err := service.tagsRepository.GetToyTags(ctx, toy.ID)
+	tags, err := service.tagsRepository.GetToyTags(ctx, toy.ID)
 	if err != nil {
 		logging.LogError(
 			service.logger,
@@ -95,6 +112,6 @@ func (service *CommonToysService) processToyTags(ctx context.Context, toy *entit
 		return err
 	}
 
-	toy.Tags = toyTags
+	toy.Tags = tags
 	return nil
 }

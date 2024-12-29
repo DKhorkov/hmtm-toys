@@ -4,18 +4,13 @@ import "time"
 
 type Master struct {
 	ID        uint64    `json:"id"`
-	UserID    uint64    `json:"userID"`
+	UserID    uint64    `json:"user_id"`
 	Info      string    `json:"info"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type RegisterMasterDTO struct {
-	UserID uint64 `json:"userID"`
+	UserID uint64 `json:"user_id"`
 	Info   string `json:"info"`
-}
-
-type RawRegisterMasterDTO struct {
-	AccessToken string `json:"accessToken"`
-	Info        string `json:"info"`
 }

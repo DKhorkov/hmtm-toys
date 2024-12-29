@@ -21,14 +21,12 @@ func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		categoryID    uint32
-		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
 			name:          "successfully got Category by id",
 			categoryID:    1,
-			resultLength:  1,
 			errorExpected: false,
 		},
 		{

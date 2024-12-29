@@ -5,7 +5,6 @@ import (
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	"github.com/DKhorkov/libs/security"
 )
 
 func NewCommonUseCases(
@@ -13,14 +12,12 @@ func NewCommonUseCases(
 	categoriesService interfaces.CategoriesService,
 	mastersService interfaces.MastersService,
 	toysService interfaces.ToysService,
-	jwtConfig security.JWTConfig,
 ) *CommonUseCases {
 	return &CommonUseCases{
 		tagsService:       tagsService,
 		categoriesService: categoriesService,
 		mastersService:    mastersService,
 		toysService:       toysService,
-		jwtConfig:         jwtConfig,
 	}
 }
 
@@ -29,18 +26,6 @@ type CommonUseCases struct {
 	categoriesService interfaces.CategoriesService
 	mastersService    interfaces.MastersService
 	toysService       interfaces.ToysService
-	jwtConfig         security.JWTConfig
-}
-
-// parseAccessToken parses JWT and gets UserID from it for further purposes.
-func (useCases *CommonUseCases) parseAccessToken(accessToken string) (uint64, error) {
-	accessTokenPayload, err := security.ParseJWT(accessToken, useCases.jwtConfig.SecretKey)
-	if err != nil {
-		return 0, &security.InvalidJWTError{}
-	}
-
-	userID := uint64(accessTokenPayload.(float64))
-	return userID, nil
 }
 
 func (useCases *CommonUseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
@@ -72,12 +57,7 @@ func (useCases *CommonUseCases) GetMasterToys(ctx context.Context, masterID uint
 }
 
 func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
-	userID, err := useCases.parseAccessToken(rawToyData.AccessToken)
-	if err != nil {
-		return 0, err
-	}
-
-	master, err := useCases.mastersService.GetMasterByUserID(ctx, userID)
+	master, err := useCases.mastersService.GetMasterByUserID(ctx, rawToyData.UserID)
 	if err != nil {
 		return 0, err
 	}
@@ -109,23 +89,17 @@ func (useCases *CommonUseCases) GetMasterByID(ctx context.Context, id uint64) (*
 	return useCases.mastersService.GetMasterByID(ctx, id)
 }
 
+func (useCases *CommonUseCases) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+	return useCases.mastersService.GetMasterByUserID(ctx, userID)
+}
+
 func (useCases *CommonUseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	return useCases.mastersService.GetAllMasters(ctx)
 }
 
 func (useCases *CommonUseCases) RegisterMaster(
 	ctx context.Context,
-	rawMasterData entities.RawRegisterMasterDTO,
+	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
-	userID, err := useCases.parseAccessToken(rawMasterData.AccessToken)
-	if err != nil {
-		return 0, err
-	}
-
-	masterData := entities.RegisterMasterDTO{
-		UserID: userID,
-		Info:   rawMasterData.Info,
-	}
-
 	return useCases.mastersService.RegisterMaster(ctx, masterData)
 }

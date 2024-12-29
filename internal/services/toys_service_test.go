@@ -7,8 +7,6 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -22,13 +20,11 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toyID         uint64
-		resultLength  int
 		errorExpected bool
 	}{
 		{
 			name:          "successfully got Toy by id",
 			toyID:         1,
-			resultLength:  1,
 			errorExpected: false,
 		},
 		{
@@ -186,6 +182,7 @@ func TestCommonToysServiceAddToy(t *testing.T) {
 		mockController := gomock.NewController(t)
 		toysRepository := mockrepositories.NewMockToysRepository(mockController)
 		toysRepository.EXPECT().AddToy(gomock.Any(), gomock.Any()).Return(expectedToyID, nil).MaxTimes(1)
+		toysRepository.EXPECT().GetMasterToys(gomock.Any(), gomock.Any()).Return([]entities.Toy{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		toysService := NewCommonToysService(toysRepository, nil, logger)
@@ -197,18 +194,43 @@ func TestCommonToysServiceAddToy(t *testing.T) {
 	})
 
 	t.Run("add toy fail", func(t *testing.T) {
-		const expectedToyID = uint64(0)
 		var expectedError = &customerrors.ToyAlreadyExistsError{}
+		const (
+			expectedToyID                 = uint64(0)
+			expectedMasterID       uint64 = 1
+			expectedToyName               = "test Toy"
+			expectedToyDescription        = "test Toy description"
+			expectedToyCategory    uint32 = 1
+		)
 
 		mockController := gomock.NewController(t)
 		toysRepository := mockrepositories.NewMockToysRepository(mockController)
-		toysRepository.EXPECT().AddToy(gomock.Any(), gomock.Any()).Return(expectedToyID, expectedError).MaxTimes(1)
+		toysRepository.EXPECT().GetMasterToys(gomock.Any(), gomock.Any()).Return(
+			[]entities.Toy{
+				{
+					ID:          expectedToyID,
+					MasterID:    expectedMasterID,
+					Name:        expectedToyName,
+					Description: expectedToyDescription,
+					CategoryID:  expectedToyCategory,
+				},
+			},
+			nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
 		toysService := NewCommonToysService(toysRepository, nil, logger)
 		ctx := context.Background()
 
-		toyID, err := toysService.AddToy(ctx, entities.AddToyDTO{})
+		toyID, err := toysService.AddToy(
+			ctx,
+			entities.AddToyDTO{
+				MasterID:    expectedMasterID,
+				Name:        expectedToyName,
+				Description: expectedToyDescription,
+				CategoryID:  expectedToyCategory,
+			},
+		)
+
 		require.Error(t, err)
 		require.IsType(t, expectedError, err)
 		assert.Equal(t, expectedToyID, toyID)
@@ -231,22 +253,16 @@ func TestCommonToysServiceProcessToyTags(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toy           *entities.Toy
-		repository    interfaces.TagsRepository
-		logger        *slog.Logger
 		errorExpected bool
 	}{
 		{
 			name:          "successfully processed Toy Tags",
 			toy:           &entities.Toy{ID: 1},
-			repository:    tagsRepository,
-			logger:        logger,
 			errorExpected: false,
 		},
 		{
 			name:          "failed to process Toy Tags",
 			toy:           &entities.Toy{ID: 2},
-			repository:    tagsRepository,
-			logger:        logger,
 			errorExpected: true,
 		},
 	}
