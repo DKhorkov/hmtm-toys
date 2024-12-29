@@ -6,18 +6,16 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
-	"github.com/DKhorkov/libs/security"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 // RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
@@ -152,7 +150,7 @@ func (api *ServerAPI) GetMasterToys(ctx context.Context, in *toys.GetMasterToysI
 // AddToy handler adds new Toy for Master.
 func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddToyOut, error) {
 	toyData := entities.RawAddToyDTO{
-		AccessToken: in.GetAccessToken(),
+		UserID:      in.GetUserID(),
 		Name:        in.GetName(),
 		Description: in.GetDescription(),
 		Price:       in.GetPrice(),
@@ -166,8 +164,6 @@ func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddT
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to add new Toy", err)
 
 		switch {
-		case errors.As(err, &security.InvalidJWTError{}):
-			return nil, &customgrpc.BaseError{Status: codes.Unauthenticated, Message: err.Error()}
 		case errors.As(err, &customerrors.MasterNotFoundError{}),
 			errors.As(err, &customerrors.CategoryNotFoundError{}),
 			errors.As(err, &customerrors.TagNotFoundError{}):

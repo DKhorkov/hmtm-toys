@@ -30,6 +30,8 @@ func (repo *CommonCategoriesRepository) GetAllCategories(ctx context.Context) ([
 		return nil, err
 	}
 
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
 	rows, err := connection.QueryContext(
 		ctx,
 		`
@@ -77,6 +79,8 @@ func (repo *CommonCategoriesRepository) GetCategoryByID(ctx context.Context, id 
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	category := &entities.Category{}
 	columns := db.GetEntityColumns(category)

@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/DKhorkov/libs/db"
-	"github.com/DKhorkov/libs/security"
-
 	"github.com/DKhorkov/libs/loadenv"
 	"github.com/DKhorkov/libs/logging"
 )
@@ -16,12 +14,6 @@ func New() Config {
 		HTTP: HTTPConfig{
 			Host: loadenv.GetEnv("HOST", "0.0.0.0"),
 			Port: loadenv.GetEnvAsInt("PORT", 8060),
-		},
-		Security: security.Config{
-			JWT: security.JWTConfig{
-				Algorithm: loadenv.GetEnv("JWT_ALGORITHM", "HS256"),
-				SecretKey: loadenv.GetEnv("JWT_SECRET", "defaultSecret"),
-			},
 		},
 		Database: db.Config{
 			Host:         loadenv.GetEnv("POSTGRES_HOST", "0.0.0.0"),
@@ -46,7 +38,6 @@ type HTTPConfig struct {
 
 type Config struct {
 	HTTP     HTTPConfig
-	Security security.Config
 	Database db.Config
 	Logging  logging.Config
 }

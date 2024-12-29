@@ -21,14 +21,12 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		masterID      uint64
-		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
 			name:          "successfully got Master by id",
 			masterID:      1,
-			resultLength:  1,
 			errorExpected: false,
 		},
 		{
@@ -69,14 +67,12 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		userID        uint64
-		resultLength  int
 		errorExpected bool
 		err           error
 	}{
 		{
 			name:          "successfully got Master by userID",
 			userID:        1,
-			resultLength:  1,
 			errorExpected: false,
 		},
 		{

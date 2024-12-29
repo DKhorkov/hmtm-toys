@@ -64,7 +64,6 @@ func main() {
 		categoriesService,
 		mastersService,
 		toysService,
-		settings.Security.JWT,
 	)
 
 	controller := grpccontroller.New(

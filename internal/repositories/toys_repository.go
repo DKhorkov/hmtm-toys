@@ -6,11 +6,9 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/DKhorkov/libs/logging"
-
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
 	"github.com/DKhorkov/libs/db"
+	"github.com/DKhorkov/libs/logging"
 )
 
 func NewCommonToysRepository(
@@ -33,6 +31,8 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	rows, err := connection.QueryContext(
 		ctx,
@@ -61,7 +61,7 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 	for rows.Next() {
 		toy := entities.Toy{}
 		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
-		columns = columns[:len(columns)-1]   // not to paste tags field ([]*Tag) to Scan function.
+		columns = columns[:len(columns)-1]   // not to paste tags field ([]Tag) to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -82,6 +82,8 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	rows, err := connection.QueryContext(
 		ctx,
@@ -112,7 +114,7 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 	for rows.Next() {
 		toy := entities.Toy{}
 		columns := db.GetEntityColumns(toy) // Only pointer to use rows.Scan() successfully
-		columns = columns[:len(columns)-1]  // not to paste tags field ([]*Tag) to Scan function.
+		columns = columns[:len(columns)-1]  // not to paste tags field ([]Tag) to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -134,9 +136,11 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 		return nil, err
 	}
 
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
 	toy := &entities.Toy{}
 	columns := db.GetEntityColumns(toy)
-	columns = columns[:len(columns)-1] // not to paste tags field ([]*Tag) to Scan function.
+	columns = columns[:len(columns)-1] // not to paste tags field ([]Tag) to Scan function.
 	err = connection.QueryRowContext(
 		ctx,
 		`
@@ -190,12 +194,12 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 	toysAndTagsInsertPlaceholders := make([]string, 0, len(toyData.TagsIDs))
 	toysAndTagsInsertValues := make([]interface{}, 0, len(toyData.TagsIDs))
 	for index, tagID := range toyData.TagsIDs {
-		toysAdnTagsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
-			index*2+1,
+		toysAndTagsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
+			index*2+1, // (*2) - where 2 is number of inserted params.
 			index*2+2,
 		)
 
-		toysAndTagsInsertPlaceholders = append(toysAndTagsInsertPlaceholders, toysAdnTagsInsertPlaceholder)
+		toysAndTagsInsertPlaceholders = append(toysAndTagsInsertPlaceholders, toysAndTagsInsertPlaceholder)
 		toysAndTagsInsertValues = append(toysAndTagsInsertValues, toyID, tagID)
 	}
 

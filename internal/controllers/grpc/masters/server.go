@@ -6,18 +6,16 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
-	"github.com/DKhorkov/libs/security"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 // RegisterServer handler (serverAPI) for MastersServer to gRPC server:.
@@ -30,6 +28,33 @@ type ServerAPI struct {
 	toys.UnimplementedMastersServiceServer
 	useCases interfaces.UseCases
 	logger   *slog.Logger
+}
+
+func (api *ServerAPI) GetMasterByUser(ctx context.Context, in *toys.GetMasterByUserIn) (*toys.GetMasterOut, error) {
+	master, err := api.useCases.GetMasterByUserID(ctx, in.GetUserID())
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get Master for User with ID=%d", in.GetUserID()),
+			err,
+		)
+
+		switch {
+		case errors.As(err, &customerrors.MasterNotFoundError{}):
+			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
+		default:
+			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+		}
+	}
+
+	return &toys.GetMasterOut{
+		ID:        master.ID,
+		UserID:    master.UserID,
+		Info:      master.Info,
+		CreatedAt: timestamppb.New(master.CreatedAt),
+		UpdatedAt: timestamppb.New(master.UpdatedAt),
+	}, nil
 }
 
 // GetMaster handler returns Master for provided ID.
@@ -84,9 +109,9 @@ func (api *ServerAPI) GetMasters(ctx context.Context, in *toys.GetMastersIn) (*t
 
 // RegisterMaster handler register new Master for User.
 func (api *ServerAPI) RegisterMaster(ctx context.Context, in *toys.RegisterMasterIn) (*toys.RegisterMasterOut, error) {
-	masterData := entities.RawRegisterMasterDTO{
-		AccessToken: in.GetAccessToken(),
-		Info:        in.GetInfo(),
+	masterData := entities.RegisterMasterDTO{
+		UserID: in.GetUserID(),
+		Info:   in.GetInfo(),
 	}
 
 	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
@@ -94,8 +119,6 @@ func (api *ServerAPI) RegisterMaster(ctx context.Context, in *toys.RegisterMaste
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to register Master", err)
 
 		switch {
-		case errors.As(err, &security.InvalidJWTError{}):
-			return nil, &customgrpc.BaseError{Status: codes.Unauthenticated, Message: err.Error()}
 		case errors.As(err, &customerrors.MasterAlreadyExistsError{}):
 			return nil, &customgrpc.BaseError{Status: codes.AlreadyExists, Message: err.Error()}
 		default:

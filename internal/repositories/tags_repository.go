@@ -30,6 +30,8 @@ func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Ta
 		return nil, err
 	}
 
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
 	rows, err := connection.QueryContext(
 		ctx,
 		`
@@ -77,6 +79,8 @@ func (repo *CommonTagsRepository) GetToyTags(ctx context.Context, toyID uint64) 
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	rows, err := connection.QueryContext(
 		ctx,
@@ -131,6 +135,8 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	tag := &entities.Tag{}
 	columns := db.GetEntityColumns(tag)

@@ -30,6 +30,8 @@ func (repo *CommonMastersRepository) GetAllMasters(ctx context.Context) ([]entit
 		return nil, err
 	}
 
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
 	rows, err := connection.QueryContext(
 		ctx,
 		`
@@ -78,6 +80,8 @@ func (repo *CommonMastersRepository) GetMasterByUserID(ctx context.Context, user
 		return nil, err
 	}
 
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
 	master := &entities.Master{}
 	columns := db.GetEntityColumns(master)
 	err = connection.QueryRowContext(
@@ -102,6 +106,8 @@ func (repo *CommonMastersRepository) GetMasterByID(ctx context.Context, id uint6
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	master := &entities.Master{}
 	columns := db.GetEntityColumns(master)
@@ -130,6 +136,8 @@ func (repo *CommonMastersRepository) RegisterMaster(
 	if err != nil {
 		return 0, err
 	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
 	var masterID uint64
 	err = connection.QueryRowContext(

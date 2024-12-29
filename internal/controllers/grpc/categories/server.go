@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -13,8 +15,6 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 // RegisterServer handler (serverAPI) for CategoriesServer to gRPC server:.

@@ -17,7 +17,7 @@ service ToysService {
 
 message AddToyIn {
   string requestID = 1;
-  string accessToken = 2;
+  uint64 userID = 2;
   string name = 3;
   string description = 4;
   float price = 5;
