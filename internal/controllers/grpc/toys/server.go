@@ -156,7 +156,7 @@ func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddT
 		Price:       in.GetPrice(),
 		Quantity:    in.GetQuantity(),
 		CategoryID:  in.GetCategoryID(),
-		TagsIDs:     in.GetTagIDs(),
+		TagIDs:      in.GetTagIDs(),
 	}
 
 	toyID, err := api.useCases.AddToy(ctx, toyData)

@@ -66,7 +66,7 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 		return 0, err
 	}
 
-	for _, tagID := range rawToyData.TagsIDs {
+	for _, tagID := range rawToyData.TagIDs {
 		if _, err = useCases.GetTagByID(ctx, tagID); err != nil {
 			return 0, err
 		}
@@ -79,7 +79,7 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 		Price:       rawToyData.Price,
 		Quantity:    rawToyData.Quantity,
 		CategoryID:  rawToyData.CategoryID,
-		TagsIDs:     rawToyData.TagsIDs,
+		TagIDs:      rawToyData.TagIDs,
 	}
 
 	return useCases.toysService.AddToy(ctx, toyData)

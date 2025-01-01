@@ -113,8 +113,8 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 	var toys []entities.Toy
 	for rows.Next() {
 		toy := entities.Toy{}
-		columns := db.GetEntityColumns(toy) // Only pointer to use rows.Scan() successfully
-		columns = columns[:len(columns)-1]  // not to paste tags field ([]Tag) to Scan function.
+		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
+		columns = columns[:len(columns)-1]   // not to paste tags field ([]Tag) to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -190,29 +190,31 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 		return 0, err
 	}
 
-	// Bulk insert of Toy's Tags.
-	toysAndTagsInsertPlaceholders := make([]string, 0, len(toyData.TagsIDs))
-	toysAndTagsInsertValues := make([]interface{}, 0, len(toyData.TagsIDs))
-	for index, tagID := range toyData.TagsIDs {
-		toysAndTagsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
-			index*2+1, // (*2) - where 2 is number of inserted params.
-			index*2+2,
+	if len(toyData.TagIDs) > 0 {
+		// Bulk insert of Toy's Tags.
+		toysAndTagsInsertPlaceholders := make([]string, 0, len(toyData.TagIDs))
+		toysAndTagsInsertValues := make([]interface{}, 0, len(toyData.TagIDs))
+		for index, tagID := range toyData.TagIDs {
+			toysAndTagsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
+				index*2+1, // (*2) - where 2 is number of inserted params.
+				index*2+2,
+			)
+
+			toysAndTagsInsertPlaceholders = append(toysAndTagsInsertPlaceholders, toysAndTagsInsertPlaceholder)
+			toysAndTagsInsertValues = append(toysAndTagsInsertValues, toyID, tagID)
+		}
+
+		_, err = transaction.Exec(
+			`
+				INSERT INTO toys_and_tags_associations (toy_id, tag_id)
+				VALUES 
+			`+strings.Join(toysAndTagsInsertPlaceholders, ","),
+			toysAndTagsInsertValues...,
 		)
 
-		toysAndTagsInsertPlaceholders = append(toysAndTagsInsertPlaceholders, toysAndTagsInsertPlaceholder)
-		toysAndTagsInsertValues = append(toysAndTagsInsertValues, toyID, tagID)
-	}
-
-	_, err = transaction.Exec(
-		`
-			INSERT INTO toys_and_tags_associations (toy_id, tag_id)
-			VALUES 
-		`+strings.Join(toysAndTagsInsertPlaceholders, ","),
-		toysAndTagsInsertValues...,
-	)
-
-	if err != nil {
-		return 0, err
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	err = transaction.Commit()
