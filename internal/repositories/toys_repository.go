@@ -206,9 +206,9 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 
 		_, err = transaction.Exec(
 			`
-			INSERT INTO toys_and_tags_associations (toy_id, tag_id)
-			VALUES 
-		`+strings.Join(toysAndTagsInsertPlaceholders, ","),
+				INSERT INTO toys_and_tags_associations (toy_id, tag_id)
+				VALUES 
+			`+strings.Join(toysAndTagsInsertPlaceholders, ","),
 			toysAndTagsInsertValues...,
 		)
 
