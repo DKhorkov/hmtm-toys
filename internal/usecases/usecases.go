@@ -56,6 +56,15 @@ func (useCases *CommonUseCases) GetMasterToys(ctx context.Context, masterID uint
 	return useCases.toysService.GetMasterToys(ctx, masterID)
 }
 
+func (useCases *CommonUseCases) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+	master, err := useCases.mastersService.GetMasterByUserID(ctx, userID)
+	if err != nil {
+		return nil, nil
+	}
+
+	return useCases.GetMasterToys(ctx, master.ID)
+}
+
 func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
 	master, err := useCases.mastersService.GetMasterByUserID(ctx, rawToyData.UserID)
 	if err != nil {

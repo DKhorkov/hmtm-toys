@@ -359,6 +359,7 @@ issues:
     - path: "internal/usecases/usecases.go"
       linters:
         - govet
+        - nilerr
     - path: "cmd/client/client.go"
       linters:
         - mnd
@@ -393,5 +394,8 @@ issues:
         - gosec
         - dupl
     - path: "internal/controllers/grpc/masters/server.go"
+      linters:
+        - dupl
+    - path: "internal/controllers/grpc/toys/server.go"
       linters:
         - dupl

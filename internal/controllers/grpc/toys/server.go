@@ -147,6 +147,46 @@ func (api *ServerAPI) GetMasterToys(ctx context.Context, in *toys.GetMasterToysI
 	return &toys.GetToysOut{Toys: processedToys}, nil
 }
 
+func (api *ServerAPI) GetUserToys(ctx context.Context, in *toys.GetUserToysIn) (*toys.GetToysOut, error) {
+	userToys, err := api.useCases.GetUserToys(ctx, in.GetUserID())
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to get all Toys for User with ID=%d", in.GetUserID()),
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	processedToys := make([]*toys.GetToyOut, len(userToys))
+	for i, toy := range userToys {
+		tags := make([]*toys.GetTagOut, len(toy.Tags))
+		for j, tag := range toy.Tags {
+			tags[j] = &toys.GetTagOut{
+				ID:   tag.ID,
+				Name: tag.Name,
+			}
+		}
+
+		processedToys[i] = &toys.GetToyOut{
+			ID:          toy.ID,
+			MasterID:    toy.MasterID,
+			Name:        toy.Name,
+			Description: toy.Description,
+			Price:       toy.Price,
+			Quantity:    toy.Quantity,
+			CategoryID:  toy.CategoryID,
+			Tags:        tags,
+			CreatedAt:   timestamppb.New(toy.CreatedAt),
+			UpdatedAt:   timestamppb.New(toy.UpdatedAt),
+		}
+	}
+
+	return &toys.GetToysOut{Toys: processedToys}, nil
+}
+
 // AddToy handler adds new Toy for Master.
 func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddToyOut, error) {
 	toyData := entities.RawAddToyDTO{

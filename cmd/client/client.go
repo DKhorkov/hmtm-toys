@@ -42,36 +42,42 @@ func main() {
 	// fmt.Println(err)
 	// fmt.Println(toyByID)
 
-	allToys, err := client.GetToys(context.Background(), &toys.GetToysIn{})
-	fmt.Println(err)
-	for _, toy := range allToys.GetToys() {
-		fmt.Println(toy)
-	}
+	// allToys, err := client.GetToys(context.Background(), &toys.GetToysIn{})
+	// fmt.Println(err)
+	// for _, toy := range allToys.GetToys() {
+	//	fmt.Println(toy)
+	//}
 
-	masterID, err := client.RegisterMaster(context.Background(), &toys.RegisterMasterIn{
-		UserID: 1,
-		Info:   "testInfo",
+	// masterID, err := client.RegisterMaster(context.Background(), &toys.RegisterMasterIn{
+	//	UserID: 1,
+	//	Info:   "testInfo",
+	// })
+	// fmt.Println(err, masterID)
+
+	// allMasters, err := client.GetMasters(context.Background(), &toys.GetMastersIn{RequestID: requestID})
+	// fmt.Println(err)
+	// for _, master := range allMasters.GetMasters() {
+	//	fmt.Println(master)
+	//}
+
+	// toyID, err := client.AddToy(context.Background(), &toys.AddToyIn{
+	//	UserID:     1,
+	//	Name:       "toy2",
+	//	Price:      120.,
+	//	Quantity:   1,
+	//	CategoryID: 1,
+	//	TagIDs:     []uint32{1, 2, 3},
+	// })
+	// fmt.Println(err)
+	// fmt.Println(toyID)
+
+	// master, err := client.GetMasterByUser(context.Background(), &toys.GetMasterByUserIn{UserID: 1})
+	// fmt.Println(err)
+	// fmt.Println(master)
+
+	userToys, err := client.GetUserToys(context.Background(), &toys.GetUserToysIn{
+		RequestID: requestID,
+		UserID:    4,
 	})
-	fmt.Println(err, masterID)
-
-	allMasters, err := client.GetMasters(context.Background(), &toys.GetMastersIn{RequestID: requestID})
-	fmt.Println(err)
-	for _, master := range allMasters.GetMasters() {
-		fmt.Println(master)
-	}
-
-	toyID, err := client.AddToy(context.Background(), &toys.AddToyIn{
-		UserID:     1,
-		Name:       "toy2",
-		Price:      120.,
-		Quantity:   1,
-		CategoryID: 1,
-		TagIDs:     []uint32{1, 2, 3},
-	})
-	fmt.Println(err)
-	fmt.Println(toyID)
-
-	master, err := client.GetMasterByUser(context.Background(), &toys.GetMasterByUserIn{UserID: 1})
-	fmt.Println(err)
-	fmt.Println(master)
+	fmt.Println("UserToys: ", userToys, err)
 }
