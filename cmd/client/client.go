@@ -44,7 +44,7 @@ func main() {
 
 	// allToys, err := client.GetToys(context.Background(), &toys.GetToysIn{})
 	// fmt.Println(err)
-	//for _, toy := range allToys.GetToys() {
+	// for _, toy := range allToys.GetToys() {
 	//	fmt.Println(toy)
 	//}
 
@@ -52,11 +52,11 @@ func main() {
 	//	UserID: 1,
 	//	Info:   "testInfo",
 	// })
-	//fmt.Println(err, masterID)
+	// fmt.Println(err, masterID)
 
 	// allMasters, err := client.GetMasters(context.Background(), &toys.GetMastersIn{RequestID: requestID})
 	// fmt.Println(err)
-	//for _, master := range allMasters.GetMasters() {
+	// for _, master := range allMasters.GetMasters() {
 	//	fmt.Println(master)
 	//}
 
@@ -68,12 +68,12 @@ func main() {
 	//	CategoryID: 1,
 	//	TagIDs:     []uint32{1, 2, 3},
 	// })
-	//fmt.Println(err)
+	// fmt.Println(err)
 	//fmt.Println(toyID)
 
 	// master, err := client.GetMasterByUser(context.Background(), &toys.GetMasterByUserIn{UserID: 1})
 	// fmt.Println(err)
-	//fmt.Println(master)
+	// fmt.Println(master)
 
 	userToys, err := client.GetUserToys(context.Background(), &toys.GetUserToysIn{
 		RequestID: requestID,
