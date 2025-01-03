@@ -69,7 +69,7 @@ func main() {
 	//	TagIDs:     []uint32{1, 2, 3},
 	// })
 	// fmt.Println(err)
-	//fmt.Println(toyID)
+	// fmt.Println(toyID)
 
 	// master, err := client.GetMasterByUser(context.Background(), &toys.GetMasterByUserIn{UserID: 1})
 	// fmt.Println(err)
