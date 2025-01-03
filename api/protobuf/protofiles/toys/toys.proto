@@ -13,6 +13,7 @@ service ToysService {
   rpc GetToy(GetToyIn) returns (GetToyOut) {}
   rpc GetToys(GetToysIn) returns (GetToysOut) {}
   rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
+  rpc GetUserToys(GetUserToysIn) returns (GetToysOut) {}
 }
 
 message AddToyIn {
@@ -59,4 +60,9 @@ message GetToysOut {
 message GetMasterToysIn {
   string requestID = 1;
   uint64 masterID = 2;
+}
+
+message GetUserToysIn {
+  string requestID = 1;
+  uint64 userID = 2;
 }

@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS masters (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER NOT NULL UNIQUE,
-    info       TEXT,
+    info       TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS toys (
     master_id   INTEGER NOT NULL,
     category_id INTEGER NOT NULL,
     name        VARCHAR(50) NOT NULL,
-    description TEXT,
+    description TEXT NOT NULL,
     price       FLOAT NOT NULL,
     quantity    INTEGER NOT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
