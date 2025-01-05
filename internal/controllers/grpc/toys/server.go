@@ -6,16 +6,14 @@ import (
 	"fmt"
 	"log/slog"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 // RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
@@ -49,26 +47,7 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 		}
 	}
 
-	tags := make([]*toys.GetTagOut, len(toy.Tags))
-	for i, tag := range toy.Tags {
-		tags[i] = &toys.GetTagOut{
-			ID:   tag.ID,
-			Name: tag.Name,
-		}
-	}
-
-	return &toys.GetToyOut{
-		ID:          toy.ID,
-		MasterID:    toy.MasterID,
-		Name:        toy.Name,
-		Description: toy.Description,
-		Price:       toy.Price,
-		Quantity:    toy.Quantity,
-		CategoryID:  toy.CategoryID,
-		Tags:        tags,
-		CreatedAt:   timestamppb.New(toy.CreatedAt),
-		UpdatedAt:   timestamppb.New(toy.UpdatedAt),
-	}, nil
+	return prepareToyOut(toy), nil
 }
 
 // GetToys handler returns all Toys.
@@ -80,27 +59,8 @@ func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.Ge
 	}
 
 	processedToys := make([]*toys.GetToyOut, len(allToys))
-	for i, toy := range allToys {
-		tags := make([]*toys.GetTagOut, len(toy.Tags))
-		for j, tag := range toy.Tags {
-			tags[j] = &toys.GetTagOut{
-				ID:   tag.ID,
-				Name: tag.Name,
-			}
-		}
-
-		processedToys[i] = &toys.GetToyOut{
-			ID:          toy.ID,
-			MasterID:    toy.MasterID,
-			Name:        toy.Name,
-			Description: toy.Description,
-			Price:       toy.Price,
-			Quantity:    toy.Quantity,
-			CategoryID:  toy.CategoryID,
-			Tags:        tags,
-			CreatedAt:   timestamppb.New(toy.CreatedAt),
-			UpdatedAt:   timestamppb.New(toy.UpdatedAt),
-		}
+	for toyIndex := range allToys {
+		processedToys[toyIndex] = prepareToyOut(&allToys[toyIndex])
 	}
 
 	return &toys.GetToysOut{Toys: processedToys}, nil
@@ -121,27 +81,8 @@ func (api *ServerAPI) GetMasterToys(ctx context.Context, in *toys.GetMasterToysI
 	}
 
 	processedToys := make([]*toys.GetToyOut, len(masterToys))
-	for i, toy := range masterToys {
-		tags := make([]*toys.GetTagOut, len(toy.Tags))
-		for j, tag := range toy.Tags {
-			tags[j] = &toys.GetTagOut{
-				ID:   tag.ID,
-				Name: tag.Name,
-			}
-		}
-
-		processedToys[i] = &toys.GetToyOut{
-			ID:          toy.ID,
-			MasterID:    toy.MasterID,
-			Name:        toy.Name,
-			Description: toy.Description,
-			Price:       toy.Price,
-			Quantity:    toy.Quantity,
-			CategoryID:  toy.CategoryID,
-			Tags:        tags,
-			CreatedAt:   timestamppb.New(toy.CreatedAt),
-			UpdatedAt:   timestamppb.New(toy.UpdatedAt),
-		}
+	for toyIndex := range masterToys {
+		processedToys[toyIndex] = prepareToyOut(&masterToys[toyIndex])
 	}
 
 	return &toys.GetToysOut{Toys: processedToys}, nil
@@ -161,27 +102,8 @@ func (api *ServerAPI) GetUserToys(ctx context.Context, in *toys.GetUserToysIn) (
 	}
 
 	processedToys := make([]*toys.GetToyOut, len(userToys))
-	for i, toy := range userToys {
-		tags := make([]*toys.GetTagOut, len(toy.Tags))
-		for j, tag := range toy.Tags {
-			tags[j] = &toys.GetTagOut{
-				ID:   tag.ID,
-				Name: tag.Name,
-			}
-		}
-
-		processedToys[i] = &toys.GetToyOut{
-			ID:          toy.ID,
-			MasterID:    toy.MasterID,
-			Name:        toy.Name,
-			Description: toy.Description,
-			Price:       toy.Price,
-			Quantity:    toy.Quantity,
-			CategoryID:  toy.CategoryID,
-			Tags:        tags,
-			CreatedAt:   timestamppb.New(toy.CreatedAt),
-			UpdatedAt:   timestamppb.New(toy.UpdatedAt),
-		}
+	for toyIndex := range userToys {
+		processedToys[toyIndex] = prepareToyOut(&userToys[toyIndex])
 	}
 
 	return &toys.GetToysOut{Toys: processedToys}, nil
@@ -197,6 +119,7 @@ func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddT
 		Quantity:    in.GetQuantity(),
 		CategoryID:  in.GetCategoryID(),
 		TagIDs:      in.GetTagIDs(),
+		Attachments: in.GetAttachments(),
 	}
 
 	toyID, err := api.useCases.AddToy(ctx, toyData)

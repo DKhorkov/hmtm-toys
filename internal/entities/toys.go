@@ -3,16 +3,25 @@ package entities
 import "time"
 
 type Toy struct {
-	ID          uint64    `json:"id"`
-	MasterID    uint64    `json:"master_id"`
-	CategoryID  uint32    `json:"category_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Price       float32   `json:"price"`
-	Quantity    uint32    `json:"quantity"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Tags        []Tag     `json:"tags"`
+	ID          uint64       `json:"id"`
+	MasterID    uint64       `json:"master_id"`
+	CategoryID  uint32       `json:"category_id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Price       float32      `json:"price"`
+	Quantity    uint32       `json:"quantity"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+	Tags        []Tag        `json:"tags,omitempty"`
+	Attachments []Attachment `json:"attachments,omitempty"`
+}
+
+type Attachment struct {
+	ID        uint64    `json:"id"`
+	ToyID     uint64    `json:"toy_id"`
+	Link      string    `json:"link"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type AddToyDTO struct {
@@ -22,7 +31,8 @@ type AddToyDTO struct {
 	Description string   `json:"description"`
 	Price       float32  `json:"price"`
 	Quantity    uint32   `json:"quantity"`
-	TagIDs      []uint32 `json:"tag_ids"`
+	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	Attachments []string `json:"attachments,omitempty"`
 }
 
 type RawAddToyDTO struct {
@@ -32,5 +42,6 @@ type RawAddToyDTO struct {
 	Description string   `json:"description"`
 	Price       float32  `json:"price"`
 	Quantity    uint32   `json:"quantity"`
-	TagIDs      []uint32 `json:"tag_ids"`
+	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	Attachments []string `json:"attachments,omitempty"`
 }

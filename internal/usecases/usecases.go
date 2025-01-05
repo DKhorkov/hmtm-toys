@@ -89,6 +89,7 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 		Quantity:    rawToyData.Quantity,
 		CategoryID:  rawToyData.CategoryID,
 		TagIDs:      rawToyData.TagIDs,
+		Attachments: rawToyData.Attachments,
 	}
 
 	return useCases.toysService.AddToy(ctx, toyData)

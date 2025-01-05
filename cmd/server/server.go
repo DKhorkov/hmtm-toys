@@ -59,7 +59,6 @@ func main() {
 	toysRepository := repositories.NewCommonToysRepository(dbConnector, logger)
 	toysService := services.NewCommonToysService(
 		toysRepository,
-		tagsRepository,
 		logger,
 	)
 
