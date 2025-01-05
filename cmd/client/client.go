@@ -42,11 +42,11 @@ func main() {
 	// fmt.Println(err)
 	// fmt.Println(toyByID)
 
-	// allToys, err := client.GetToys(context.Background(), &toys.GetToysIn{})
-	// fmt.Println(err)
-	// for _, toy := range allToys.GetToys() {
-	//	fmt.Println(toy)
-	//}
+	allToys, err := client.GetToys(context.Background(), &toys.GetToysIn{RequestID: requestID})
+	fmt.Println(err)
+	for _, toy := range allToys.GetToys() {
+		fmt.Println(toy)
+	}
 
 	// masterID, err := client.RegisterMaster(context.Background(), &toys.RegisterMasterIn{
 	//	UserID: 1,
@@ -61,12 +61,14 @@ func main() {
 	//}
 
 	// toyID, err := client.AddToy(context.Background(), &toys.AddToyIn{
-	//	UserID:     1,
-	//	Name:       "toy2",
-	//	Price:      120.,
-	//	Quantity:   1,
-	//	CategoryID: 1,
-	//	TagIDs:     []uint32{1, 2, 3},
+	//	RequestID:   requestID,
+	//	UserID:      1,
+	//	Name:        "toy23",
+	//	Price:       120.,
+	//	Quantity:    1,
+	//	CategoryID:  1,
+	//	TagIDs:      []uint32{1},
+	//	Attachments: []string{"someref", "anothererf"},
 	// })
 	// fmt.Println(err)
 	// fmt.Println(toyID)
@@ -75,9 +77,9 @@ func main() {
 	// fmt.Println(err)
 	// fmt.Println(master)
 
-	userToys, err := client.GetUserToys(context.Background(), &toys.GetUserToysIn{
-		RequestID: requestID,
-		UserID:    4,
-	})
-	fmt.Println("UserToys: ", userToys, err)
+	// userToys, err := client.GetUserToys(context.Background(), &toys.GetUserToysIn{
+	//	RequestID: requestID,
+	//	UserID:    4,
+	// })
+	// fmt.Println("UserToys: ", userToys, err)
 }

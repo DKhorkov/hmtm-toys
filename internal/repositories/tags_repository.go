@@ -74,62 +74,6 @@ func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Ta
 	return tags, nil
 }
 
-func (repo *CommonTagsRepository) GetToyTags(ctx context.Context, toyID uint64) ([]entities.Tag, error) {
-	connection, err := repo.dbConnector.Connection(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	defer db.CloseConnectionContext(ctx, connection, repo.logger)
-
-	rows, err := connection.QueryContext(
-		ctx,
-		`
-			SELECT * 
-			FROM tags AS t
-			WHERE t.id IN (
-			    SELECT ta.tag_id
-				FROM toys_and_tags_associations AS ta
-				WHERE ta.toy_id = $1
-			)
-		`,
-		toyID,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if err = rows.Close(); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				repo.logger,
-				"error during closing SQL rows",
-				err,
-			)
-		}
-	}()
-
-	var tags []entities.Tag
-	for rows.Next() {
-		tag := entities.Tag{}
-		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
-		err = rows.Scan(columns...)
-		if err != nil {
-			return nil, err
-		}
-
-		tags = append(tags, tag)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return tags, nil
-}
-
 func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {

@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -61,7 +62,7 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 	for rows.Next() {
 		toy := entities.Toy{}
 		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
-		columns = columns[:len(columns)-1]   // not to paste tags field ([]Tag) to Scan function.
+		columns = columns[:len(columns)-2]   // Not to paste Tags and Attachments fields to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -72,6 +73,19 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 
 	if err = rows.Err(); err != nil {
 		return nil, err
+	}
+
+	// Reading Tags and Attachments for each Toy in new circle due
+	// to next error: https://github.com/lib/pq/issues/635
+	// Using toyIndex to avoid range iter semantics error, via using copied variable.
+	for toyIndex := range toys {
+		if err = repo.processToyTags(ctx, &toys[toyIndex], connection); err != nil {
+			return nil, err
+		}
+
+		if err = repo.processToyAttachments(ctx, &toys[toyIndex], connection); err != nil {
+			return nil, err
+		}
 	}
 
 	return toys, nil
@@ -114,7 +128,7 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 	for rows.Next() {
 		toy := entities.Toy{}
 		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
-		columns = columns[:len(columns)-1]   // not to paste tags field ([]Tag) to Scan function.
+		columns = columns[:len(columns)-2]   // Not to paste Tags and Attachments fields to Scan function.
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -125,6 +139,19 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 
 	if err = rows.Err(); err != nil {
 		return nil, err
+	}
+
+	// Reading Tags and Attachments for each Toy in new circle due
+	// to next error: https://github.com/lib/pq/issues/635
+	// Using toyIndex to avoid range iter semantics error, via using copied variable.
+	for toyIndex := range toys {
+		if err = repo.processToyTags(ctx, &toys[toyIndex], connection); err != nil {
+			return nil, err
+		}
+
+		if err = repo.processToyAttachments(ctx, &toys[toyIndex], connection); err != nil {
+			return nil, err
+		}
 	}
 
 	return toys, nil
@@ -140,7 +167,7 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 
 	toy := &entities.Toy{}
 	columns := db.GetEntityColumns(toy)
-	columns = columns[:len(columns)-1] // not to paste tags field ([]Tag) to Scan function.
+	columns = columns[:len(columns)-2] // Not to paste Tags and Attachments fields to Scan function.
 	err = connection.QueryRowContext(
 		ctx,
 		`
@@ -152,6 +179,14 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 	).Scan(columns...)
 
 	if err != nil {
+		return nil, err
+	}
+
+	if err = repo.processToyTags(ctx, toy, connection); err != nil {
+		return nil, err
+	}
+
+	if err = repo.processToyAttachments(ctx, toy, connection); err != nil {
 		return nil, err
 	}
 
@@ -206,10 +241,41 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 
 		_, err = transaction.Exec(
 			`
-				INSERT INTO toys_and_tags_associations (toy_id, tag_id)
+				INSERT INTO toys_tags_associations (toy_id, tag_id)
 				VALUES 
 			`+strings.Join(toysAndTagsInsertPlaceholders, ","),
 			toysAndTagsInsertValues...,
+		)
+
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	if len(toyData.Attachments) > 0 {
+		// Bulk insert of Toy's Attachments.
+		toyAttachmentsInsertPlaceholders := make([]string, 0, len(toyData.Attachments))
+		toyAttachmentsInsertValues := make([]interface{}, 0, len(toyData.Attachments))
+		for index, attachment := range toyData.Attachments {
+			toyAttachmentsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
+				index*2+1, // (*2) - where 2 is number of inserted params.
+				index*2+2,
+			)
+
+			toyAttachmentsInsertPlaceholders = append(
+				toyAttachmentsInsertPlaceholders,
+				toyAttachmentsInsertPlaceholder,
+			)
+
+			toyAttachmentsInsertValues = append(toyAttachmentsInsertValues, toyID, attachment)
+		}
+
+		_, err = transaction.Exec(
+			`
+				INSERT INTO toys_attachments (toy_id, link)
+				VALUES 
+			`+strings.Join(toyAttachmentsInsertPlaceholders, ","),
+			toyAttachmentsInsertValues...,
 		)
 
 		if err != nil {
@@ -223,4 +289,108 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 	}
 
 	return toyID, nil
+}
+
+func (repo *CommonToysRepository) processToyTags(
+	ctx context.Context,
+	toy *entities.Toy,
+	connection *sql.Conn,
+) error {
+	rows, err := connection.QueryContext(
+		ctx,
+		`
+			SELECT * 
+			FROM tags AS t
+			WHERE t.id IN (
+			    SELECT tta.tag_id
+				FROM toys_tags_associations AS tta
+				WHERE tta.toy_id = $1
+			)
+		`,
+		toy.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
+
+	var tags []entities.Tag
+	for rows.Next() {
+		var tag entities.Tag
+		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
+		err = rows.Scan(columns...)
+		if err != nil {
+			return err
+		}
+
+		tags = append(tags, tag)
+	}
+
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	toy.Tags = tags
+	return nil
+}
+
+func (repo *CommonToysRepository) processToyAttachments(
+	ctx context.Context,
+	toy *entities.Toy,
+	connection *sql.Conn,
+) error {
+	rows, err := connection.QueryContext(
+		ctx,
+		`
+			SELECT *
+			FROM toys_attachments AS ta
+			WHERE ta.toy_id = $1
+		`,
+		toy.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
+
+	var attachments []entities.Attachment
+	for rows.Next() {
+		var attachment entities.Attachment
+		columns := db.GetEntityColumns(&attachment) // Only pointer to use rows.Scan() successfully
+		err = rows.Scan(columns...)
+		if err != nil {
+			return err
+		}
+
+		attachments = append(attachments, attachment)
+	}
+
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	toy.Attachments = attachments
+	return nil
 }
