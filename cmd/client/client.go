@@ -69,9 +69,9 @@ func main() {
 	//	CategoryID:  1,
 	//	TagIDs:      []uint32{1},
 	//	Attachments: []string{"someref", "anothererf"},
-	//})
-	//fmt.Println(err)
-	//fmt.Println(toyID)
+	// })
+	// fmt.Println(err)
+	// fmt.Println(toyID)
 
 	// master, err := client.GetMasterByUser(context.Background(), &toys.GetMasterByUserIn{UserID: 1})
 	// fmt.Println(err)
@@ -80,6 +80,6 @@ func main() {
 	// userToys, err := client.GetUserToys(context.Background(), &toys.GetUserToysIn{
 	//	RequestID: requestID,
 	//	UserID:    4,
-	//})
-	//fmt.Println("UserToys: ", userToys, err)
+	// })
+	// fmt.Println("UserToys: ", userToys, err)
 }

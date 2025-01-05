@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS toys_tags_associations
     FOREIGN KEY (tag_id) REFERENCES tags (id)
 );
 
-CREATE TABLE IF NOT EXISTS toys_attachments_associations
+CREATE TABLE IF NOT EXISTS toys_attachments
 (
     id         SERIAL PRIMARY KEY,
     toy_id     INTEGER   NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS toys_attachments_associations
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS toys_tags_associations;
-DROP TABLE IF EXISTS toys_attachments_associations;
+DROP TABLE IF EXISTS toys_attachments;
 DROP TABLE IF EXISTS toys;
 DROP TABLE IF EXISTS masters;
 DROP TABLE IF EXISTS tags;

@@ -272,7 +272,7 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 
 		_, err = transaction.Exec(
 			`
-				INSERT INTO toys_attachments_associations (toy_id, link)
+				INSERT INTO toys_attachments (toy_id, link)
 				VALUES 
 			`+strings.Join(toyAttachmentsInsertPlaceholders, ","),
 			toyAttachmentsInsertValues...,
@@ -354,8 +354,8 @@ func (repo *CommonToysRepository) processToyAttachments(
 		ctx,
 		`
 			SELECT *
-			FROM toys_attachments_associations AS taa
-			WHERE taa.toy_id = $1
+			FROM toys_attachments AS ta
+			WHERE ta.toy_id = $1
 		`,
 		toy.ID,
 	)
