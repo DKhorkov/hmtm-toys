@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -57,7 +58,7 @@ func (api *ServerAPI) GetTag(ctx context.Context, in *toys.GetTagIn) (*toys.GetT
 }
 
 // GetTags handler returns all Tags.
-func (api *ServerAPI) GetTags(ctx context.Context, in *toys.GetTagsIn) (*toys.GetTagsOut, error) {
+func (api *ServerAPI) GetTags(ctx context.Context, in *emptypb.Empty) (*toys.GetTagsOut, error) {
 	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Tags", err)

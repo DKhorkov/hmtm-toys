@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -57,7 +58,7 @@ func (api *ServerAPI) GetCategory(ctx context.Context, in *toys.GetCategoryIn) (
 }
 
 // GetCategories handler returns all Categories.
-func (api *ServerAPI) GetCategories(ctx context.Context, in *toys.GetCategoriesIn) (*toys.GetCategoriesOut, error) {
+func (api *ServerAPI) GetCategories(ctx context.Context, in *emptypb.Empty) (*toys.GetCategoriesOut, error) {
 	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Categories", err)

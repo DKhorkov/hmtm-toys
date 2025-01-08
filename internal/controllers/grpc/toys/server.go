@@ -6,14 +6,16 @@ import (
 	"fmt"
 	"log/slog"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 // RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
@@ -51,7 +53,7 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 }
 
 // GetToys handler returns all Toys.
-func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.GetToysOut, error) {
+func (api *ServerAPI) GetToys(ctx context.Context, in *emptypb.Empty) (*toys.GetToysOut, error) {
 	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
