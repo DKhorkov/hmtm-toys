@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 import "toys/tags.proto";
 
 package toys;
@@ -11,21 +12,20 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 service ToysService {
   rpc AddToy(AddToyIn) returns (AddToyOut) {}
   rpc GetToy(GetToyIn) returns (GetToyOut) {}
-  rpc GetToys(GetToysIn) returns (GetToysOut) {}
+  rpc GetToys(google.protobuf.Empty) returns (GetToysOut) {}
   rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
   rpc GetUserToys(GetUserToysIn) returns (GetToysOut) {}
 }
 
 message AddToyIn {
-  string requestID = 1;
-  uint64 userID = 2;
-  string name = 3;
-  string description = 4;
-  float price = 5;
-  uint32 quantity = 6;
-  uint32 categoryID = 7;
-  repeated uint32 tagIDs = 8;
-  repeated string attachments = 9;
+  uint64 userID = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  uint32 quantity = 5;
+  uint32 categoryID = 6;
+  repeated uint32 tagIDs = 7;
+  repeated string attachments = 8;
 }
 
 message AddToyOut {
@@ -33,8 +33,7 @@ message AddToyOut {
 }
 
 message GetToyIn {
-  string requestID = 1;
-  uint64 ID = 2;
+  uint64 ID = 1;
 }
 
 message Attachment {
@@ -59,20 +58,14 @@ message GetToyOut {
   google.protobuf.Timestamp updatedAt = 11;
 }
 
-message GetToysIn {
-  string requestID = 1;
-}
-
 message GetToysOut {
   repeated GetToyOut toys = 1;
 }
 
 message GetMasterToysIn {
-  string requestID = 1;
-  uint64 masterID = 2;
+  uint64 masterID = 1;
 }
 
 message GetUserToysIn {
-  string requestID = 1;
-  uint64 userID = 2;
+  uint64 userID = 1;
 }

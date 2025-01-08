@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 package tags;
 
@@ -9,16 +10,11 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 
 service TagsService {
   rpc GetTag(GetTagIn) returns (GetTagOut) {}
-  rpc GetTags(GetTagsIn) returns (GetTagsOut) {}
+  rpc GetTags(google.protobuf.Empty) returns (GetTagsOut) {}
 }
 
 message GetTagIn {
-  string requestID = 1;
-  uint32 ID = 2;
-}
-
-message GetTagsIn {
-  string requestID = 1;
+  uint32 ID = 1;
 }
 
 message GetTagOut {

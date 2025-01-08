@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net"
 
+	"google.golang.org/grpc"
+
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/categories"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/masters"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/tags"
@@ -12,7 +14,6 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 	customgrpc "github.com/DKhorkov/libs/grpc"
 	"github.com/DKhorkov/libs/logging"
-	"google.golang.org/grpc"
 )
 
 // New creates an instance of gRPC Controller.

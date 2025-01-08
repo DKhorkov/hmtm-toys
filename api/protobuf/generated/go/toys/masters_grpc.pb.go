@@ -7,6 +7,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,7 +22,7 @@ type MastersServiceClient interface {
 	RegisterMaster(ctx context.Context, in *RegisterMasterIn, opts ...grpc.CallOption) (*RegisterMasterOut, error)
 	GetMaster(ctx context.Context, in *GetMasterIn, opts ...grpc.CallOption) (*GetMasterOut, error)
 	GetMasterByUser(ctx context.Context, in *GetMasterByUserIn, opts ...grpc.CallOption) (*GetMasterOut, error)
-	GetMasters(ctx context.Context, in *GetMastersIn, opts ...grpc.CallOption) (*GetMastersOut, error)
+	GetMasters(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMastersOut, error)
 }
 
 type mastersServiceClient struct {
@@ -59,7 +60,7 @@ func (c *mastersServiceClient) GetMasterByUser(ctx context.Context, in *GetMaste
 	return out, nil
 }
 
-func (c *mastersServiceClient) GetMasters(ctx context.Context, in *GetMastersIn, opts ...grpc.CallOption) (*GetMastersOut, error) {
+func (c *mastersServiceClient) GetMasters(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMastersOut, error) {
 	out := new(GetMastersOut)
 	err := c.cc.Invoke(ctx, "/masters.MastersService/GetMasters", in, out, opts...)
 	if err != nil {
@@ -75,7 +76,7 @@ type MastersServiceServer interface {
 	RegisterMaster(context.Context, *RegisterMasterIn) (*RegisterMasterOut, error)
 	GetMaster(context.Context, *GetMasterIn) (*GetMasterOut, error)
 	GetMasterByUser(context.Context, *GetMasterByUserIn) (*GetMasterOut, error)
-	GetMasters(context.Context, *GetMastersIn) (*GetMastersOut, error)
+	GetMasters(context.Context, *emptypb.Empty) (*GetMastersOut, error)
 	mustEmbedUnimplementedMastersServiceServer()
 }
 
@@ -92,7 +93,7 @@ func (UnimplementedMastersServiceServer) GetMaster(context.Context, *GetMasterIn
 func (UnimplementedMastersServiceServer) GetMasterByUser(context.Context, *GetMasterByUserIn) (*GetMasterOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasterByUser not implemented")
 }
-func (UnimplementedMastersServiceServer) GetMasters(context.Context, *GetMastersIn) (*GetMastersOut, error) {
+func (UnimplementedMastersServiceServer) GetMasters(context.Context, *emptypb.Empty) (*GetMastersOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasters not implemented")
 }
 func (UnimplementedMastersServiceServer) mustEmbedUnimplementedMastersServiceServer() {}
@@ -163,7 +164,7 @@ func _MastersService_GetMasterByUser_Handler(srv interface{}, ctx context.Contex
 }
 
 func _MastersService_GetMasters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMastersIn)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -175,7 +176,7 @@ func _MastersService_GetMasters_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/masters.MastersService/GetMasters",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MastersServiceServer).GetMasters(ctx, req.(*GetMastersIn))
+		return srv.(MastersServiceServer).GetMasters(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

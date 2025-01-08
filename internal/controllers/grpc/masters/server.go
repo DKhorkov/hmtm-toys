@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
@@ -86,7 +87,7 @@ func (api *ServerAPI) GetMaster(ctx context.Context, in *toys.GetMasterIn) (*toy
 }
 
 // GetMasters handler returns all Masters.
-func (api *ServerAPI) GetMasters(ctx context.Context, in *toys.GetMastersIn) (*toys.GetMastersOut, error) {
+func (api *ServerAPI) GetMasters(ctx context.Context, in *emptypb.Empty) (*toys.GetMastersOut, error) {
 	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)
