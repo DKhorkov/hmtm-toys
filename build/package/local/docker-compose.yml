@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  hmtm_toys_database:
+    container_name: hmtm_toys_database
+    hostname: hmtm_toys_database
+    image: postgres
+    restart: always
+    env_file:
+      - ../../../.env
+    volumes:
+      - ../../../postgres_data:/var/lib/postgresql/data
+      - ../../../postgres_backups:/backups
+      - ../../../scripts/postgres:/scripts
+    ports:
+      - "${HMTM_TOYS_DB_OUTER_PORT}:${HMTM_TOYS_DB_INNER_PORT}"
