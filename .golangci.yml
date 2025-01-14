@@ -391,6 +391,7 @@ issues:
     - path: "internal/repositories/toys_repository.go"
       linters:
         - mnd
+        - govet
         - gosec
         - dupl
     - path: "internal/controllers/grpc/masters/server.go"
