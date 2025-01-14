@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func prepareToyOut(toy *entities.Toy) *toys.GetToyOut {
+func prepareToyOut(toy entities.Toy) *toys.GetToyOut {
 	tags := make([]*toys.GetTagOut, len(toy.Tags))
 	for i, tag := range toy.Tags {
 		tags[i] = &toys.GetTagOut{
