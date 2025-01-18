@@ -7,24 +7,36 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 func NewCommonTagsRepository(
 	dbConnector db.Connector,
 	logger *slog.Logger,
+	traceProvider tracing.TraceProvider,
+	spanConfig tracing.SpanConfig,
 ) *CommonTagsRepository {
 	return &CommonTagsRepository{
-		dbConnector: dbConnector,
-		logger:      logger,
+		dbConnector:   dbConnector,
+		logger:        logger,
+		traceProvider: traceProvider,
+		spanConfig:    spanConfig,
 	}
 }
 
 type CommonTagsRepository struct {
-	dbConnector db.Connector
-	logger      *slog.Logger
+	dbConnector   db.Connector
+	logger        *slog.Logger
+	traceProvider tracing.TraceProvider
+	spanConfig    tracing.SpanConfig
 }
 
 func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
 		return nil, err
@@ -71,10 +83,16 @@ func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Ta
 		return nil, err
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return tags, nil
 }
 
 func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
 		return nil, err
@@ -98,5 +116,6 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 		return nil, err
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return tag, nil
 }

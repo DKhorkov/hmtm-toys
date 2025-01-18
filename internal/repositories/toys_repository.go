@@ -10,24 +10,36 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 func NewCommonToysRepository(
 	dbConnector db.Connector,
 	logger *slog.Logger,
+	traceProvider tracing.TraceProvider,
+	spanConfig tracing.SpanConfig,
 ) *CommonToysRepository {
 	return &CommonToysRepository{
-		dbConnector: dbConnector,
-		logger:      logger,
+		dbConnector:   dbConnector,
+		logger:        logger,
+		traceProvider: traceProvider,
+		spanConfig:    spanConfig,
 	}
 }
 
 type CommonToysRepository struct {
-	dbConnector db.Connector
-	logger      *slog.Logger
+	dbConnector   db.Connector
+	logger        *slog.Logger
+	traceProvider tracing.TraceProvider
+	spanConfig    tracing.SpanConfig
 }
 
 func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
 		return nil, err
@@ -94,10 +106,16 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 		toys[i].Attachments = attachments
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toys, nil
 }
 
 func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
 		return nil, err
@@ -166,10 +184,16 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 		toys[i].Attachments = attachments
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toys, nil
 }
 
 func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
 		return nil, err
@@ -207,10 +231,17 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 	}
 
 	toy.Attachments = attachments
+
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toy, nil
 }
 
 func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	transaction, err := repo.dbConnector.Transaction(ctx)
 	if err != nil {
 		return 0, err
@@ -305,6 +336,7 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 		return 0, err
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toyID, nil
 }
 
@@ -313,6 +345,11 @@ func (repo *CommonToysRepository) getToyTags(
 	toyID uint64,
 	connection *sql.Conn,
 ) ([]entities.Tag, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	rows, err := connection.QueryContext(
 		ctx,
 		`
@@ -358,6 +395,7 @@ func (repo *CommonToysRepository) getToyTags(
 		return nil, err
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return tags, nil
 }
 
@@ -366,6 +404,11 @@ func (repo *CommonToysRepository) getToyAttachments(
 	toyID uint64,
 	connection *sql.Conn,
 ) ([]entities.Attachment, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+
 	rows, err := connection.QueryContext(
 		ctx,
 		`
@@ -407,5 +450,6 @@ func (repo *CommonToysRepository) getToyAttachments(
 		return nil, err
 	}
 
+	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return attachments, nil
 }
