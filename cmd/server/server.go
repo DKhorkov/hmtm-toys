@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/DKhorkov/hmtm-toys/internal/app"
 	"github.com/DKhorkov/hmtm-toys/internal/config"
 	grpccontroller "github.com/DKhorkov/hmtm-toys/internal/controllers/grpc"
@@ -9,6 +11,7 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/usecases"
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 func main() {
@@ -38,25 +41,60 @@ func main() {
 		}
 	}()
 
-	tagsRepository := repositories.NewCommonTagsRepository(dbConnector, logger)
+	traceProvider, err := tracing.New(settings.Tracing.Server)
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err = traceProvider.Shutdown(context.Background()); err != nil {
+			logging.LogError(logger, "Error shutting down tracer", err)
+		}
+	}()
+
+	tagsRepository := repositories.NewCommonTagsRepository(
+		dbConnector,
+		logger,
+		traceProvider,
+		settings.Tracing.Spans.Repositories.Tags,
+	)
+
 	tagsService := services.NewCommonTagsService(
 		tagsRepository,
 		logger,
 	)
 
-	categoriesRepository := repositories.NewCommonCategoriesRepository(dbConnector, logger)
+	categoriesRepository := repositories.NewCommonCategoriesRepository(
+		dbConnector,
+		logger,
+		traceProvider,
+		settings.Tracing.Spans.Repositories.Categories,
+	)
+
 	categoriesService := services.NewCommonCategoriesService(
 		categoriesRepository,
 		logger,
 	)
 
-	mastersRepository := repositories.NewCommonMastersRepository(dbConnector, logger)
+	mastersRepository := repositories.NewCommonMastersRepository(
+		dbConnector,
+		logger,
+		traceProvider,
+		settings.Tracing.Spans.Repositories.Masters,
+	)
+
 	mastersService := services.NewCommonMastersService(
 		mastersRepository,
 		logger,
 	)
 
-	toysRepository := repositories.NewCommonToysRepository(dbConnector, logger)
+	toysRepository := repositories.NewCommonToysRepository(
+		dbConnector,
+		logger,
+		traceProvider,
+		settings.Tracing.Spans.Repositories.Toys,
+	)
+
 	toysService := services.NewCommonToysService(
 		toysRepository,
 		logger,
@@ -74,6 +112,8 @@ func main() {
 		settings.HTTP.Port,
 		useCases,
 		logger,
+		traceProvider,
+		settings.Tracing.Spans.Root,
 	)
 
 	application := app.New(controller)

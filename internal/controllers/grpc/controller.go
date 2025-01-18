@@ -12,17 +12,24 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/tags"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	customgrpc "github.com/DKhorkov/libs/grpc"
+	customgrpc "github.com/DKhorkov/libs/grpc/interceptors"
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 )
 
 // New creates an instance of gRPC Controller.
-func New(host string, port int, useCases interfaces.UseCases, logger *slog.Logger) *Controller {
+func New(
+	host string,
+	port int,
+	useCases interfaces.UseCases,
+	logger *slog.Logger,
+	traceProvider tracing.TraceProvider,
+	spanConfig tracing.SpanConfig,
+) *Controller {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			customgrpc.UnaryServerLoggingInterceptor(
-				logger,
-			),
+			customgrpc.UnaryServerTracingInterceptor(traceProvider, spanConfig),
+			customgrpc.UnaryServerLoggingInterceptor(logger),
 		),
 	)
 
