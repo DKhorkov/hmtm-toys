@@ -20,6 +20,10 @@ func (e ToyNotFoundError) Error() string {
 	return template
 }
 
+func (e ToyNotFoundError) Unwrap() error {
+	return e.BaseErr
+}
+
 type ToyAlreadyExistsError struct {
 	Message string
 	BaseErr error
@@ -36,4 +40,8 @@ func (e ToyAlreadyExistsError) Error() string {
 	}
 
 	return template
+}
+
+func (e ToyAlreadyExistsError) Unwrap() error {
+	return e.BaseErr
 }

@@ -20,6 +20,10 @@ func (e MasterNotFoundError) Error() string {
 	return template
 }
 
+func (e MasterNotFoundError) Unwrap() error {
+	return e.BaseErr
+}
+
 type MasterAlreadyExistsError struct {
 	Message string
 	BaseErr error
@@ -36,4 +40,8 @@ func (e MasterAlreadyExistsError) Error() string {
 	}
 
 	return template
+}
+
+func (e MasterAlreadyExistsError) Unwrap() error {
+	return e.BaseErr
 }
