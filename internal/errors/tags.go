@@ -19,3 +19,7 @@ func (e TagNotFoundError) Error() string {
 
 	return template
 }
+
+func (e TagNotFoundError) Unwrap() error {
+	return e.BaseErr
+}

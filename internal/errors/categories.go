@@ -19,3 +19,7 @@ func (e CategoryNotFoundError) Error() string {
 
 	return template
 }
+
+func (e CategoryNotFoundError) Unwrap() error {
+	return e.BaseErr
+}
