@@ -36,6 +36,7 @@ func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Ta
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -83,7 +84,6 @@ func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Ta
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return tags, nil
 }
 
@@ -92,6 +92,7 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -116,6 +117,5 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return tag, nil
 }

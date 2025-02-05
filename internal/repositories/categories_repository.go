@@ -37,6 +37,7 @@ func (repo *CommonCategoriesRepository) GetAllCategories(ctx context.Context) ([
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -84,7 +85,6 @@ func (repo *CommonCategoriesRepository) GetAllCategories(ctx context.Context) ([
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return categories, nil
 }
 
@@ -93,6 +93,7 @@ func (repo *CommonCategoriesRepository) GetCategoryByID(ctx context.Context, id 
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -117,6 +118,5 @@ func (repo *CommonCategoriesRepository) GetCategoryByID(ctx context.Context, id 
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return category, nil
 }
