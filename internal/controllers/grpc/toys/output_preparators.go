@@ -1,9 +1,10 @@
 package toys
 
 import (
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func prepareToyOut(toy entities.Toy) *toys.GetToyOut {

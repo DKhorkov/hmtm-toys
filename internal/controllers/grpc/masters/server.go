@@ -11,12 +11,13 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	customgrpc "github.com/DKhorkov/libs/grpc"
+	"github.com/DKhorkov/libs/logging"
+
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	customgrpc "github.com/DKhorkov/libs/grpc"
-	"github.com/DKhorkov/libs/logging"
 )
 
 // RegisterServer handler (serverAPI) for MastersServer to gRPC server:.

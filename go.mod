@@ -3,7 +3,7 @@ module github.com/DKhorkov/hmtm-toys
 go 1.23.1
 
 require (
-	github.com/DKhorkov/libs v1.2.10
+	github.com/DKhorkov/libs v1.2.13
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0

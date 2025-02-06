@@ -4,11 +4,11 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/DKhorkov/libs/db"
+	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-	"github.com/DKhorkov/libs/db"
-	"github.com/DKhorkov/libs/logging"
 )
 
 func NewCommonCategoriesRepository(
