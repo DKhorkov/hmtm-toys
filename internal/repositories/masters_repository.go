@@ -4,10 +4,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
 func NewCommonMastersRepository(
@@ -36,6 +37,7 @@ func (repo *CommonMastersRepository) GetAllMasters(ctx context.Context) ([]entit
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -83,7 +85,6 @@ func (repo *CommonMastersRepository) GetAllMasters(ctx context.Context) ([]entit
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return masters, nil
 }
 
@@ -92,6 +93,7 @@ func (repo *CommonMastersRepository) GetMasterByUserID(ctx context.Context, user
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -116,7 +118,6 @@ func (repo *CommonMastersRepository) GetMasterByUserID(ctx context.Context, user
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return master, nil
 }
 
@@ -125,6 +126,7 @@ func (repo *CommonMastersRepository) GetMasterByID(ctx context.Context, id uint6
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -149,7 +151,6 @@ func (repo *CommonMastersRepository) GetMasterByID(ctx context.Context, id uint6
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return master, nil
 }
 
@@ -161,6 +162,7 @@ func (repo *CommonMastersRepository) RegisterMaster(
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -185,6 +187,5 @@ func (repo *CommonMastersRepository) RegisterMaster(
 		return 0, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return masterID, nil
 }

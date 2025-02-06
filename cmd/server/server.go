@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 
+	"github.com/DKhorkov/libs/db"
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
+
 	"github.com/DKhorkov/hmtm-toys/internal/app"
 	"github.com/DKhorkov/hmtm-toys/internal/config"
 	grpccontroller "github.com/DKhorkov/hmtm-toys/internal/controllers/grpc"
 	"github.com/DKhorkov/hmtm-toys/internal/repositories"
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 	"github.com/DKhorkov/hmtm-toys/internal/usecases"
-	"github.com/DKhorkov/libs/db"
-	"github.com/DKhorkov/libs/logging"
-	"github.com/DKhorkov/libs/tracing"
 )
 
 func main() {

@@ -7,14 +7,15 @@ import (
 
 	"google.golang.org/grpc"
 
+	customgrpc "github.com/DKhorkov/libs/grpc/interceptors"
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
+
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/categories"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/masters"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/tags"
 	"github.com/DKhorkov/hmtm-toys/internal/controllers/grpc/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
-	customgrpc "github.com/DKhorkov/libs/grpc/interceptors"
-	"github.com/DKhorkov/libs/logging"
-	"github.com/DKhorkov/libs/tracing"
 )
 
 // New creates an instance of gRPC Controller.

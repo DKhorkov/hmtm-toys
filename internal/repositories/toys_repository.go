@@ -7,10 +7,11 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
 func NewCommonToysRepository(
@@ -39,6 +40,7 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -106,7 +108,6 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 		toys[i].Attachments = attachments
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toys, nil
 }
 
@@ -115,6 +116,7 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -184,7 +186,6 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 		toys[i].Attachments = attachments
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toys, nil
 }
 
@@ -193,6 +194,7 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	connection, err := repo.dbConnector.Connection(ctx)
 	if err != nil {
@@ -231,8 +233,6 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 	}
 
 	toy.Attachments = attachments
-
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toy, nil
 }
 
@@ -241,6 +241,7 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	transaction, err := repo.dbConnector.Transaction(ctx)
 	if err != nil {
@@ -336,7 +337,6 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 		return 0, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return toyID, nil
 }
 
@@ -349,6 +349,7 @@ func (repo *CommonToysRepository) getToyTags(
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	rows, err := connection.QueryContext(
 		ctx,
@@ -395,7 +396,6 @@ func (repo *CommonToysRepository) getToyTags(
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return tags, nil
 }
 
@@ -408,6 +408,7 @@ func (repo *CommonToysRepository) getToyAttachments(
 	defer span.End()
 
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
 	rows, err := connection.QueryContext(
 		ctx,
@@ -450,6 +451,5 @@ func (repo *CommonToysRepository) getToyAttachments(
 		return nil, err
 	}
 
-	span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 	return attachments, nil
 }
