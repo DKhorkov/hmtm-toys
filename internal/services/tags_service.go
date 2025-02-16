@@ -46,3 +46,7 @@ func (service *CommonTagsService) GetTagByID(ctx context.Context, id uint32) (*e
 func (service *CommonTagsService) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	return service.tagsRepository.GetAllTags(ctx)
 }
+
+func (service *CommonTagsService) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+	return service.tagsRepository.CreateTags(ctx, tagsData)
+}

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -29,6 +31,37 @@ type ServerAPI struct {
 	toys.UnimplementedTagsServiceServer
 	useCases interfaces.UseCases
 	logger   *slog.Logger
+}
+
+// CreateTags create new tags with provided data.
+func (api *ServerAPI) CreateTags(ctx context.Context, in *toys.CreateTagsIn) (*toys.CreateTagsOut, error) {
+	tagsData := make([]entities.CreateTagDTO, len(in.GetTags()))
+	for i, tag := range in.GetTags() {
+		tagsData[i] = entities.CreateTagDTO{
+			Name: tag.GetName(),
+		}
+	}
+
+	tagIDs, err := api.useCases.CreateTags(ctx, tagsData)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			"Error occurred while trying to create Tags",
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	processedTags := make([]*toys.CreateTagOut, len(tagIDs))
+	for i, tagID := range tagIDs {
+		processedTags[i] = &toys.CreateTagOut{
+			ID: tagID,
+		}
+	}
+
+	return &toys.CreateTagsOut{Tags: processedTags}, nil
 }
 
 // GetTag handler returns Tag for provided ID.

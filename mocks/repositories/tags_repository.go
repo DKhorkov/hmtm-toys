@@ -41,6 +41,21 @@ func (m *MockTagsRepository) EXPECT() *MockTagsRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateTags mocks base method.
+func (m *MockTagsRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTags", ctx, tagsData)
+	ret0, _ := ret[0].([]uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTags indicates an expected call of CreateTags.
+func (mr *MockTagsRepositoryMockRecorder) CreateTags(ctx, tagsData any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTags", reflect.TypeOf((*MockTagsRepository)(nil).CreateTags), ctx, tagsData)
+}
+
 // GetAllTags mocks base method.
 func (m *MockTagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	m.ctrl.T.Helper()

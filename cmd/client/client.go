@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/libs/requestid"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
@@ -41,6 +41,18 @@ func main() {
 	}
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), requestid.Key, requestid.New())
+
+	tagIDs, err := client.CreateTags(ctx, &toys.CreateTagsIn{
+		Tags: []*toys.CreateTagIn{
+			{
+				Name: "tag1",
+			},
+			{
+				Name: "tag2",
+			},
+		},
+	})
+	fmt.Println(tagIDs, err)
 
 	toyByID, err := client.GetToy(ctx, &toys.GetToyIn{ID: 1})
 	fmt.Println(err)

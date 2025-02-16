@@ -113,3 +113,35 @@ func (useCases *CommonUseCases) RegisterMaster(
 ) (uint64, error) {
 	return useCases.mastersService.RegisterMaster(ctx, masterData)
 }
+
+func (useCases *CommonUseCases) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+	allTags, err := useCases.tagsService.GetAllTags(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	allTagsSet := make(map[string]uint32)
+	for _, tag := range allTags {
+		allTagsSet[tag.Name] = tag.ID
+	}
+
+	var existingTagIDs []uint32
+	var tagsToCreate []entities.CreateTagDTO
+	for _, tag := range tagsData {
+		if _, ok := allTagsSet[tag.Name]; ok {
+			existingTagIDs = append(existingTagIDs, allTagsSet[tag.Name])
+
+			continue
+		}
+
+		tagsToCreate = append(tagsToCreate, tag)
+	}
+
+	createdTagIDs, err := useCases.tagsService.CreateTags(ctx, tagsToCreate)
+	if err != nil {
+		return nil, err
+	}
+
+	createdTagIDs = append(createdTagIDs, existingTagIDs...)
+	return createdTagIDs, nil
+}

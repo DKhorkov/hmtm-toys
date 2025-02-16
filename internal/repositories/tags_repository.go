@@ -120,3 +120,50 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 
 	return tag, nil
 }
+
+func (repo *CommonTagsRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	transaction, err := repo.dbConnector.Transaction(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Rollback transaction according Go best practises https://go.dev/doc/database/execute-transactions.
+	defer func() {
+		if err = transaction.Rollback(); err != nil {
+			logging.LogErrorContext(ctx, repo.logger, "failed to rollback db transaction", err)
+		}
+	}()
+
+	tagIDs := make([]uint32, len(tagsData))
+	for i, tag := range tagsData {
+		var tagID uint32
+		err = transaction.QueryRowContext(
+			ctx,
+			`
+				INSERT INTO tags (name) 
+				VALUES ($1)
+				RETURNING tags.id
+			`,
+			tag.Name,
+		).Scan(&tagID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		tagIDs[i] = tagID
+	}
+
+	err = transaction.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return tagIDs, nil
+}
