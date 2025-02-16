@@ -187,6 +187,194 @@ func (x *GetTagsOut) GetTags() []*GetTagOut {
 	return nil
 }
 
+type CreateTagsIn struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Tags []*CreateTagIn `protobuf:"bytes,1,rep,name=tags,proto3" json:"tags,omitempty"`
+}
+
+func (x *CreateTagsIn) Reset() {
+	*x = CreateTagsIn{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_toys_tags_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateTagsIn) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTagsIn) ProtoMessage() {}
+
+func (x *CreateTagsIn) ProtoReflect() protoreflect.Message {
+	mi := &file_toys_tags_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTagsIn.ProtoReflect.Descriptor instead.
+func (*CreateTagsIn) Descriptor() ([]byte, []int) {
+	return file_toys_tags_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateTagsIn) GetTags() []*CreateTagIn {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+type CreateTagsOut struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Tags []*CreateTagOut `protobuf:"bytes,1,rep,name=tags,proto3" json:"tags,omitempty"`
+}
+
+func (x *CreateTagsOut) Reset() {
+	*x = CreateTagsOut{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_toys_tags_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateTagsOut) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTagsOut) ProtoMessage() {}
+
+func (x *CreateTagsOut) ProtoReflect() protoreflect.Message {
+	mi := &file_toys_tags_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTagsOut.ProtoReflect.Descriptor instead.
+func (*CreateTagsOut) Descriptor() ([]byte, []int) {
+	return file_toys_tags_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateTagsOut) GetTags() []*CreateTagOut {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+type CreateTagIn struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+}
+
+func (x *CreateTagIn) Reset() {
+	*x = CreateTagIn{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_toys_tags_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateTagIn) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTagIn) ProtoMessage() {}
+
+func (x *CreateTagIn) ProtoReflect() protoreflect.Message {
+	mi := &file_toys_tags_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTagIn.ProtoReflect.Descriptor instead.
+func (*CreateTagIn) Descriptor() ([]byte, []int) {
+	return file_toys_tags_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateTagIn) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type CreateTagOut struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ID uint32 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+}
+
+func (x *CreateTagOut) Reset() {
+	*x = CreateTagOut{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_toys_tags_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateTagOut) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTagOut) ProtoMessage() {}
+
+func (x *CreateTagOut) ProtoReflect() protoreflect.Message {
+	mi := &file_toys_tags_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTagOut.ProtoReflect.Descriptor instead.
+func (*CreateTagOut) Descriptor() ([]byte, []int) {
+	return file_toys_tags_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateTagOut) GetID() uint32 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
 var File_toys_tags_proto protoreflect.FileDescriptor
 
 var file_toys_tags_proto_rawDesc = []byte{
@@ -210,18 +398,33 @@ var file_toys_tags_proto_rawDesc = []byte{
 	0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0x31, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x54, 0x61,
 	0x67, 0x73, 0x4f, 0x75, 0x74, 0x12, 0x23, 0x0a, 0x04, 0x74, 0x61, 0x67, 0x73, 0x18, 0x01, 0x20,
 	0x03, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61,
-	0x67, 0x4f, 0x75, 0x74, 0x52, 0x04, 0x74, 0x61, 0x67, 0x73, 0x32, 0x71, 0x0a, 0x0b, 0x54, 0x61,
-	0x67, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x47, 0x65, 0x74,
-	0x54, 0x61, 0x67, 0x12, 0x0e, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61,
-	0x67, 0x49, 0x6e, 0x1a, 0x0f, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61,
-	0x67, 0x4f, 0x75, 0x74, 0x22, 0x00, 0x12, 0x35, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x54, 0x61, 0x67,
-	0x73, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x10, 0x2e, 0x74, 0x61, 0x67, 0x73,
-	0x2e, 0x47, 0x65, 0x74, 0x54, 0x61, 0x67, 0x73, 0x4f, 0x75, 0x74, 0x22, 0x00, 0x42, 0x36, 0x5a,
-	0x34, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x44, 0x4b, 0x68, 0x6f,
-	0x72, 0x6b, 0x6f, 0x76, 0x2f, 0x68, 0x6d, 0x74, 0x6d, 0x2d, 0x74, 0x6f, 0x79, 0x73, 0x2f, 0x61,
-	0x70, 0x69, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x6f, 0x79, 0x73,
-	0x3b, 0x74, 0x6f, 0x79, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x67, 0x4f, 0x75, 0x74, 0x52, 0x04, 0x74, 0x61, 0x67, 0x73, 0x22, 0x35, 0x0a, 0x0c, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x73, 0x49, 0x6e, 0x12, 0x25, 0x0a, 0x04, 0x74, 0x61,
+	0x67, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x49, 0x6e, 0x52, 0x04, 0x74, 0x61, 0x67,
+	0x73, 0x22, 0x37, 0x0a, 0x0d, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x73, 0x4f,
+	0x75, 0x74, 0x12, 0x26, 0x0a, 0x04, 0x74, 0x61, 0x67, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x12, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61,
+	0x67, 0x4f, 0x75, 0x74, 0x52, 0x04, 0x74, 0x61, 0x67, 0x73, 0x22, 0x21, 0x0a, 0x0b, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x49, 0x6e, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d,
+	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x1e, 0x0a,
+	0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x4f, 0x75, 0x74, 0x12, 0x0e, 0x0a,
+	0x02, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x02, 0x49, 0x44, 0x32, 0xaa, 0x01,
+	0x0a, 0x0b, 0x54, 0x61, 0x67, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x37, 0x0a,
+	0x0a, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x73, 0x12, 0x12, 0x2e, 0x74, 0x61,
+	0x67, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x73, 0x49, 0x6e, 0x1a,
+	0x13, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67,
+	0x73, 0x4f, 0x75, 0x74, 0x22, 0x00, 0x12, 0x2b, 0x0a, 0x06, 0x47, 0x65, 0x74, 0x54, 0x61, 0x67,
+	0x12, 0x0e, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61, 0x67, 0x49, 0x6e,
+	0x1a, 0x0f, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x61, 0x67, 0x4f, 0x75,
+	0x74, 0x22, 0x00, 0x12, 0x35, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x54, 0x61, 0x67, 0x73, 0x12, 0x16,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x10, 0x2e, 0x74, 0x61, 0x67, 0x73, 0x2e, 0x47, 0x65,
+	0x74, 0x54, 0x61, 0x67, 0x73, 0x4f, 0x75, 0x74, 0x22, 0x00, 0x42, 0x36, 0x5a, 0x34, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x44, 0x4b, 0x68, 0x6f, 0x72, 0x6b, 0x6f,
+	0x76, 0x2f, 0x68, 0x6d, 0x74, 0x6d, 0x2d, 0x74, 0x6f, 0x79, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x6f, 0x79, 0x73, 0x3b, 0x74, 0x6f,
+	0x79, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -236,27 +439,35 @@ func file_toys_tags_proto_rawDescGZIP() []byte {
 	return file_toys_tags_proto_rawDescData
 }
 
-var file_toys_tags_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_toys_tags_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_toys_tags_proto_goTypes = []interface{}{
 	(*GetTagIn)(nil),              // 0: tags.GetTagIn
 	(*GetTagOut)(nil),             // 1: tags.GetTagOut
 	(*GetTagsOut)(nil),            // 2: tags.GetTagsOut
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 4: google.protobuf.Empty
+	(*CreateTagsIn)(nil),          // 3: tags.CreateTagsIn
+	(*CreateTagsOut)(nil),         // 4: tags.CreateTagsOut
+	(*CreateTagIn)(nil),           // 5: tags.CreateTagIn
+	(*CreateTagOut)(nil),          // 6: tags.CreateTagOut
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
 }
 var file_toys_tags_proto_depIdxs = []int32{
-	3, // 0: tags.GetTagOut.createdAt:type_name -> google.protobuf.Timestamp
-	3, // 1: tags.GetTagOut.updatedAt:type_name -> google.protobuf.Timestamp
+	7, // 0: tags.GetTagOut.createdAt:type_name -> google.protobuf.Timestamp
+	7, // 1: tags.GetTagOut.updatedAt:type_name -> google.protobuf.Timestamp
 	1, // 2: tags.GetTagsOut.tags:type_name -> tags.GetTagOut
-	0, // 3: tags.TagsService.GetTag:input_type -> tags.GetTagIn
-	4, // 4: tags.TagsService.GetTags:input_type -> google.protobuf.Empty
-	1, // 5: tags.TagsService.GetTag:output_type -> tags.GetTagOut
-	2, // 6: tags.TagsService.GetTags:output_type -> tags.GetTagsOut
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 3: tags.CreateTagsIn.tags:type_name -> tags.CreateTagIn
+	6, // 4: tags.CreateTagsOut.tags:type_name -> tags.CreateTagOut
+	3, // 5: tags.TagsService.CreateTags:input_type -> tags.CreateTagsIn
+	0, // 6: tags.TagsService.GetTag:input_type -> tags.GetTagIn
+	8, // 7: tags.TagsService.GetTags:input_type -> google.protobuf.Empty
+	4, // 8: tags.TagsService.CreateTags:output_type -> tags.CreateTagsOut
+	1, // 9: tags.TagsService.GetTag:output_type -> tags.GetTagOut
+	2, // 10: tags.TagsService.GetTags:output_type -> tags.GetTagsOut
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_toys_tags_proto_init() }
@@ -301,6 +512,54 @@ func file_toys_tags_proto_init() {
 				return nil
 			}
 		}
+		file_toys_tags_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateTagsIn); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_toys_tags_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateTagsOut); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_toys_tags_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateTagIn); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_toys_tags_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateTagOut); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -308,7 +567,7 @@ func file_toys_tags_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_toys_tags_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

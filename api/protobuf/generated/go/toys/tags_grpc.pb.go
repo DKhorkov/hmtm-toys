@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TagsServiceClient interface {
+	CreateTags(ctx context.Context, in *CreateTagsIn, opts ...grpc.CallOption) (*CreateTagsOut, error)
 	GetTag(ctx context.Context, in *GetTagIn, opts ...grpc.CallOption) (*GetTagOut, error)
 	GetTags(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTagsOut, error)
 }
@@ -29,6 +30,15 @@ type tagsServiceClient struct {
 
 func NewTagsServiceClient(cc grpc.ClientConnInterface) TagsServiceClient {
 	return &tagsServiceClient{cc}
+}
+
+func (c *tagsServiceClient) CreateTags(ctx context.Context, in *CreateTagsIn, opts ...grpc.CallOption) (*CreateTagsOut, error) {
+	out := new(CreateTagsOut)
+	err := c.cc.Invoke(ctx, "/tags.TagsService/CreateTags", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *tagsServiceClient) GetTag(ctx context.Context, in *GetTagIn, opts ...grpc.CallOption) (*GetTagOut, error) {
@@ -53,6 +63,7 @@ func (c *tagsServiceClient) GetTags(ctx context.Context, in *emptypb.Empty, opts
 // All implementations must embed UnimplementedTagsServiceServer
 // for forward compatibility
 type TagsServiceServer interface {
+	CreateTags(context.Context, *CreateTagsIn) (*CreateTagsOut, error)
 	GetTag(context.Context, *GetTagIn) (*GetTagOut, error)
 	GetTags(context.Context, *emptypb.Empty) (*GetTagsOut, error)
 	mustEmbedUnimplementedTagsServiceServer()
@@ -62,6 +73,9 @@ type TagsServiceServer interface {
 type UnimplementedTagsServiceServer struct {
 }
 
+func (UnimplementedTagsServiceServer) CreateTags(context.Context, *CreateTagsIn) (*CreateTagsOut, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTags not implemented")
+}
 func (UnimplementedTagsServiceServer) GetTag(context.Context, *GetTagIn) (*GetTagOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTag not implemented")
 }
@@ -79,6 +93,24 @@ type UnsafeTagsServiceServer interface {
 
 func RegisterTagsServiceServer(s grpc.ServiceRegistrar, srv TagsServiceServer) {
 	s.RegisterService(&TagsService_ServiceDesc, srv)
+}
+
+func _TagsService_CreateTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTagsIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagsServiceServer).CreateTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tags.TagsService/CreateTags",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagsServiceServer).CreateTags(ctx, req.(*CreateTagsIn))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _TagsService_GetTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -124,6 +156,10 @@ var TagsService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "tags.TagsService",
 	HandlerType: (*TagsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateTags",
+			Handler:    _TagsService_CreateTags_Handler,
+		},
 		{
 			MethodName: "GetTag",
 			Handler:    _TagsService_GetTag_Handler,
