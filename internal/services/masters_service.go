@@ -12,22 +12,22 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
-func NewCommonMastersService(
+func NewMastersService(
 	mastersRepository interfaces.MastersRepository,
 	logger *slog.Logger,
-) *CommonMastersService {
-	return &CommonMastersService{
+) *MastersService {
+	return &MastersService{
 		mastersRepository: mastersRepository,
 		logger:            logger,
 	}
 }
 
-type CommonMastersService struct {
+type MastersService struct {
 	mastersRepository interfaces.MastersRepository
 	logger            *slog.Logger
 }
 
-func (service *CommonMastersService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (service *MastersService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	master, err := service.mastersRepository.GetMasterByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -43,7 +43,7 @@ func (service *CommonMastersService) GetMasterByID(ctx context.Context, id uint6
 	return master, nil
 }
 
-func (service *CommonMastersService) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (service *MastersService) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
 	master, err := service.mastersRepository.GetMasterByUserID(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -59,11 +59,11 @@ func (service *CommonMastersService) GetMasterByUserID(ctx context.Context, user
 	return master, nil
 }
 
-func (service *CommonMastersService) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (service *MastersService) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	return service.mastersRepository.GetAllMasters(ctx)
 }
 
-func (service *CommonMastersService) RegisterMaster(
+func (service *MastersService) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {

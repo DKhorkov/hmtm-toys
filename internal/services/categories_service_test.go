@@ -17,7 +17,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
+func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		categoryID    uint32
@@ -46,7 +46,7 @@ func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)
+	categoriesService := services.NewCategoriesService(categoriesRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
@@ -63,7 +63,7 @@ func TestCommonCategoriesServiceGetCategoryByID(t *testing.T) {
 	}
 }
 
-func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
+func TestCategoriesServiceGetAllCategories(t *testing.T) {
 	t.Run("all categories with existing categories", func(t *testing.T) {
 		expectedCategories := []entities.Category{
 			{ID: 1},
@@ -74,7 +74,7 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return(expectedCategories, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)
+		categoriesService := services.NewCategoriesService(categoriesRepository, logger)
 		ctx := context.Background()
 
 		categories, err := categoriesService.GetAllCategories(ctx)
@@ -89,7 +89,7 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return([]entities.Category{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)
+		categoriesService := services.NewCategoriesService(categoriesRepository, logger)
 		ctx := context.Background()
 
 		categories, err := categoriesService.GetAllCategories(ctx)
@@ -106,7 +106,7 @@ func TestCommonCategoriesServiceGetAllCategories(t *testing.T) {
 		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		categoriesService := services.NewCommonCategoriesService(categoriesRepository, logger)
+		categoriesService := services.NewCategoriesService(categoriesRepository, logger)
 		ctx := context.Background()
 
 		categories, err := categoriesService.GetAllCategories(ctx)

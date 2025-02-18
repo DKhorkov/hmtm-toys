@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
-	"github.com/DKhorkov/libs/requestid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/emptypb"
+
+	"github.com/DKhorkov/libs/requestid"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )

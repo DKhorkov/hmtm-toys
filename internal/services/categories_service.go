@@ -12,22 +12,22 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
-func NewCommonCategoriesService(
+func NewCategoriesService(
 	categoriesRepository interfaces.CategoriesRepository,
 	logger *slog.Logger,
-) *CommonCategoriesService {
-	return &CommonCategoriesService{
+) *CategoriesService {
+	return &CategoriesService{
 		categoriesRepository: categoriesRepository,
 		logger:               logger,
 	}
 }
 
-type CommonCategoriesService struct {
+type CategoriesService struct {
 	categoriesRepository interfaces.CategoriesRepository
 	logger               *slog.Logger
 }
 
-func (service *CommonCategoriesService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (service *CategoriesService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	category, err := service.categoriesRepository.GetCategoryByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -43,6 +43,6 @@ func (service *CommonCategoriesService) GetCategoryByID(ctx context.Context, id 
 	return category, nil
 }
 
-func (service *CommonCategoriesService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (service *CategoriesService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	return service.categoriesRepository.GetAllCategories(ctx)
 }

@@ -11,13 +11,13 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
-func NewCommonMastersRepository(
+func NewMastersRepository(
 	dbConnector db.Connector,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
+	traceProvider tracing.Provider,
 	spanConfig tracing.SpanConfig,
-) *CommonMastersRepository {
-	return &CommonMastersRepository{
+) *MastersRepository {
+	return &MastersRepository{
 		dbConnector:   dbConnector,
 		logger:        logger,
 		traceProvider: traceProvider,
@@ -25,14 +25,14 @@ func NewCommonMastersRepository(
 	}
 }
 
-type CommonMastersRepository struct {
+type MastersRepository struct {
 	dbConnector   db.Connector
 	logger        *slog.Logger
-	traceProvider tracing.TraceProvider
+	traceProvider tracing.Provider
 	spanConfig    tracing.SpanConfig
 }
 
-func (repo *CommonMastersRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -88,7 +88,7 @@ func (repo *CommonMastersRepository) GetAllMasters(ctx context.Context) ([]entit
 	return masters, nil
 }
 
-func (repo *CommonMastersRepository) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (repo *MastersRepository) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -121,7 +121,7 @@ func (repo *CommonMastersRepository) GetMasterByUserID(ctx context.Context, user
 	return master, nil
 }
 
-func (repo *CommonMastersRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (repo *MastersRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -154,7 +154,7 @@ func (repo *CommonMastersRepository) GetMasterByID(ctx context.Context, id uint6
 	return master, nil
 }
 
-func (repo *CommonMastersRepository) RegisterMaster(
+func (repo *MastersRepository) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {

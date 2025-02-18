@@ -53,55 +53,55 @@ func main() {
 		}
 	}()
 
-	tagsRepository := repositories.NewCommonTagsRepository(
+	tagsRepository := repositories.NewTagsRepository(
 		dbConnector,
 		logger,
 		traceProvider,
 		settings.Tracing.Spans.Repositories.Tags,
 	)
 
-	tagsService := services.NewCommonTagsService(
+	tagsService := services.NewTagsService(
 		tagsRepository,
 		logger,
 	)
 
-	categoriesRepository := repositories.NewCommonCategoriesRepository(
+	categoriesRepository := repositories.NewCategoriesRepository(
 		dbConnector,
 		logger,
 		traceProvider,
 		settings.Tracing.Spans.Repositories.Categories,
 	)
 
-	categoriesService := services.NewCommonCategoriesService(
+	categoriesService := services.NewCategoriesService(
 		categoriesRepository,
 		logger,
 	)
 
-	mastersRepository := repositories.NewCommonMastersRepository(
+	mastersRepository := repositories.NewMastersRepository(
 		dbConnector,
 		logger,
 		traceProvider,
 		settings.Tracing.Spans.Repositories.Masters,
 	)
 
-	mastersService := services.NewCommonMastersService(
+	mastersService := services.NewMastersService(
 		mastersRepository,
 		logger,
 	)
 
-	toysRepository := repositories.NewCommonToysRepository(
+	toysRepository := repositories.NewToysRepository(
 		dbConnector,
 		logger,
 		traceProvider,
 		settings.Tracing.Spans.Repositories.Toys,
 	)
 
-	toysService := services.NewCommonToysService(
+	toysService := services.NewToysService(
 		toysRepository,
 		logger,
 	)
 
-	useCases := usecases.NewCommonUseCases(
+	useCases := usecases.New(
 		tagsService,
 		categoriesService,
 		mastersService,

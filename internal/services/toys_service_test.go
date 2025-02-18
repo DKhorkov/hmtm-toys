@@ -16,7 +16,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestCommonToysServiceGetToyByID(t *testing.T) {
+func TestToysServiceGetToyByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toyID         uint64
@@ -43,7 +43,7 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	toysService := NewCommonToysService(toysRepository, logger)
+	toysService := NewToysService(toysRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
@@ -59,7 +59,7 @@ func TestCommonToysServiceGetToyByID(t *testing.T) {
 	}
 }
 
-func TestCommonToysServiceGetAllToys(t *testing.T) {
+func TestToysServiceGetAllToys(t *testing.T) {
 	t.Run("all toys with existing toys", func(t *testing.T) {
 		expectedTags := []entities.Tag{
 			{ID: 1},
@@ -77,7 +77,7 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 		toysRepository.EXPECT().GetAllToys(gomock.Any()).Return(expectedToys, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toys, err := toysService.GetAllToys(ctx)
@@ -92,7 +92,7 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 		toysRepository.EXPECT().GetAllToys(gomock.Any()).Return([]entities.Toy{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toys, err := toysService.GetAllToys(ctx)
@@ -106,7 +106,7 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 		toysRepository.EXPECT().GetAllToys(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toys, err := toysService.GetAllToys(ctx)
@@ -115,7 +115,7 @@ func TestCommonToysServiceGetAllToys(t *testing.T) {
 	})
 }
 
-func TestCommonToysServiceGetMasterToys(t *testing.T) {
+func TestToysServiceGetMasterToys(t *testing.T) {
 	t.Run("master toys with existing masterID", func(t *testing.T) {
 		const (
 			masterID uint64 = 1
@@ -139,7 +139,7 @@ func TestCommonToysServiceGetMasterToys(t *testing.T) {
 		toysRepository.EXPECT().GetMasterToys(gomock.Any(), masterID).Return(expectedToys, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toys, err := toysService.GetMasterToys(ctx, masterID)
@@ -159,7 +159,7 @@ func TestCommonToysServiceGetMasterToys(t *testing.T) {
 		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toys, err := toysService.GetMasterToys(ctx, masterID)
@@ -168,7 +168,7 @@ func TestCommonToysServiceGetMasterToys(t *testing.T) {
 	})
 }
 
-func TestCommonToysServiceAddToy(t *testing.T) {
+func TestToysServiceAddToy(t *testing.T) {
 	t.Run("add toy success", func(t *testing.T) {
 		const expectedToyID = uint64(1)
 
@@ -178,7 +178,7 @@ func TestCommonToysServiceAddToy(t *testing.T) {
 		toysRepository.EXPECT().GetMasterToys(gomock.Any(), gomock.Any()).Return([]entities.Toy{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toyID, err := toysService.AddToy(ctx, entities.AddToyDTO{})
@@ -211,7 +211,7 @@ func TestCommonToysServiceAddToy(t *testing.T) {
 			nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		toysService := NewCommonToysService(toysRepository, logger)
+		toysService := NewToysService(toysRepository, logger)
 		ctx := context.Background()
 
 		toyID, err := toysService.AddToy(

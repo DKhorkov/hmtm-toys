@@ -17,7 +17,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestCommonMastersServiceGetMasterByID(t *testing.T) {
+func TestMastersServiceGetMasterByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		masterID      uint64
@@ -46,7 +46,7 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	mastersService := services.NewCommonMastersService(mastersRepository, logger)
+	mastersService := services.NewMastersService(mastersRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
@@ -63,7 +63,7 @@ func TestCommonMastersServiceGetMasterByID(t *testing.T) {
 	}
 }
 
-func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
+func TestMastersServiceGetMasterByUserID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		userID        uint64
@@ -92,7 +92,7 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	mastersService := services.NewCommonMastersService(mastersRepository, logger)
+	mastersService := services.NewMastersService(mastersRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
@@ -109,7 +109,7 @@ func TestCommonMastersServiceGetMasterByUserID(t *testing.T) {
 	}
 }
 
-func TestCommonMastersServiceGetAllMasters(t *testing.T) {
+func TestMastersServiceGetAllMasters(t *testing.T) {
 	t.Run("all masters with existing masters", func(t *testing.T) {
 		expectedMasters := []entities.Master{
 			{ID: 1},
@@ -120,7 +120,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return(expectedMasters, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, logger)
+		mastersService := services.NewMastersService(mastersRepository, logger)
 		ctx := context.Background()
 
 		masters, err := mastersService.GetAllMasters(ctx)
@@ -135,7 +135,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return([]entities.Master{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, logger)
+		mastersService := services.NewMastersService(mastersRepository, logger)
 		ctx := context.Background()
 
 		masters, err := mastersService.GetAllMasters(ctx)
@@ -149,7 +149,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, logger)
+		mastersService := services.NewMastersService(mastersRepository, logger)
 		ctx := context.Background()
 
 		masters, err := mastersService.GetAllMasters(ctx)
@@ -158,7 +158,7 @@ func TestCommonMastersServiceGetAllMasters(t *testing.T) {
 	})
 }
 
-func TestCommonMastersServiceRegisterMaster(t *testing.T) {
+func TestMastersServiceRegisterMaster(t *testing.T) {
 	t.Run("register master success", func(t *testing.T) {
 		const expectedMasterID = uint64(1)
 
@@ -171,7 +171,7 @@ func TestCommonMastersServiceRegisterMaster(t *testing.T) {
 		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, logger)
+		mastersService := services.NewMastersService(mastersRepository, logger)
 		ctx := context.Background()
 
 		masterID, err := mastersService.RegisterMaster(ctx, entities.RegisterMasterDTO{})
@@ -196,7 +196,7 @@ func TestCommonMastersServiceRegisterMaster(t *testing.T) {
 		).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewCommonMastersService(mastersRepository, logger)
+		mastersService := services.NewMastersService(mastersRepository, logger)
 		ctx := context.Background()
 
 		masterID, err := mastersService.RegisterMaster(ctx, entities.RegisterMasterDTO{})
