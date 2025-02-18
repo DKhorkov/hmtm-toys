@@ -14,13 +14,13 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
-func NewCommonToysRepository(
+func NewToysRepository(
 	dbConnector db.Connector,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
+	traceProvider tracing.Provider,
 	spanConfig tracing.SpanConfig,
-) *CommonToysRepository {
-	return &CommonToysRepository{
+) *ToysRepository {
+	return &ToysRepository{
 		dbConnector:   dbConnector,
 		logger:        logger,
 		traceProvider: traceProvider,
@@ -28,14 +28,14 @@ func NewCommonToysRepository(
 	}
 }
 
-type CommonToysRepository struct {
+type ToysRepository struct {
 	dbConnector   db.Connector
 	logger        *slog.Logger
-	traceProvider tracing.TraceProvider
+	traceProvider tracing.Provider
 	spanConfig    tracing.SpanConfig
 }
 
-func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -111,7 +111,7 @@ func (repo *CommonToysRepository) GetAllToys(ctx context.Context) ([]entities.To
 	return toys, nil
 }
 
-func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -189,7 +189,7 @@ func (repo *CommonToysRepository) GetMasterToys(ctx context.Context, masterID ui
 	return toys, nil
 }
 
-func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -236,7 +236,7 @@ func (repo *CommonToysRepository) GetToyByID(ctx context.Context, id uint64) (*e
 	return toy, nil
 }
 
-func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -340,7 +340,7 @@ func (repo *CommonToysRepository) AddToy(ctx context.Context, toyData entities.A
 	return toyID, nil
 }
 
-func (repo *CommonToysRepository) getToyTags(
+func (repo *ToysRepository) getToyTags(
 	ctx context.Context,
 	toyID uint64,
 	connection *sql.Conn,
@@ -399,7 +399,7 @@ func (repo *CommonToysRepository) getToyTags(
 	return tags, nil
 }
 
-func (repo *CommonToysRepository) getToyAttachments(
+func (repo *ToysRepository) getToyAttachments(
 	ctx context.Context,
 	toyID uint64,
 	connection *sql.Conn,

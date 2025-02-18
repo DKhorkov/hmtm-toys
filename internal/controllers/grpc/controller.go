@@ -24,7 +24,7 @@ func New(
 	port int,
 	useCases interfaces.UseCases,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
+	traceProvider tracing.Provider,
 	spanConfig tracing.SpanConfig,
 ) *Controller {
 	grpcServer := grpc.NewServer(

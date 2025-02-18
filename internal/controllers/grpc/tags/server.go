@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/DKhorkov/hmtm-toys/internal/entities"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -17,6 +15,7 @@ import (
 	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )

@@ -17,7 +17,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestCommonTagsServiceGetTagByID(t *testing.T) {
+func TestTagsServiceGetTagByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		tagID         uint32
@@ -46,7 +46,7 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 	).MaxTimes(1)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	tagsService := services.NewCommonTagsService(tagsRepository, logger)
+	tagsService := services.NewTagsService(tagsRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
@@ -63,7 +63,7 @@ func TestCommonTagsServiceGetTagByID(t *testing.T) {
 	}
 }
 
-func TestCommonTagsServiceGetAllTags(t *testing.T) {
+func TestTagsServiceGetAllTags(t *testing.T) {
 	t.Run("all tags with existing tags", func(t *testing.T) {
 		expectedTags := []entities.Tag{
 			{ID: 1},
@@ -74,7 +74,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return(expectedTags, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		tagsService := services.NewCommonTagsService(tagsRepository, logger)
+		tagsService := services.NewTagsService(tagsRepository, logger)
 		ctx := context.Background()
 
 		tags, err := tagsService.GetAllTags(ctx)
@@ -89,7 +89,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return([]entities.Tag{}, nil).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		tagsService := services.NewCommonTagsService(tagsRepository, logger)
+		tagsService := services.NewTagsService(tagsRepository, logger)
 		ctx := context.Background()
 
 		tags, err := tagsService.GetAllTags(ctx)
@@ -103,7 +103,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
 
 		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		tagsService := services.NewCommonTagsService(tagsRepository, logger)
+		tagsService := services.NewTagsService(tagsRepository, logger)
 		ctx := context.Background()
 
 		tags, err := tagsService.GetAllTags(ctx)
@@ -112,7 +112,7 @@ func TestCommonTagsServiceGetAllTags(t *testing.T) {
 	})
 }
 
-func TestCommonTagsServiceCreateTags(t *testing.T) {
+func TestTagsServiceCreateTags(t *testing.T) {
 	testCases := []struct {
 		name           string
 		tagsData       []entities.CreateTagDTO
@@ -159,7 +159,7 @@ func TestCommonTagsServiceCreateTags(t *testing.T) {
 	tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
 
 	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-	tagsService := services.NewCommonTagsService(tagsRepository, logger)
+	tagsService := services.NewTagsService(tagsRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {

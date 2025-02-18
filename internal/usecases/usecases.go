@@ -7,13 +7,13 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
-func NewCommonUseCases(
+func New(
 	tagsService interfaces.TagsService,
 	categoriesService interfaces.CategoriesService,
 	mastersService interfaces.MastersService,
 	toysService interfaces.ToysService,
-) *CommonUseCases {
-	return &CommonUseCases{
+) *UseCases {
+	return &UseCases{
 		tagsService:       tagsService,
 		categoriesService: categoriesService,
 		mastersService:    mastersService,
@@ -21,42 +21,42 @@ func NewCommonUseCases(
 	}
 }
 
-type CommonUseCases struct {
+type UseCases struct {
 	tagsService       interfaces.TagsService
 	categoriesService interfaces.CategoriesService
 	mastersService    interfaces.MastersService
 	toysService       interfaces.ToysService
 }
 
-func (useCases *CommonUseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+func (useCases *UseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	return useCases.tagsService.GetTagByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+func (useCases *UseCases) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	return useCases.tagsService.GetAllTags(ctx)
 }
 
-func (useCases *CommonUseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (useCases *UseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	return useCases.categoriesService.GetCategoryByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (useCases *UseCases) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	return useCases.categoriesService.GetAllCategories(ctx)
 }
 
-func (useCases *CommonUseCases) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+func (useCases *UseCases) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	return useCases.toysService.GetToyByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (useCases *UseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	return useCases.toysService.GetAllToys(ctx)
 }
 
-func (useCases *CommonUseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (useCases *UseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	return useCases.toysService.GetMasterToys(ctx, masterID)
 }
 
-func (useCases *CommonUseCases) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+func (useCases *UseCases) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
 	master, err := useCases.mastersService.GetMasterByUserID(ctx, userID)
 	if err != nil {
 		return nil, nil
@@ -65,7 +65,7 @@ func (useCases *CommonUseCases) GetUserToys(ctx context.Context, userID uint64) 
 	return useCases.GetMasterToys(ctx, master.ID)
 }
 
-func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
+func (useCases *UseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
 	master, err := useCases.mastersService.GetMasterByUserID(ctx, rawToyData.UserID)
 	if err != nil {
 		return 0, err
@@ -95,26 +95,26 @@ func (useCases *CommonUseCases) AddToy(ctx context.Context, rawToyData entities.
 	return useCases.toysService.AddToy(ctx, toyData)
 }
 
-func (useCases *CommonUseCases) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (useCases *UseCases) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	return useCases.mastersService.GetMasterByID(ctx, id)
 }
 
-func (useCases *CommonUseCases) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (useCases *UseCases) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
 	return useCases.mastersService.GetMasterByUserID(ctx, userID)
 }
 
-func (useCases *CommonUseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (useCases *UseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
 	return useCases.mastersService.GetAllMasters(ctx)
 }
 
-func (useCases *CommonUseCases) RegisterMaster(
+func (useCases *UseCases) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
 	return useCases.mastersService.RegisterMaster(ctx, masterData)
 }
 
-func (useCases *CommonUseCases) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+func (useCases *UseCases) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
 	allTags, err := useCases.tagsService.GetAllTags(ctx)
 	if err != nil {
 		return nil, err

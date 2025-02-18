@@ -11,13 +11,13 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
-func NewCommonCategoriesRepository(
+func NewCategoriesRepository(
 	dbConnector db.Connector,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
+	traceProvider tracing.Provider,
 	spanConfig tracing.SpanConfig,
-) *CommonCategoriesRepository {
-	return &CommonCategoriesRepository{
+) *CategoriesRepository {
+	return &CategoriesRepository{
 		dbConnector:   dbConnector,
 		logger:        logger,
 		traceProvider: traceProvider,
@@ -25,14 +25,14 @@ func NewCommonCategoriesRepository(
 	}
 }
 
-type CommonCategoriesRepository struct {
+type CategoriesRepository struct {
 	dbConnector   db.Connector
 	logger        *slog.Logger
-	traceProvider tracing.TraceProvider
+	traceProvider tracing.Provider
 	spanConfig    tracing.SpanConfig
 }
 
-func (repo *CommonCategoriesRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (repo *CategoriesRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -88,7 +88,7 @@ func (repo *CommonCategoriesRepository) GetAllCategories(ctx context.Context) ([
 	return categories, nil
 }
 
-func (repo *CommonCategoriesRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (repo *CategoriesRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 

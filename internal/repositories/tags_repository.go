@@ -11,13 +11,13 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
-func NewCommonTagsRepository(
+func NewTagsRepository(
 	dbConnector db.Connector,
 	logger *slog.Logger,
-	traceProvider tracing.TraceProvider,
+	traceProvider tracing.Provider,
 	spanConfig tracing.SpanConfig,
-) *CommonTagsRepository {
-	return &CommonTagsRepository{
+) *TagsRepository {
+	return &TagsRepository{
 		dbConnector:   dbConnector,
 		logger:        logger,
 		traceProvider: traceProvider,
@@ -25,14 +25,14 @@ func NewCommonTagsRepository(
 	}
 }
 
-type CommonTagsRepository struct {
+type TagsRepository struct {
 	dbConnector   db.Connector
 	logger        *slog.Logger
-	traceProvider tracing.TraceProvider
+	traceProvider tracing.Provider
 	spanConfig    tracing.SpanConfig
 }
 
-func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
+func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -88,7 +88,7 @@ func (repo *CommonTagsRepository) GetAllTags(ctx context.Context) ([]entities.Ta
 	return tags, nil
 }
 
-func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
+func (repo *TagsRepository) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -121,7 +121,7 @@ func (repo *CommonTagsRepository) GetTagByID(ctx context.Context, id uint32) (*e
 	return tag, nil
 }
 
-func (repo *CommonTagsRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+func (repo *TagsRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 

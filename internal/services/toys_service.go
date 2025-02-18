@@ -12,22 +12,22 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
-func NewCommonToysService(
+func NewToysService(
 	toysRepository interfaces.ToysRepository,
 	logger *slog.Logger,
-) *CommonToysService {
-	return &CommonToysService{
+) *ToysService {
+	return &ToysService{
 		toysRepository: toysRepository,
 		logger:         logger,
 	}
 }
 
-type CommonToysService struct {
+type ToysService struct {
 	toysRepository interfaces.ToysRepository
 	logger         *slog.Logger
 }
 
-func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
+func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	toy, err := service.toysRepository.GetToyByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -43,15 +43,15 @@ func (service *CommonToysService) GetToyByID(ctx context.Context, id uint64) (*e
 	return toy, nil
 }
 
-func (service *CommonToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (service *ToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	return service.toysRepository.GetAllToys(ctx)
 }
 
-func (service *CommonToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (service *ToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
 	return service.toysRepository.GetMasterToys(ctx, masterID)
 }
 
-func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+func (service *ToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
 	if service.checkToyExistence(ctx, toyData) {
 		return 0, &customerrors.ToyAlreadyExistsError{}
 	}
@@ -59,7 +59,7 @@ func (service *CommonToysService) AddToy(ctx context.Context, toyData entities.A
 	return service.toysRepository.AddToy(ctx, toyData)
 }
 
-func (service *CommonToysService) checkToyExistence(ctx context.Context, toyData entities.AddToyDTO) bool {
+func (service *ToysService) checkToyExistence(ctx context.Context, toyData entities.AddToyDTO) bool {
 	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID)
 	if err == nil {
 		for _, toy := range toys {
