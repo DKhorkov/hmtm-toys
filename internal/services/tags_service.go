@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/DKhorkov/libs/logging"
 
@@ -14,7 +13,7 @@ import (
 
 func NewTagsService(
 	tagsRepository interfaces.TagsRepository,
-	logger *slog.Logger,
+	logger logging.Logger,
 ) *TagsService {
 	return &TagsService{
 		tagsRepository: tagsRepository,
@@ -24,7 +23,7 @@ func NewTagsService(
 
 type TagsService struct {
 	tagsRepository interfaces.TagsRepository
-	logger         *slog.Logger
+	logger         logging.Logger
 }
 
 func (service *TagsService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {

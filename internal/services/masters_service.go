@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/DKhorkov/libs/logging"
 
@@ -14,7 +13,7 @@ import (
 
 func NewMastersService(
 	mastersRepository interfaces.MastersRepository,
-	logger *slog.Logger,
+	logger logging.Logger,
 ) *MastersService {
 	return &MastersService{
 		mastersRepository: mastersRepository,
@@ -24,7 +23,7 @@ func NewMastersService(
 
 type MastersService struct {
 	mastersRepository interfaces.MastersRepository
-	logger            *slog.Logger
+	logger            logging.Logger
 }
 
 func (service *MastersService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {

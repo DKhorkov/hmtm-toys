@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -21,7 +20,7 @@ import (
 )
 
 // RegisterServer handler (serverAPI) for TagsServer to gRPC server:.
-func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
+func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterTagsServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
 }
 
@@ -29,7 +28,7 @@ type ServerAPI struct {
 	// Helps to test single endpoints, if others is not implemented yet
 	toys.UnimplementedTagsServiceServer
 	useCases interfaces.UseCases
-	logger   *slog.Logger
+	logger   logging.Logger
 }
 
 // CreateTags create new tags with provided data.
@@ -91,7 +90,7 @@ func (api *ServerAPI) GetTag(ctx context.Context, in *toys.GetTagIn) (*toys.GetT
 }
 
 // GetTags handler returns all Tags.
-func (api *ServerAPI) GetTags(ctx context.Context, in *emptypb.Empty) (*toys.GetTagsOut, error) {
+func (api *ServerAPI) GetTags(ctx context.Context, _ *emptypb.Empty) (*toys.GetTagsOut, error) {
 	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Tags", err)

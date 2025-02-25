@@ -2,7 +2,6 @@ package grpccontroller
 
 import (
 	"fmt"
-	"log/slog"
 	"net"
 
 	"google.golang.org/grpc"
@@ -23,7 +22,7 @@ func New(
 	host string,
 	port int,
 	useCases interfaces.UseCases,
-	logger *slog.Logger,
+	logger logging.Logger,
 	traceProvider tracing.Provider,
 	spanConfig tracing.SpanConfig,
 ) *Controller {
@@ -52,7 +51,7 @@ type Controller struct {
 	grpcServer *grpc.Server
 	host       string
 	port       int
-	logger     *slog.Logger
+	logger     logging.Logger
 }
 
 // Run gRPC server.

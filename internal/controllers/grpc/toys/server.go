@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,7 +19,7 @@ import (
 )
 
 // RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
-func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
+func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterToysServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
 }
 
@@ -28,7 +27,7 @@ type ServerAPI struct {
 	// Helps to test single endpoints, if others is not implemented yet
 	toys.UnimplementedToysServiceServer
 	useCases interfaces.UseCases
-	logger   *slog.Logger
+	logger   logging.Logger
 }
 
 // GetToy handler returns Toy for provided ID.
@@ -54,7 +53,7 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 }
 
 // GetToys handler returns all Toys.
-func (api *ServerAPI) GetToys(ctx context.Context, in *emptypb.Empty) (*toys.GetToysOut, error) {
+func (api *ServerAPI) GetToys(ctx context.Context, _ *emptypb.Empty) (*toys.GetToysOut, error) {
 	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
