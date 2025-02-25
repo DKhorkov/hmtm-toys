@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -21,7 +20,7 @@ import (
 )
 
 // RegisterServer handler (serverAPI) for MastersServer to gRPC server:.
-func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
+func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterMastersServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
 }
 
@@ -29,7 +28,7 @@ type ServerAPI struct {
 	// Helps to test single endpoints, if others is not implemented yet
 	toys.UnimplementedMastersServiceServer
 	useCases interfaces.UseCases
-	logger   *slog.Logger
+	logger   logging.Logger
 }
 
 func (api *ServerAPI) GetMasterByUser(ctx context.Context, in *toys.GetMasterByUserIn) (*toys.GetMasterOut, error) {
@@ -88,7 +87,7 @@ func (api *ServerAPI) GetMaster(ctx context.Context, in *toys.GetMasterIn) (*toy
 }
 
 // GetMasters handler returns all Masters.
-func (api *ServerAPI) GetMasters(ctx context.Context, in *emptypb.Empty) (*toys.GetMastersOut, error) {
+func (api *ServerAPI) GetMasters(ctx context.Context, _ *emptypb.Empty) (*toys.GetMastersOut, error) {
 	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)

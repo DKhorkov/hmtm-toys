@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,7 +19,7 @@ import (
 )
 
 // RegisterServer handler (serverAPI) for CategoriesServer to gRPC server:.
-func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger *slog.Logger) {
+func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterCategoriesServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
 }
 
@@ -28,7 +27,7 @@ type ServerAPI struct {
 	// Helps to test single endpoints, if others is not implemented yet
 	toys.UnimplementedCategoriesServiceServer
 	useCases interfaces.UseCases
-	logger   *slog.Logger
+	logger   logging.Logger
 }
 
 // GetCategory handler returns Category for provided ID.
@@ -59,7 +58,7 @@ func (api *ServerAPI) GetCategory(ctx context.Context, in *toys.GetCategoryIn) (
 }
 
 // GetCategories handler returns all Categories.
-func (api *ServerAPI) GetCategories(ctx context.Context, in *emptypb.Empty) (*toys.GetCategoriesOut, error) {
+func (api *ServerAPI) GetCategories(ctx context.Context, _ *emptypb.Empty) (*toys.GetCategoriesOut, error) {
 	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Categories", err)
