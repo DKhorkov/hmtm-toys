@@ -1,15 +1,15 @@
 package services_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+
+	loggermock "github.com/DKhorkov/libs/logging/mocks"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -21,17 +21,39 @@ func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		categoryID    uint32
+		expected      *entities.Category
+		setupMocks    func(categoriesRepository *mockrepositories.MockCategoriesRepository, logger *loggermock.MockLogger)
 		errorExpected bool
 		err           error
 	}{
 		{
-			name:          "successfully got Category by id",
-			categoryID:    1,
+			name:       "successfully got Category by id",
+			categoryID: 1,
+			expected:   &entities.Category{ID: 1},
+			setupMocks: func(categoriesRepository *mockrepositories.MockCategoriesRepository, _ *loggermock.MockLogger) {
+				categoriesRepository.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), uint32(1)).
+					Return(&entities.Category{ID: 1}, nil).
+					MaxTimes(1)
+			},
 			errorExpected: false,
 		},
 		{
-			name:          "failed to get Category by id",
-			categoryID:    2,
+			name:       "failed to get Category by id",
+			categoryID: 2,
+			setupMocks: func(categoriesRepository *mockrepositories.MockCategoriesRepository, logger *loggermock.MockLogger) {
+				categoriesRepository.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), uint32(2)).
+					Return(nil, &customerrors.CategoryNotFoundError{}).
+					MaxTimes(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					MaxTimes(1)
+			},
 			errorExpected: true,
 			err:           &customerrors.CategoryNotFoundError{},
 		},
@@ -39,18 +61,16 @@ func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-	categoriesRepository.EXPECT().GetCategoryByID(gomock.Any(), uint32(1)).Return(&entities.Category{}, nil).MaxTimes(1)
-	categoriesRepository.EXPECT().GetCategoryByID(gomock.Any(), uint32(2)).Return(
-		nil,
-		&customerrors.CategoryNotFoundError{},
-	).MaxTimes(1)
-
-	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+	logger := loggermock.NewMockLogger(mockController)
 	categoriesService := services.NewCategoriesService(categoriesRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(categoriesRepository, logger)
+			}
+
 			category, err := categoriesService.GetCategoryByID(ctx, tc.categoryID)
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -64,53 +84,73 @@ func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 }
 
 func TestCategoriesServiceGetAllCategories(t *testing.T) {
-	t.Run("all categories with existing categories", func(t *testing.T) {
-		expectedCategories := []entities.Category{
-			{ID: 1},
-		}
+	testCases := []struct {
+		name          string
+		expected      []entities.Category
+		setupMocks    func(categoriesRepository *mockrepositories.MockCategoriesRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:     "all Categories with existing Categories",
+			expected: []entities.Category{{ID: 1}},
+			setupMocks: func(categoriesRepository *mockrepositories.MockCategoriesRepository, _ *loggermock.MockLogger) {
+				categoriesRepository.
+					EXPECT().
+					GetAllCategories(gomock.Any()).
+					Return(
+						[]entities.Category{
+							{ID: 1},
+						},
+						nil,
+					).
+					MaxTimes(1)
+			},
+		},
+		{
+			name:     "all Categories without existing Categories",
+			expected: []entities.Category{},
+			setupMocks: func(categoriesRepository *mockrepositories.MockCategoriesRepository, _ *loggermock.MockLogger) {
+				categoriesRepository.
+					EXPECT().
+					GetAllCategories(gomock.Any()).
+					Return([]entities.Category{}, nil).
+					MaxTimes(1)
+			},
+		},
+		{
+			name: "all Categories error",
+			setupMocks: func(categoriesRepository *mockrepositories.MockCategoriesRepository, _ *loggermock.MockLogger) {
+				categoriesRepository.
+					EXPECT().
+					GetAllCategories(gomock.Any()).
+					Return(nil, errors.New("test error")).
+					MaxTimes(1)
+			},
+			errorExpected: true,
+		},
+	}
 
-		mockController := gomock.NewController(t)
-		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return(expectedCategories, nil).MaxTimes(1)
+	mockController := gomock.NewController(t)
+	categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	categoriesService := services.NewCategoriesService(categoriesRepository, logger)
+	ctx := context.Background()
 
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		categoriesService := services.NewCategoriesService(categoriesRepository, logger)
-		ctx := context.Background()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(categoriesRepository, logger)
+			}
 
-		categories, err := categoriesService.GetAllCategories(ctx)
-		require.NoError(t, err)
-		assert.Len(t, categories, len(expectedCategories))
-		assert.Equal(t, expectedCategories, categories)
-	})
+			categories, err := categoriesService.GetAllCategories(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
 
-	t.Run("all categories without existing categories", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return([]entities.Category{}, nil).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		categoriesService := services.NewCategoriesService(categoriesRepository, logger)
-		ctx := context.Background()
-
-		categories, err := categoriesService.GetAllCategories(ctx)
-		require.NoError(t, err)
-		assert.Empty(t, categories)
-	})
-
-	t.Run("all categories fail", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		categoriesRepository := mockrepositories.NewMockCategoriesRepository(mockController)
-		categoriesRepository.EXPECT().GetAllCategories(gomock.Any()).Return(
-			nil,
-			errors.New("test error"),
-		).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		categoriesService := services.NewCategoriesService(categoriesRepository, logger)
-		ctx := context.Background()
-
-		categories, err := categoriesService.GetAllCategories(ctx)
-		require.Error(t, err)
-		assert.Nil(t, categories)
-	})
+			assert.Len(t, categories, len(tc.expected))
+			assert.Equal(t, tc.expected, categories)
+		})
+	}
 }

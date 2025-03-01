@@ -1,15 +1,15 @@
 package services_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+
+	loggermock "github.com/DKhorkov/libs/logging/mocks"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -21,17 +21,39 @@ func TestMastersServiceGetMasterByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		masterID      uint64
+		expected      *entities.Master
+		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
 		errorExpected bool
 		err           error
 	}{
 		{
-			name:          "successfully got Master by id",
-			masterID:      1,
+			name:     "successfully got Master by id",
+			masterID: 1,
+			expected: &entities.Master{ID: 1},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetMasterByID(gomock.Any(), uint64(1)).
+					Return(&entities.Master{ID: 1}, nil).
+					MaxTimes(1)
+			},
 			errorExpected: false,
 		},
 		{
-			name:          "failed to get Master by id",
-			masterID:      2,
+			name:     "failed to get Master by id",
+			masterID: 2,
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetMasterByID(gomock.Any(), uint64(2)).
+					Return(nil, &customerrors.MasterNotFoundError{}).
+					MaxTimes(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					MaxTimes(1)
+			},
 			errorExpected: true,
 			err:           &customerrors.MasterNotFoundError{},
 		},
@@ -39,18 +61,16 @@ func TestMastersServiceGetMasterByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-	mastersRepository.EXPECT().GetMasterByID(gomock.Any(), uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
-	mastersRepository.EXPECT().GetMasterByID(gomock.Any(), uint64(2)).Return(
-		nil,
-		&customerrors.MasterNotFoundError{},
-	).MaxTimes(1)
-
-	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+	logger := loggermock.NewMockLogger(mockController)
 	mastersService := services.NewMastersService(mastersRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(mastersRepository, logger)
+			}
+
 			master, err := mastersService.GetMasterByID(ctx, tc.masterID)
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -67,17 +87,39 @@ func TestMastersServiceGetMasterByUserID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		userID        uint64
+		expected      *entities.Master
+		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
 		errorExpected bool
 		err           error
 	}{
 		{
-			name:          "successfully got Master by userID",
-			userID:        1,
+			name:     "successfully got Master by userID",
+			userID:   1,
+			expected: &entities.Master{ID: 1},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), uint64(1)).
+					Return(&entities.Master{ID: 1}, nil).
+					MaxTimes(1)
+			},
 			errorExpected: false,
 		},
 		{
-			name:          "failed to get Master by userID",
-			userID:        2,
+			name:   "failed to get Master by userID",
+			userID: 2,
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), uint64(2)).
+					Return(nil, &customerrors.MasterNotFoundError{}).
+					MaxTimes(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					MaxTimes(1)
+			},
 			errorExpected: true,
 			err:           &customerrors.MasterNotFoundError{},
 		},
@@ -85,18 +127,16 @@ func TestMastersServiceGetMasterByUserID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-	mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), uint64(1)).Return(&entities.Master{ID: 1}, nil).MaxTimes(1)
-	mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), uint64(2)).Return(
-		nil,
-		&customerrors.MasterNotFoundError{},
-	).MaxTimes(1)
-
-	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+	logger := loggermock.NewMockLogger(mockController)
 	mastersService := services.NewMastersService(mastersRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(mastersRepository, logger)
+			}
+
 			master, err := mastersService.GetMasterByUserID(ctx, tc.userID)
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -110,98 +150,145 @@ func TestMastersServiceGetMasterByUserID(t *testing.T) {
 }
 
 func TestMastersServiceGetAllMasters(t *testing.T) {
-	t.Run("all masters with existing masters", func(t *testing.T) {
-		expectedMasters := []entities.Master{
-			{ID: 1},
-		}
+	testCases := []struct {
+		name          string
+		expected      []entities.Master
+		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:     "all Masters with existing Masters",
+			expected: []entities.Master{{ID: 1}},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetAllMasters(gomock.Any()).
+					Return(
+						[]entities.Master{
+							{ID: 1},
+						},
+						nil,
+					).
+					MaxTimes(1)
+			},
+		},
+		{
+			name:     "all Masters without existing Masters",
+			expected: []entities.Master{},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetAllMasters(gomock.Any()).
+					Return([]entities.Master{}, nil).
+					MaxTimes(1)
+			},
+		},
+		{
+			name: "all Masters error",
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetAllMasters(gomock.Any()).
+					Return(nil, errors.New("test error")).
+					MaxTimes(1)
+			},
+			errorExpected: true,
+		},
+	}
 
-		mockController := gomock.NewController(t)
-		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return(expectedMasters, nil).MaxTimes(1)
+	mockController := gomock.NewController(t)
+	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	mastersService := services.NewMastersService(mastersRepository, logger)
+	ctx := context.Background()
 
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewMastersService(mastersRepository, logger)
-		ctx := context.Background()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(mastersRepository, logger)
+			}
 
-		masters, err := mastersService.GetAllMasters(ctx)
-		require.NoError(t, err)
-		assert.Len(t, masters, len(expectedMasters))
-		assert.Equal(t, expectedMasters, masters)
-	})
+			masters, err := mastersService.GetAllMasters(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
 
-	t.Run("all masters without existing masters", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return([]entities.Master{}, nil).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewMastersService(mastersRepository, logger)
-		ctx := context.Background()
-
-		masters, err := mastersService.GetAllMasters(ctx)
-		require.NoError(t, err)
-		assert.Empty(t, masters)
-	})
-
-	t.Run("all masters fail", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetAllMasters(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewMastersService(mastersRepository, logger)
-		ctx := context.Background()
-
-		masters, err := mastersService.GetAllMasters(ctx)
-		require.Error(t, err)
-		assert.Nil(t, masters)
-	})
+			assert.Len(t, masters, len(tc.expected))
+			assert.Equal(t, tc.expected, masters)
+		})
+	}
 }
 
 func TestMastersServiceRegisterMaster(t *testing.T) {
-	t.Run("register master success", func(t *testing.T) {
-		const expectedMasterID = uint64(1)
+	testCases := []struct {
+		name          string
+		master        entities.RegisterMasterDTO
+		expected      uint64
+		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+		err           error
+	}{
+		{
+			name:     "register Master success",
+			master:   entities.RegisterMasterDTO{Info: "test", UserID: 1},
+			expected: 1,
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), uint64(1)).
+					Return(nil, &customerrors.MasterNotFoundError{}).
+					MaxTimes(1)
 
-		mockController := gomock.NewController(t)
-		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().RegisterMaster(gomock.Any(), gomock.Any()).Return(expectedMasterID, nil).MaxTimes(1)
-		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), gomock.Any()).Return(
-			nil,
-			&customerrors.MasterNotFoundError{},
-		).MaxTimes(1)
+				mastersRepository.
+					EXPECT().
+					RegisterMaster(gomock.Any(), entities.RegisterMasterDTO{Info: "test", UserID: 1}).
+					Return(uint64(1), nil).
+					MaxTimes(1)
+			},
+			errorExpected: false,
+		},
+		{
+			name:   "register Master fail - already exists",
+			master: entities.RegisterMasterDTO{Info: "test", UserID: 1},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), uint64(1)).
+					Return(&entities.Master{}, nil).
+					MaxTimes(1)
 
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewMastersService(mastersRepository, logger)
-		ctx := context.Background()
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					MaxTimes(1)
+			},
+			errorExpected: true,
+			err:           &customerrors.MasterAlreadyExistsError{},
+		},
+	}
 
-		masterID, err := mastersService.RegisterMaster(ctx, entities.RegisterMasterDTO{})
-		require.NoError(t, err)
-		assert.Equal(t, expectedMasterID, masterID)
-	})
+	mockController := gomock.NewController(t)
+	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	mastersService := services.NewMastersService(mastersRepository, logger)
+	ctx := context.Background()
 
-	t.Run("register master fail", func(t *testing.T) {
-		const expectedMasterID = uint64(0)
-		var expectedError = &customerrors.MasterAlreadyExistsError{}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(mastersRepository, logger)
+			}
 
-		mockController := gomock.NewController(t)
-		mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
-		mastersRepository.EXPECT().GetMasterByUserID(gomock.Any(), gomock.Any()).Return(
-			&entities.Master{},
-			nil,
-		).MaxTimes(1)
-
-		mastersRepository.EXPECT().RegisterMaster(gomock.Any(), gomock.Any()).Return(
-			expectedMasterID,
-			expectedError,
-		).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		mastersService := services.NewMastersService(mastersRepository, logger)
-		ctx := context.Background()
-
-		masterID, err := mastersService.RegisterMaster(ctx, entities.RegisterMasterDTO{})
-		require.Error(t, err)
-		require.IsType(t, expectedError, err)
-		assert.Equal(t, expectedMasterID, masterID)
-	})
+			masterID, err := mastersService.RegisterMaster(ctx, tc.master)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.IsType(t, tc.err, err)
+				assert.Zero(t, masterID)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
 }
