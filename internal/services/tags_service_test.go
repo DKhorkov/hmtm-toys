@@ -1,15 +1,15 @@
 package services_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+
+	loggermock "github.com/DKhorkov/libs/logging/mocks"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -21,17 +21,39 @@ func TestTagsServiceGetTagByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		tagID         uint32
+		expected      *entities.Tag
+		setupMocks    func(tagsRepository *mockrepositories.MockTagsRepository, logger *loggermock.MockLogger)
 		errorExpected bool
 		err           error
 	}{
 		{
-			name:          "successfully got Tag by id",
-			tagID:         1,
+			name:     "successfully got Tag by id",
+			tagID:    1,
+			expected: &entities.Tag{ID: 1},
+			setupMocks: func(tagsRepository *mockrepositories.MockTagsRepository, _ *loggermock.MockLogger) {
+				tagsRepository.
+					EXPECT().
+					GetTagByID(gomock.Any(), uint32(1)).
+					Return(&entities.Tag{ID: 1}, nil).
+					MaxTimes(1)
+			},
 			errorExpected: false,
 		},
 		{
-			name:          "failed to get Tag by id",
-			tagID:         2,
+			name:  "failed to get Tag by id",
+			tagID: 2,
+			setupMocks: func(tagsRepository *mockrepositories.MockTagsRepository, logger *loggermock.MockLogger) {
+				tagsRepository.
+					EXPECT().
+					GetTagByID(gomock.Any(), uint32(2)).
+					Return(nil, &customerrors.TagNotFoundError{}).
+					MaxTimes(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					MaxTimes(1)
+			},
 			errorExpected: true,
 			err:           &customerrors.TagNotFoundError{},
 		},
@@ -39,18 +61,16 @@ func TestTagsServiceGetTagByID(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-	tagsRepository.EXPECT().GetTagByID(gomock.Any(), uint32(1)).Return(&entities.Tag{}, nil).MaxTimes(1)
-	tagsRepository.EXPECT().GetTagByID(gomock.Any(), uint32(2)).Return(
-		nil,
-		&customerrors.TagNotFoundError{},
-	).MaxTimes(1)
-
-	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+	logger := loggermock.NewMockLogger(mockController)
 	tagsService := services.NewTagsService(tagsRepository, logger)
 	ctx := context.Background()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(tagsRepository, logger)
+			}
+
 			tag, err := tagsService.GetTagByID(ctx, tc.tagID)
 			if tc.errorExpected {
 				require.Error(t, err)
@@ -64,52 +84,75 @@ func TestTagsServiceGetTagByID(t *testing.T) {
 }
 
 func TestTagsServiceGetAllTags(t *testing.T) {
-	t.Run("all tags with existing tags", func(t *testing.T) {
-		expectedTags := []entities.Tag{
-			{ID: 1},
-		}
+	testCases := []struct {
+		name          string
+		expected      []entities.Tag
+		setupMocks    func(tagsRepository *mockrepositories.MockTagsRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:     "all Tags with existing Tags",
+			expected: []entities.Tag{{ID: 1}},
+			setupMocks: func(tagsRepository *mockrepositories.MockTagsRepository, _ *loggermock.MockLogger) {
+				tagsRepository.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return(
+						[]entities.Tag{
+							{ID: 1},
+						},
+						nil,
+					).
+					MaxTimes(1)
+			},
+		},
+		{
+			name:     "all Tags without existing Tags",
+			expected: []entities.Tag{},
+			setupMocks: func(tagsRepository *mockrepositories.MockTagsRepository, _ *loggermock.MockLogger) {
+				tagsRepository.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return([]entities.Tag{}, nil).
+					MaxTimes(1)
+			},
+		},
+		{
+			name: "all Tags error",
+			setupMocks: func(tagsRepository *mockrepositories.MockTagsRepository, _ *loggermock.MockLogger) {
+				tagsRepository.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return(nil, errors.New("test error")).
+					MaxTimes(1)
+			},
+			errorExpected: true,
+		},
+	}
 
-		mockController := gomock.NewController(t)
-		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return(expectedTags, nil).MaxTimes(1)
+	mockController := gomock.NewController(t)
+	tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	tagsService := services.NewTagsService(tagsRepository, logger)
+	ctx := context.Background()
 
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		tagsService := services.NewTagsService(tagsRepository, logger)
-		ctx := context.Background()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(tagsRepository, logger)
+			}
 
-		tags, err := tagsService.GetAllTags(ctx)
-		require.NoError(t, err)
-		assert.Len(t, tags, len(expectedTags))
-		assert.Equal(t, expectedTags, tags)
-	})
+			tags, err := tagsService.GetAllTags(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
 
-	t.Run("all tags without existing tags", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return([]entities.Tag{}, nil).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		tagsService := services.NewTagsService(tagsRepository, logger)
-		ctx := context.Background()
-
-		tags, err := tagsService.GetAllTags(ctx)
-		require.NoError(t, err)
-		assert.Empty(t, tags)
-	})
-
-	t.Run("all tags fail", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-		tagsRepository.EXPECT().GetAllTags(gomock.Any()).Return(nil, errors.New("test error")).MaxTimes(1)
-
-		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-		tagsService := services.NewTagsService(tagsRepository, logger)
-		ctx := context.Background()
-
-		tags, err := tagsService.GetAllTags(ctx)
-		require.Error(t, err)
-		assert.Nil(t, tags)
-	})
+			assert.Len(t, tags, len(tc.expected))
+			assert.Equal(t, tc.expected, tags)
+		})
+	}
 }
 
 func TestTagsServiceCreateTags(t *testing.T) {
@@ -157,8 +200,7 @@ func TestTagsServiceCreateTags(t *testing.T) {
 
 	mockController := gomock.NewController(t)
 	tagsRepository := mockrepositories.NewMockTagsRepository(mockController)
-
-	logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
+	logger := loggermock.NewMockLogger(mockController)
 	tagsService := services.NewTagsService(tagsRepository, logger)
 	ctx := context.Background()
 
