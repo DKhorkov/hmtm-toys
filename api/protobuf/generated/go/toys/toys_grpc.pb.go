@@ -24,6 +24,8 @@ type ToysServiceClient interface {
 	GetToys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetToysOut, error)
 	GetMasterToys(ctx context.Context, in *GetMasterToysIn, opts ...grpc.CallOption) (*GetToysOut, error)
 	GetUserToys(ctx context.Context, in *GetUserToysIn, opts ...grpc.CallOption) (*GetToysOut, error)
+	DeleteToy(ctx context.Context, in *DeleteToyIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateToy(ctx context.Context, in *UpdateToyIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type toysServiceClient struct {
@@ -79,6 +81,24 @@ func (c *toysServiceClient) GetUserToys(ctx context.Context, in *GetUserToysIn, 
 	return out, nil
 }
 
+func (c *toysServiceClient) DeleteToy(ctx context.Context, in *DeleteToyIn, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/toys.ToysService/DeleteToy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *toysServiceClient) UpdateToy(ctx context.Context, in *UpdateToyIn, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/toys.ToysService/UpdateToy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ToysServiceServer is the server API for ToysService service.
 // All implementations must embed UnimplementedToysServiceServer
 // for forward compatibility
@@ -88,6 +108,8 @@ type ToysServiceServer interface {
 	GetToys(context.Context, *emptypb.Empty) (*GetToysOut, error)
 	GetMasterToys(context.Context, *GetMasterToysIn) (*GetToysOut, error)
 	GetUserToys(context.Context, *GetUserToysIn) (*GetToysOut, error)
+	DeleteToy(context.Context, *DeleteToyIn) (*emptypb.Empty, error)
+	UpdateToy(context.Context, *UpdateToyIn) (*emptypb.Empty, error)
 	mustEmbedUnimplementedToysServiceServer()
 }
 
@@ -109,6 +131,12 @@ func (UnimplementedToysServiceServer) GetMasterToys(context.Context, *GetMasterT
 }
 func (UnimplementedToysServiceServer) GetUserToys(context.Context, *GetUserToysIn) (*GetToysOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserToys not implemented")
+}
+func (UnimplementedToysServiceServer) DeleteToy(context.Context, *DeleteToyIn) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteToy not implemented")
+}
+func (UnimplementedToysServiceServer) UpdateToy(context.Context, *UpdateToyIn) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateToy not implemented")
 }
 func (UnimplementedToysServiceServer) mustEmbedUnimplementedToysServiceServer() {}
 
@@ -213,6 +241,42 @@ func _ToysService_GetUserToys_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ToysService_DeleteToy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteToyIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToysServiceServer).DeleteToy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/toys.ToysService/DeleteToy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToysServiceServer).DeleteToy(ctx, req.(*DeleteToyIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ToysService_UpdateToy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateToyIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToysServiceServer).UpdateToy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/toys.ToysService/UpdateToy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToysServiceServer).UpdateToy(ctx, req.(*UpdateToyIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ToysService_ServiceDesc is the grpc.ServiceDesc for ToysService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -239,6 +303,14 @@ var ToysService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserToys",
 			Handler:    _ToysService_GetUserToys_Handler,
+		},
+		{
+			MethodName: "DeleteToy",
+			Handler:    _ToysService_DeleteToy_Handler,
+		},
+		{
+			MethodName: "UpdateToy",
+			Handler:    _ToysService_UpdateToy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -56,6 +56,20 @@ func (mr *MockToysRepositoryMockRecorder) AddToy(ctx, toyData any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToy", reflect.TypeOf((*MockToysRepository)(nil).AddToy), ctx, toyData)
 }
 
+// DeleteToy mocks base method.
+func (m *MockToysRepository) DeleteToy(ctx context.Context, id uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteToy", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteToy indicates an expected call of DeleteToy.
+func (mr *MockToysRepositoryMockRecorder) DeleteToy(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteToy", reflect.TypeOf((*MockToysRepository)(nil).DeleteToy), ctx, id)
+}
+
 // GetAllToys mocks base method.
 func (m *MockToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
@@ -99,4 +113,18 @@ func (m *MockToysRepository) GetToyByID(ctx context.Context, id uint64) (*entiti
 func (mr *MockToysRepositoryMockRecorder) GetToyByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyByID", reflect.TypeOf((*MockToysRepository)(nil).GetToyByID), ctx, id)
+}
+
+// UpdateToy mocks base method.
+func (m *MockToysRepository) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateToy", ctx, toyData)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateToy indicates an expected call of UpdateToy.
+func (mr *MockToysRepositoryMockRecorder) UpdateToy(ctx, toyData any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateToy", reflect.TypeOf((*MockToysRepository)(nil).UpdateToy), ctx, toyData)
 }

@@ -6,11 +6,28 @@ import (
 	"fmt"
 	"strings"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
+)
+
+const (
+	toysTableName                   = "toys"
+	toysAndTagsAssociationTableName = "toys_tags_associations"
+	toysAttachmentsTableName        = "toys_attachments"
+	idColumnName                    = "id"
+	toyCategoryIDColumnName         = "category_id"
+	toyNameColumnName               = "name"
+	toyDescriptionColumnName        = "description"
+	toyPriceColumnName              = "price"
+	toyQuantityColumnName           = "quantity"
+	toyIDColumnName                 = "toy_id"
+	tagIDColumnName                 = "tag_id"
+	attachmentLinkColumnName        = "link"
 )
 
 func NewToysRepository(
@@ -255,7 +272,8 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 	}()
 
 	var toyID uint64
-	err = transaction.QueryRow(
+	err = transaction.QueryRowContext(
+		ctx,
 		`
 			INSERT INTO toys (master_id, category_id, name, description, price, quantity) 
 			VALUES ($1, $2, $3, $4, $5, $6)
@@ -451,4 +469,139 @@ func (repo *ToysRepository) getToyAttachments(
 	}
 
 	return attachments, nil
+}
+
+func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
+	_, err = connection.ExecContext(
+		ctx,
+		`
+			DELETE 
+			FROM toys AS t
+			WHERE t.id = $1
+		`,
+		id,
+	)
+
+	return err
+}
+
+func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	transaction, err := repo.dbConnector.Transaction(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Rollback transaction according Go best practises https://go.dev/doc/database/execute-transactions.
+	defer func() {
+		if err = transaction.Rollback(); err != nil {
+			logging.LogErrorContext(ctx, repo.logger, "failed to rollback db transaction", err)
+		}
+	}()
+
+	stmt, params, err := sq.
+		Update(toysTableName).
+		Where(sq.Eq{idColumnName: toyData.ID}).
+		Set(toyCategoryIDColumnName, toyData.CategoryID).
+		Set(toyNameColumnName, toyData.Name).
+		Set(toyDescriptionColumnName, toyData.Description).
+		Set(toyPriceColumnName, toyData.Price).
+		Set(toyQuantityColumnName, toyData.Quantity).
+		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
+		return err
+	}
+
+	if len(toyData.TagIDsToAdd) > 0 {
+		builder := sq.Insert(toysAndTagsAssociationTableName).Columns(toyIDColumnName, tagIDColumnName)
+		for _, tagID := range toyData.TagIDsToAdd {
+			builder = builder.Values(toyData.ID, tagID)
+		}
+
+		if stmt, params, err = builder.PlaceholderFormat(sq.Dollar).ToSql(); err != nil {
+			return err
+		}
+
+		if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
+			return err
+		}
+	}
+
+	if len(toyData.TagIDsToDelete) > 0 {
+		stmt, params, err = sq.
+			Delete(toysAndTagsAssociationTableName).
+			Where(
+				sq.And{
+					sq.Eq{toyIDColumnName: toyData.ID},
+					sq.Eq{tagIDColumnName: toyData.TagIDsToDelete},
+				},
+			).
+			PlaceholderFormat(sq.Dollar).
+			ToSql()
+
+		if err != nil {
+			return err
+		}
+
+		if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
+			return err
+		}
+	}
+
+	if len(toyData.AttachmentsToAdd) > 0 {
+		builder := sq.Insert(toysAttachmentsTableName).Columns(toyIDColumnName, attachmentLinkColumnName)
+		for _, attachment := range toyData.AttachmentsToAdd {
+			builder = builder.Values(toyData.ID, attachment)
+		}
+
+		if stmt, params, err = builder.PlaceholderFormat(sq.Dollar).ToSql(); err != nil {
+			return err
+		}
+
+		if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
+			return err
+		}
+	}
+
+	if len(toyData.AttachmentIDsToDelete) > 0 {
+		stmt, params, err = sq.
+			Delete(toysAttachmentsTableName).
+			Where(sq.Eq{idColumnName: toyData.AttachmentIDsToDelete}).
+			PlaceholderFormat(sq.Dollar).
+			ToSql()
+
+		if err != nil {
+			return err
+		}
+
+		if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
+			return err
+		}
+	}
+
+	return transaction.Commit()
 }

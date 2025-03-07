@@ -15,6 +15,8 @@ service ToysService {
   rpc GetToys(google.protobuf.Empty) returns (GetToysOut) {}
   rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
   rpc GetUserToys(GetUserToysIn) returns (GetToysOut) {}
+  rpc DeleteToy(DeleteToyIn) returns (google.protobuf.Empty) {}
+  rpc UpdateToy(UpdateToyIn) returns (google.protobuf.Empty) {}
 }
 
 message AddToyIn {
@@ -68,4 +70,19 @@ message GetMasterToysIn {
 
 message GetUserToysIn {
   uint64 userID = 1;
+}
+
+message DeleteToyIn {
+  uint64 ID = 1 ;
+}
+
+message UpdateToyIn {
+  uint64 ID = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  uint32 quantity = 5;
+  uint32 categoryID = 6;
+  repeated uint32 tagIDs = 7;
+  repeated string attachments = 8;
 }

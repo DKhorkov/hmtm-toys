@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS toys_tags_associations
     tag_id     INTEGER   NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (toy_id) REFERENCES toys (id),
-    FOREIGN KEY (tag_id) REFERENCES tags (id)
+    FOREIGN KEY (toy_id) REFERENCES toys (id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS toys_attachments
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS toys_attachments
     link       VARCHAR   NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (toy_id) REFERENCES toys (id)
+    FOREIGN KEY (toy_id) REFERENCES toys (id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
 

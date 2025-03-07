@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/libs/requestid"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
@@ -96,4 +96,19 @@ func main() {
 		UserID: 1,
 	})
 	fmt.Println("UserToys: ", userToys, err)
+
+	_, err = client.DeleteToy(ctx, &toys.DeleteToyIn{ID: uint64(1)})
+	fmt.Println(err)
+
+	_, err = client.UpdateToy(ctx, &toys.UpdateToyIn{
+		ID:          2,
+		Name:        "23",
+		Description: "up",
+		Price:       10.,
+		Quantity:    1,
+		CategoryID:  1,
+		TagIDs:      []uint32{1, 2, 3, 4},
+		Attachments: []string{"newRef", "someRef", "anothererf"},
+	})
+	fmt.Println(err)
 }

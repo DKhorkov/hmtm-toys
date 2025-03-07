@@ -145,3 +145,89 @@ func (useCases *UseCases) CreateTags(ctx context.Context, tagsData []entities.Cr
 	createdTagIDs = append(createdTagIDs, existingTagIDs...)
 	return createdTagIDs, nil
 }
+
+func (useCases *UseCases) DeleteToy(ctx context.Context, id uint64) error {
+	if _, err := useCases.toysService.GetToyByID(ctx, id); err != nil {
+		return err
+	}
+
+	return useCases.toysService.DeleteToy(ctx, id)
+}
+
+func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error {
+	toy, err := useCases.toysService.GetToyByID(ctx, rawToyData.ID)
+	if err != nil {
+		return err
+	}
+
+	// Old Toy Tags IDs set:
+	oldTagIDsSet := make(map[uint32]struct{}, len(toy.Tags))
+	for _, tag := range toy.Tags {
+		oldTagIDsSet[tag.ID] = struct{}{}
+	}
+
+	// New Toy Tags IDs set:
+	newTagIDsSet := make(map[uint32]struct{}, len(rawToyData.TagIDs))
+	for _, tagID := range rawToyData.TagIDs {
+		newTagIDsSet[tagID] = struct{}{}
+	}
+
+	// Add new Tag if it is not already exists:
+	tagIDsToAdd := make([]uint32, 0)
+	for _, tagID := range rawToyData.TagIDs {
+		if _, ok := oldTagIDsSet[tagID]; !ok {
+			tagIDsToAdd = append(tagIDsToAdd, tagID)
+		}
+	}
+
+	// Delete old Tag if it is not used by Toy now:
+	tagIDsToDelete := make([]uint32, 0)
+	for _, tag := range toy.Tags {
+		if _, ok := newTagIDsSet[tag.ID]; !ok {
+			tagIDsToDelete = append(tagIDsToDelete, tag.ID)
+		}
+	}
+
+	// Old Toy Attachments set:
+	oldAttachmentsSet := make(map[string]struct{}, len(toy.Attachments))
+	for _, attachment := range toy.Attachments {
+		oldAttachmentsSet[attachment.Link] = struct{}{}
+	}
+
+	// New Toy Attachments set:
+	newAttachmentsSet := make(map[string]struct{}, len(rawToyData.Attachments))
+	for _, attachment := range rawToyData.Attachments {
+		newAttachmentsSet[attachment] = struct{}{}
+	}
+
+	// Add new Attachments if it is not already exists:
+	attachmentsToAdd := make([]string, 0)
+	for _, attachment := range rawToyData.Attachments {
+		if _, ok := oldAttachmentsSet[attachment]; !ok {
+			attachmentsToAdd = append(attachmentsToAdd, attachment)
+		}
+	}
+
+	// Delete old Attachments if it is not used by Toy now:
+	attachmentsToDelete := make([]uint64, 0)
+	for _, attachment := range toy.Attachments {
+		if _, ok := newAttachmentsSet[attachment.Link]; !ok {
+			attachmentsToDelete = append(attachmentsToDelete, attachment.ID)
+		}
+	}
+
+	toyData := entities.UpdateToyDTO{
+		ID:                    rawToyData.ID,
+		CategoryID:            rawToyData.CategoryID,
+		Name:                  rawToyData.Name,
+		Description:           rawToyData.Description,
+		Price:                 rawToyData.Price,
+		Quantity:              rawToyData.Quantity,
+		TagIDsToAdd:           tagIDsToAdd,
+		TagIDsToDelete:        tagIDsToDelete,
+		AttachmentsToAdd:      attachmentsToAdd,
+		AttachmentIDsToDelete: attachmentsToDelete,
+	}
+
+	return useCases.toysService.UpdateToy(ctx, toyData)
+}

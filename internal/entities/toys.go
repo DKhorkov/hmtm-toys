@@ -45,3 +45,27 @@ type RawAddToyDTO struct {
 	TagIDs      []uint32 `json:"tag_ids,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
 }
+
+type UpdateToyDTO struct {
+	ID                    uint64   `json:"id"`
+	CategoryID            uint32   `json:"category_id"`
+	Name                  string   `json:"name"`
+	Description           string   `json:"description"`
+	Price                 float32  `json:"price"`
+	Quantity              uint32   `json:"quantity"`
+	TagIDsToAdd           []uint32 `json:"tag_ids_to_add,omitempty"`
+	TagIDsToDelete        []uint32 `json:"tag_ids_to_delete,omitempty"`
+	AttachmentsToAdd      []string `json:"attachments_to_add,omitempty"`
+	AttachmentIDsToDelete []uint64 `json:"attachment_ids_to_delete,omitempty"`
+}
+
+type RawUpdateToyDTO struct {
+	ID          uint64   `json:"id"`
+	CategoryID  uint32   `json:"category_id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Price       float32  `json:"price"`
+	Quantity    uint32   `json:"quantity"`
+	TagIDs      []uint32 `json:"tag_ids,omitempty"`
+	Attachments []string `json:"attachments,omitempty"`
+}

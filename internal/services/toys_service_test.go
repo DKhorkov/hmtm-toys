@@ -36,7 +36,7 @@ func TestToysServiceGetToyByID(t *testing.T) {
 					EXPECT().
 					GetToyByID(gomock.Any(), uint64(1)).
 					Return(&entities.Toy{ID: 1}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
@@ -48,12 +48,12 @@ func TestToysServiceGetToyByID(t *testing.T) {
 					EXPECT().
 					GetToyByID(gomock.Any(), uint64(2)).
 					Return(nil, &customerrors.ToyNotFoundError{}).
-					MaxTimes(1)
+					Times(1)
 
 				logger.
 					EXPECT().
 					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.ToyNotFoundError{},
@@ -104,7 +104,7 @@ func TestToysServiceGetAllToys(t *testing.T) {
 						},
 						nil,
 					).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -115,7 +115,7 @@ func TestToysServiceGetAllToys(t *testing.T) {
 					EXPECT().
 					GetAllToys(gomock.Any()).
 					Return([]entities.Toy{}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -125,7 +125,7 @@ func TestToysServiceGetAllToys(t *testing.T) {
 					EXPECT().
 					GetAllToys(gomock.Any()).
 					Return(nil, errors.New("test error")).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 		},
@@ -186,7 +186,7 @@ func TestToysServiceGetMasterToys(t *testing.T) {
 						},
 						nil,
 					).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -197,7 +197,7 @@ func TestToysServiceGetMasterToys(t *testing.T) {
 					EXPECT().
 					GetMasterToys(gomock.Any(), uint64(1)).
 					Return(nil, errors.New("test error")).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 		},
@@ -246,7 +246,7 @@ func TestToysServiceAddToy(t *testing.T) {
 					EXPECT().
 					GetMasterToys(gomock.Any(), uint64(1)).
 					Return([]entities.Toy{}, nil).
-					MaxTimes(1)
+					Times(1)
 
 				toysRepository.
 					EXPECT().
@@ -256,17 +256,18 @@ func TestToysServiceAddToy(t *testing.T) {
 							MasterID:    1,
 							Description: "test",
 							Name:        "test",
-							CategoryID:  1},
+							CategoryID:  1,
+						},
 					).
 					Return(uint64(1), nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
 		{
 			name: "add Toy fail - already exists",
 			toy:  entities.AddToyDTO{MasterID: 1, Description: "test", Name: "test", CategoryID: 1},
-			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger) {
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
 					GetMasterToys(gomock.Any(), uint64(1)).
@@ -281,12 +282,7 @@ func TestToysServiceAddToy(t *testing.T) {
 							},
 						}, nil,
 					).
-					MaxTimes(1)
-
-				logger.
-					EXPECT().
-					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.ToyAlreadyExistsError{},
@@ -317,64 +313,160 @@ func TestToysServiceAddToy(t *testing.T) {
 	}
 }
 
-// func TestToysServiceAddToy(t *testing.T) {
-//	t.Run("add toy success", func(t *testing.T) {
-//		const expectedToyID = uint64(1)
-//
-//		mockController := gomock.NewController(t)
-//		toysRepository := mockrepositories.NewMockToysRepository(mockController)
-//		toysRepository.EXPECT().AddToy(gomock.Any(), gomock.Any()).Return(expectedToyID, nil).MaxTimes(1)
-//		toysRepository.EXPECT().GetMasterToys(gomock.Any(), gomock.Any()).Return([]entities.Toy{}, nil).MaxTimes(1)
-//
-//		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-//		toysService := NewToysService(toysRepository, logger)
-//		ctx := context.Background()
-//
-//		toyID, err := toysService.AddToy(ctx, entities.AddToyDTO{})
-//		require.NoError(t, err)
-//		assert.Equal(t, expectedToyID, toyID)
-//	})
-//
-//	t.Run("add toy fail already exists", func(t *testing.T) {
-//		var expectedError = &customerrors.ToyAlreadyExistsError{}
-//		const (
-//			expectedToyID                 = uint64(0)
-//			expectedMasterID       uint64 = 1
-//			expectedToyName               = "test Toy"
-//			expectedToyDescription        = "test Toy description"
-//			expectedToyCategory    uint32 = 1
-//		)
-//
-//		mockController := gomock.NewController(t)
-//		toysRepository := mockrepositories.NewMockToysRepository(mockController)
-//		toysRepository.EXPECT().GetMasterToys(gomock.Any(), gomock.Any()).Return(
-//			[]entities.Toy{
-//				{
-//					ID:          expectedToyID,
-//					MasterID:    expectedMasterID,
-//					Name:        expectedToyName,
-//					Description: expectedToyDescription,
-//					CategoryID:  expectedToyCategory,
-//				},
-//			},
-//			nil).MaxTimes(1)
-//
-//		logger := slog.New(slog.NewJSONHandler(bytes.NewBuffer(make([]byte, 1000)), nil))
-//		toysService := NewToysService(toysRepository, logger)
-//		ctx := context.Background()
-//
-//		toyID, err := toysService.AddToy(
-//			ctx,
-//			entities.AddToyDTO{
-//				MasterID:    expectedMasterID,
-//				Name:        expectedToyName,
-//				Description: expectedToyDescription,
-//				CategoryID:  expectedToyCategory,
-//			},
-//		)
-//
-//		require.Error(t, err)
-//		require.IsType(t, expectedError, err)
-//		assert.Equal(t, expectedToyID, toyID)
-//	})
-//}
+func TestToysServiceDeleteToy(t *testing.T) {
+	testCases := []struct {
+		name          string
+		toyID         uint64
+		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:  "delete Toy success",
+			toyID: 1,
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					DeleteToy(gomock.Any(), uint64(1)).
+					Return(nil).
+					Times(1)
+			},
+		},
+		{
+			name:  "delete Toy fail - not found",
+			toyID: 1,
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					DeleteToy(gomock.Any(), uint64(1)).
+					Return(errors.New("test error")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	mockController := gomock.NewController(t)
+	toysRepository := mockrepositories.NewMockToysRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	toysService := services.NewToysService(toysRepository, logger)
+	ctx := context.Background()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysRepository, logger)
+			}
+
+			err := toysService.DeleteToy(ctx, tc.toyID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestToysServiceUpdateToy(t *testing.T) {
+	testCases := []struct {
+		name          string
+		toy           entities.UpdateToyDTO
+		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name: "add Toy success",
+			toy: entities.UpdateToyDTO{
+				ID:                    1,
+				Description:           "test",
+				Name:                  "test",
+				CategoryID:            1,
+				Price:                 10,
+				Quantity:              15,
+				TagIDsToAdd:           []uint32{1, 2},
+				TagIDsToDelete:        []uint32{3, 4},
+				AttachmentsToAdd:      []string{"test"},
+				AttachmentIDsToDelete: []uint64{1},
+			},
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					UpdateToy(
+						gomock.Any(),
+						entities.UpdateToyDTO{
+							ID:                    1,
+							Description:           "test",
+							Name:                  "test",
+							CategoryID:            1,
+							Price:                 10,
+							Quantity:              15,
+							TagIDsToAdd:           []uint32{1, 2},
+							TagIDsToDelete:        []uint32{3, 4},
+							AttachmentsToAdd:      []string{"test"},
+							AttachmentIDsToDelete: []uint64{1},
+						},
+					).
+					Return(nil).
+					Times(1)
+			},
+		},
+		{
+			name: "add Toy fail - already exists",
+			toy: entities.UpdateToyDTO{
+				ID:                    1,
+				Description:           "test",
+				Name:                  "test",
+				CategoryID:            1,
+				Price:                 10,
+				Quantity:              15,
+				TagIDsToAdd:           []uint32{1, 2},
+				TagIDsToDelete:        []uint32{3, 4},
+				AttachmentsToAdd:      []string{"test"},
+				AttachmentIDsToDelete: []uint64{1},
+			},
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					UpdateToy(
+						gomock.Any(),
+						entities.UpdateToyDTO{
+							ID:                    1,
+							Description:           "test",
+							Name:                  "test",
+							CategoryID:            1,
+							Price:                 10,
+							Quantity:              15,
+							TagIDsToAdd:           []uint32{1, 2},
+							TagIDsToDelete:        []uint32{3, 4},
+							AttachmentsToAdd:      []string{"test"},
+							AttachmentIDsToDelete: []uint64{1},
+						},
+					).
+					Return(errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	mockController := gomock.NewController(t)
+	toysRepository := mockrepositories.NewMockToysRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	toysService := services.NewToysService(toysRepository, logger)
+	ctx := context.Background()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysRepository, logger)
+			}
+
+			err := toysService.UpdateToy(ctx, tc.toy)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
