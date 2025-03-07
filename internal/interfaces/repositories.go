@@ -12,6 +12,8 @@ type ToysRepository interface {
 	GetAllToys(ctx context.Context) ([]entities.Toy, error)
 	GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error)
 	GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error)
+	DeleteToy(ctx context.Context, id uint64) error
+	UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error
 }
 
 //go:generate mockgen -source=repositories.go  -destination=../../mocks/repositories/masters_repository.go -exclude_interfaces=TagsRepository,CategoriesRepository,ToysRepository -package=mockrepositories

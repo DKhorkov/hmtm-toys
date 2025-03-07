@@ -396,6 +396,7 @@ issues:
         - gosec
         - dupl
         - funlen
+        - gocognit
     - path: "internal/controllers/grpc/masters/server.go"
       linters:
         - dupl

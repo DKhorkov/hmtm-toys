@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/DKhorkov/libs/requestid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/emptypb"
-
-	"github.com/DKhorkov/libs/requestid"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
@@ -42,58 +40,73 @@ func main() {
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), requestid.Key, requestid.New())
 
-	tagIDs, err := client.CreateTags(ctx, &toys.CreateTagsIn{
-		Tags: []*toys.CreateTagIn{
-			{
-				Name: "tag1",
-			},
-			{
-				Name: "tag2",
-			},
-		},
-	})
-	fmt.Println(tagIDs, err)
+	// tagIDs, err := client.CreateTags(ctx, &toys.CreateTagsIn{
+	//	Tags: []*toys.CreateTagIn{
+	//		{
+	//			Name: "tag1",
+	//		},
+	//		{
+	//			Name: "tag2",
+	//		},
+	//	},
+	// })
+	// fmt.Println(tagIDs, err)
+	//
+	// toyByID, err := client.GetToy(ctx, &toys.GetToyIn{ID: 1})
+	// fmt.Println(err)
+	// fmt.Println(toyByID)
+	//
+	//allToys, err := client.GetToys(ctx, &emptypb.Empty{})
+	//fmt.Println(err)
+	//for _, toy := range allToys.GetToys() {
+	//	fmt.Println(toy)
+	//}
+	//
+	//masterID, err := client.RegisterMaster(ctx, &toys.RegisterMasterIn{
+	//	UserID: 1,
+	//	Info:   "testInfo",
+	//})
+	//fmt.Println(err, masterID)
+	//
+	//allMasters, err := client.GetMasters(ctx, &emptypb.Empty{})
+	//fmt.Println(err)
+	//for _, master := range allMasters.GetMasters() {
+	//	fmt.Println(master)
+	//}
+	//
+	//toyID, err := client.AddToy(ctx, &toys.AddToyIn{
+	//	UserID:      1,
+	//	Name:        "toy23",
+	//	Price:       120.,
+	//	Quantity:    1,
+	//	CategoryID:  1,
+	//	TagIDs:      []uint32{1},
+	//	Attachments: []string{"someref", "anothererf"},
+	//})
+	//fmt.Println(err)
+	//fmt.Println(toyID)
+	//
+	//master, err := client.GetMasterByUser(ctx, &toys.GetMasterByUserIn{UserID: 1})
+	//fmt.Println(err)
+	//fmt.Println(master)
+	//
+	//userToys, err := client.GetUserToys(ctx, &toys.GetUserToysIn{
+	//	UserID: 1,
+	//})
+	//fmt.Println("UserToys: ", userToys, err)
 
-	toyByID, err := client.GetToy(ctx, &toys.GetToyIn{ID: 1})
-	fmt.Println(err)
-	fmt.Println(toyByID)
+	// _, err = client.DeleteToy(ctx, &toys.DeleteToyIn{ID: uint64(1)})
+	// fmt.Println(err)
 
-	allToys, err := client.GetToys(ctx, &emptypb.Empty{})
-	fmt.Println(err)
-	for _, toy := range allToys.GetToys() {
-		fmt.Println(toy)
-	}
-
-	masterID, err := client.RegisterMaster(ctx, &toys.RegisterMasterIn{
-		UserID: 1,
-		Info:   "testInfo",
-	})
-	fmt.Println(err, masterID)
-
-	allMasters, err := client.GetMasters(ctx, &emptypb.Empty{})
-	fmt.Println(err)
-	for _, master := range allMasters.GetMasters() {
-		fmt.Println(master)
-	}
-
-	toyID, err := client.AddToy(ctx, &toys.AddToyIn{
-		UserID:      1,
-		Name:        "toy23",
-		Price:       120.,
+	_, err = client.UpdateToy(ctx, &toys.UpdateToyIn{
+		ID:          2,
+		Name:        "23",
+		Description: "up",
+		Price:       10.,
 		Quantity:    1,
 		CategoryID:  1,
-		TagIDs:      []uint32{1},
-		Attachments: []string{"someref", "anothererf"},
+		TagIDs:      []uint32{1, 2, 3, 4},
+		Attachments: []string{"newRef", "someRef", "anothererf"},
 	})
 	fmt.Println(err)
-	fmt.Println(toyID)
-
-	master, err := client.GetMasterByUser(ctx, &toys.GetMasterByUserIn{UserID: 1})
-	fmt.Println(err)
-	fmt.Println(master)
-
-	userToys, err := client.GetUserToys(ctx, &toys.GetUserToysIn{
-		UserID: 1,
-	})
-	fmt.Println("UserToys: ", userToys, err)
 }

@@ -30,6 +30,57 @@ type ServerAPI struct {
 	logger   logging.Logger
 }
 
+func (api *ServerAPI) UpdateToy(ctx context.Context, in *toys.UpdateToyIn) (*emptypb.Empty, error) {
+	toyData := entities.RawUpdateToyDTO{
+		ID:          in.GetID(),
+		CategoryID:  in.GetCategoryID(),
+		Name:        in.GetName(),
+		Description: in.GetDescription(),
+		Price:       in.GetPrice(),
+		Quantity:    in.GetQuantity(),
+		TagIDs:      in.GetTagIDs(),
+		Attachments: in.GetAttachments(),
+	}
+
+	if err := api.useCases.UpdateToy(ctx, toyData); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to update Toy with ID=%d", in.GetID()),
+			err,
+		)
+
+		switch {
+		case errors.As(err, &customerrors.ToyNotFoundError{}):
+			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
+		default:
+			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+		}
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (api *ServerAPI) DeleteToy(ctx context.Context, in *toys.DeleteToyIn) (*emptypb.Empty, error) {
+	if err := api.useCases.DeleteToy(ctx, in.GetID()); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to delete Toy with ID=%d", in.GetID()),
+			err,
+		)
+
+		switch {
+		case errors.As(err, &customerrors.ToyNotFoundError{}):
+			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
+		default:
+			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+		}
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 // GetToy handler returns Toy for provided ID.
 func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetToyOut, error) {
 	toy, err := api.useCases.GetToyByID(ctx, in.GetID())

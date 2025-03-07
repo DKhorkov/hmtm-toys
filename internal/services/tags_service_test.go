@@ -35,7 +35,7 @@ func TestTagsServiceGetTagByID(t *testing.T) {
 					EXPECT().
 					GetTagByID(gomock.Any(), uint32(1)).
 					Return(&entities.Tag{ID: 1}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
@@ -47,12 +47,12 @@ func TestTagsServiceGetTagByID(t *testing.T) {
 					EXPECT().
 					GetTagByID(gomock.Any(), uint32(2)).
 					Return(nil, &customerrors.TagNotFoundError{}).
-					MaxTimes(1)
+					Times(1)
 
 				logger.
 					EXPECT().
 					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.TagNotFoundError{},
@@ -103,7 +103,7 @@ func TestTagsServiceGetAllTags(t *testing.T) {
 						},
 						nil,
 					).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -114,7 +114,7 @@ func TestTagsServiceGetAllTags(t *testing.T) {
 					EXPECT().
 					GetAllTags(gomock.Any()).
 					Return([]entities.Tag{}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -124,7 +124,7 @@ func TestTagsServiceGetAllTags(t *testing.T) {
 					EXPECT().
 					GetAllTags(gomock.Any()).
 					Return(nil, errors.New("test error")).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 		},
@@ -193,7 +193,7 @@ func TestTagsServiceCreateTags(t *testing.T) {
 						[]uint32{1, 2},
 						nil,
 					).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 	}

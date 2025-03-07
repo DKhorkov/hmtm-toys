@@ -70,3 +70,11 @@ func (service *ToysService) checkToyExistence(ctx context.Context, toyData entit
 
 	return false
 }
+
+func (service *ToysService) DeleteToy(ctx context.Context, id uint64) error {
+	return service.toysRepository.DeleteToy(ctx, id)
+}
+
+func (service *ToysService) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
+	return service.toysRepository.UpdateToy(ctx, toyData)
+}

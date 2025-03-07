@@ -35,7 +35,7 @@ func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 					EXPECT().
 					GetCategoryByID(gomock.Any(), uint32(1)).
 					Return(&entities.Category{ID: 1}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
@@ -47,12 +47,12 @@ func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 					EXPECT().
 					GetCategoryByID(gomock.Any(), uint32(2)).
 					Return(nil, &customerrors.CategoryNotFoundError{}).
-					MaxTimes(1)
+					Times(1)
 
 				logger.
 					EXPECT().
 					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.CategoryNotFoundError{},
@@ -103,7 +103,7 @@ func TestCategoriesServiceGetAllCategories(t *testing.T) {
 						},
 						nil,
 					).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -114,7 +114,7 @@ func TestCategoriesServiceGetAllCategories(t *testing.T) {
 					EXPECT().
 					GetAllCategories(gomock.Any()).
 					Return([]entities.Category{}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -124,7 +124,7 @@ func TestCategoriesServiceGetAllCategories(t *testing.T) {
 					EXPECT().
 					GetAllCategories(gomock.Any()).
 					Return(nil, errors.New("test error")).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 		},

@@ -35,7 +35,7 @@ func TestMastersServiceGetMasterByID(t *testing.T) {
 					EXPECT().
 					GetMasterByID(gomock.Any(), uint64(1)).
 					Return(&entities.Master{ID: 1}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
@@ -47,12 +47,12 @@ func TestMastersServiceGetMasterByID(t *testing.T) {
 					EXPECT().
 					GetMasterByID(gomock.Any(), uint64(2)).
 					Return(nil, &customerrors.MasterNotFoundError{}).
-					MaxTimes(1)
+					Times(1)
 
 				logger.
 					EXPECT().
 					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.MasterNotFoundError{},
@@ -101,7 +101,7 @@ func TestMastersServiceGetMasterByUserID(t *testing.T) {
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(&entities.Master{ID: 1}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
@@ -113,12 +113,12 @@ func TestMastersServiceGetMasterByUserID(t *testing.T) {
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), uint64(2)).
 					Return(nil, &customerrors.MasterNotFoundError{}).
-					MaxTimes(1)
+					Times(1)
 
 				logger.
 					EXPECT().
 					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.MasterNotFoundError{},
@@ -169,7 +169,7 @@ func TestMastersServiceGetAllMasters(t *testing.T) {
 						},
 						nil,
 					).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -180,7 +180,7 @@ func TestMastersServiceGetAllMasters(t *testing.T) {
 					EXPECT().
 					GetAllMasters(gomock.Any()).
 					Return([]entities.Master{}, nil).
-					MaxTimes(1)
+					Times(1)
 			},
 		},
 		{
@@ -190,7 +190,7 @@ func TestMastersServiceGetAllMasters(t *testing.T) {
 					EXPECT().
 					GetAllMasters(gomock.Any()).
 					Return(nil, errors.New("test error")).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 		},
@@ -239,30 +239,25 @@ func TestMastersServiceRegisterMaster(t *testing.T) {
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(nil, &customerrors.MasterNotFoundError{}).
-					MaxTimes(1)
+					Times(1)
 
 				mastersRepository.
 					EXPECT().
 					RegisterMaster(gomock.Any(), entities.RegisterMasterDTO{Info: "test", UserID: 1}).
 					Return(uint64(1), nil).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: false,
 		},
 		{
 			name:   "register Master fail - already exists",
 			master: entities.RegisterMasterDTO{Info: "test", UserID: 1},
-			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger) {
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), uint64(1)).
 					Return(&entities.Master{}, nil).
-					MaxTimes(1)
-
-				logger.
-					EXPECT().
-					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
-					MaxTimes(1)
+					Times(1)
 			},
 			errorExpected: true,
 			err:           &customerrors.MasterAlreadyExistsError{},
