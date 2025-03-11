@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 
@@ -16,18 +15,21 @@ import (
 )
 
 const (
+	selectAllColumns                = "*"
 	toysTableName                   = "toys"
 	toysAndTagsAssociationTableName = "toys_tags_associations"
 	toysAttachmentsTableName        = "toys_attachments"
 	idColumnName                    = "id"
-	toyCategoryIDColumnName         = "category_id"
+	categoryIDColumnName            = "category_id"
 	toyNameColumnName               = "name"
 	toyDescriptionColumnName        = "description"
 	toyPriceColumnName              = "price"
 	toyQuantityColumnName           = "quantity"
 	toyIDColumnName                 = "toy_id"
 	tagIDColumnName                 = "tag_id"
+	masterIDColumnName              = "master_id"
 	attachmentLinkColumnName        = "link"
+	returningIDSuffix               = "RETURNING id"
 )
 
 func NewToysRepository(
@@ -65,12 +67,20 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(toysTableName).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT * 
-			FROM toys
-		`,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -141,14 +151,21 @@ func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) 
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(toysTableName).
+		Where(sq.Eq{masterIDColumnName: masterID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT * 
-			FROM toys AS t
-			WHERE t.master_id = $1
-		`,
-		masterID,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -219,20 +236,21 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(toysTableName).
+		Where(sq.Eq{idColumnName: id}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	toy := &entities.Toy{}
 	columns := db.GetEntityColumns(toy)
 	columns = columns[:len(columns)-2] // Not to paste Tags and Attachments fields to Scan function.
-	err = connection.QueryRowContext(
-		ctx,
-		`
-			SELECT * 
-			FROM toys AS t
-			WHERE t.id = $1
-		`,
-		id,
-	).Scan(columns...)
-
-	if err != nil {
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
 	}
 
@@ -271,80 +289,67 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 		}
 	}()
 
+	stmt, params, err := sq.
+		Insert(toysTableName).
+		Columns(
+			masterIDColumnName,
+			categoryIDColumnName,
+			toyNameColumnName,
+			toyDescriptionColumnName,
+			toyPriceColumnName,
+			toyQuantityColumnName,
+		).
+		Values(
+			toyData.MasterID,
+			toyData.CategoryID,
+			toyData.Name,
+			toyData.Description,
+			toyData.Price,
+			toyData.Quantity,
+		).
+		Suffix(returningIDSuffix).
+		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
+		ToSql()
+
+	if err != nil {
+		return 0, err
+	}
+
 	var toyID uint64
-	err = transaction.QueryRowContext(
-		ctx,
-		`
-			INSERT INTO toys (master_id, category_id, name, description, price, quantity) 
-			VALUES ($1, $2, $3, $4, $5, $6)
-			RETURNING toys.id
-		`,
-		toyData.MasterID,
-		toyData.CategoryID,
-		toyData.Name,
-		toyData.Description,
-		toyData.Price,
-		toyData.Quantity,
-	).Scan(&toyID)
+	if err = transaction.QueryRowContext(ctx, stmt, params...).Scan(&toyID); err != nil {
+		return 0, err
+	}
 
 	if err != nil {
 		return 0, err
 	}
 
 	if len(toyData.TagIDs) > 0 {
-		// Bulk insert of Toy's Tags.
-		toysAndTagsInsertPlaceholders := make([]string, 0, len(toyData.TagIDs))
-		toysAndTagsInsertValues := make([]interface{}, 0, len(toyData.TagIDs))
-		for index, tagID := range toyData.TagIDs {
-			toysAndTagsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
-				index*2+1, // (*2) - where 2 is number of inserted params.
-				index*2+2,
-			)
-
-			toysAndTagsInsertPlaceholders = append(toysAndTagsInsertPlaceholders, toysAndTagsInsertPlaceholder)
-			toysAndTagsInsertValues = append(toysAndTagsInsertValues, toyID, tagID)
+		builder := sq.Insert(toysAndTagsAssociationTableName).Columns(toyIDColumnName, tagIDColumnName)
+		for _, tagID := range toyData.TagIDs {
+			builder = builder.Values(toyID, tagID)
 		}
 
-		_, err = transaction.Exec(
-			`
-				INSERT INTO toys_tags_associations (toy_id, tag_id)
-				VALUES 
-			`+strings.Join(toysAndTagsInsertPlaceholders, ","),
-			toysAndTagsInsertValues...,
-		)
+		if stmt, params, err = builder.PlaceholderFormat(sq.Dollar).ToSql(); err != nil {
+			return 0, err
+		}
 
-		if err != nil {
+		if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
 			return 0, err
 		}
 	}
 
 	if len(toyData.Attachments) > 0 {
-		// Bulk insert of Toy's Attachments.
-		toyAttachmentsInsertPlaceholders := make([]string, 0, len(toyData.Attachments))
-		toyAttachmentsInsertValues := make([]interface{}, 0, len(toyData.Attachments))
-		for index, attachment := range toyData.Attachments {
-			toyAttachmentsInsertPlaceholder := fmt.Sprintf("($%d,$%d)",
-				index*2+1, // (*2) - where 2 is number of inserted params.
-				index*2+2,
-			)
-
-			toyAttachmentsInsertPlaceholders = append(
-				toyAttachmentsInsertPlaceholders,
-				toyAttachmentsInsertPlaceholder,
-			)
-
-			toyAttachmentsInsertValues = append(toyAttachmentsInsertValues, toyID, attachment)
+		builder := sq.Insert(toysAttachmentsTableName).Columns(toyIDColumnName, attachmentLinkColumnName)
+		for _, attachment := range toyData.Attachments {
+			builder = builder.Values(toyID, attachment)
 		}
 
-		_, err = transaction.Exec(
-			`
-				INSERT INTO toys_attachments (toy_id, link)
-				VALUES 
-			`+strings.Join(toyAttachmentsInsertPlaceholders, ","),
-			toyAttachmentsInsertValues...,
-		)
+		if stmt, params, err = builder.PlaceholderFormat(sq.Dollar).ToSql(); err != nil {
+			return 0, err
+		}
 
-		if err != nil {
+		if _, err = transaction.ExecContext(ctx, stmt, params...); err != nil {
 			return 0, err
 		}
 	}
@@ -368,18 +373,26 @@ func (repo *ToysRepository) getToyTags(
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
 	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(tagsTableName).
+		Where(
+			sq.Expr(
+				fmt.Sprintf("%s IN (?)", idColumnName),
+				sq.Select(tagIDColumnName).From(toysAndTagsAssociationTableName).Where(sq.Eq{toyIDColumnName: toyID}),
+			),
+		).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT * 
-			FROM tags AS t
-			WHERE t.id IN (
-			    SELECT tta.tag_id
-				FROM toys_tags_associations AS tta
-				WHERE tta.toy_id = $1
-			)
-		`,
-		toyID,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -427,14 +440,21 @@ func (repo *ToysRepository) getToyAttachments(
 	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
 	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(toysAttachmentsTableName).
+		Where(sq.Eq{toyIDColumnName: toyID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT *
-			FROM toys_attachments AS ta
-			WHERE ta.toy_id = $1
-		`,
-		toyID,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -485,14 +505,20 @@ func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Delete(toysTableName).
+		Where(sq.Eq{idColumnName: id}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
 	_, err = connection.ExecContext(
 		ctx,
-		`
-			DELETE 
-			FROM toys AS t
-			WHERE t.id = $1
-		`,
-		id,
+		stmt,
+		params...,
 	)
 
 	return err
@@ -520,7 +546,7 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 	stmt, params, err := sq.
 		Update(toysTableName).
 		Where(sq.Eq{idColumnName: toyData.ID}).
-		Set(toyCategoryIDColumnName, toyData.CategoryID).
+		Set(categoryIDColumnName, toyData.CategoryID).
 		Set(toyNameColumnName, toyData.Name).
 		Set(toyDescriptionColumnName, toyData.Description).
 		Set(toyPriceColumnName, toyData.Price).
