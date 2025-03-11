@@ -20,7 +20,7 @@ const (
 	toysAndTagsAssociationTableName = "toys_tags_associations"
 	toysAttachmentsTableName        = "toys_attachments"
 	idColumnName                    = "id"
-	toyCategoryIDColumnName         = "category_id"
+	categoryIDColumnName            = "category_id"
 	toyNameColumnName               = "name"
 	toyDescriptionColumnName        = "description"
 	toyPriceColumnName              = "price"
@@ -293,7 +293,7 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 		Insert(toysTableName).
 		Columns(
 			masterIDColumnName,
-			toyCategoryIDColumnName,
+			categoryIDColumnName,
 			toyNameColumnName,
 			toyDescriptionColumnName,
 			toyPriceColumnName,
@@ -546,7 +546,7 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 	stmt, params, err := sq.
 		Update(toysTableName).
 		Where(sq.Eq{idColumnName: toyData.ID}).
-		Set(toyCategoryIDColumnName, toyData.CategoryID).
+		Set(categoryIDColumnName, toyData.CategoryID).
 		Set(toyNameColumnName, toyData.Name).
 		Set(toyDescriptionColumnName, toyData.Description).
 		Set(toyPriceColumnName, toyData.Price).
