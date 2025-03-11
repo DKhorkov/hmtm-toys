@@ -3,11 +3,18 @@ package repositories
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
+)
+
+const (
+	tagsTableName     = "tags"
+	tagNameColumnName = "name"
 )
 
 func NewTagsRepository(
@@ -45,12 +52,20 @@ func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, err
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(tagsTableName).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT * 
-			FROM tags
-		`,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -101,19 +116,20 @@ func (repo *TagsRepository) GetTagByID(ctx context.Context, id uint32) (*entitie
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	tag := &entities.Tag{}
-	columns := db.GetEntityColumns(tag)
-	err = connection.QueryRowContext(
-		ctx,
-		`
-			SELECT * 
-			FROM tags AS t
-			WHERE t.id = $1
-		`,
-		id,
-	).Scan(columns...)
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(tagsTableName).
+		Where(sq.Eq{idColumnName: id}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
 
 	if err != nil {
+		return nil, err
+	}
+
+	tag := &entities.Tag{}
+	columns := db.GetEntityColumns(tag)
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
 	}
 
@@ -141,18 +157,20 @@ func (repo *TagsRepository) CreateTags(ctx context.Context, tagsData []entities.
 
 	tagIDs := make([]uint32, len(tagsData))
 	for i, tag := range tagsData {
-		var tagID uint32
-		err = transaction.QueryRowContext(
-			ctx,
-			`
-				INSERT INTO tags (name) 
-				VALUES ($1)
-				RETURNING tags.id
-			`,
-			tag.Name,
-		).Scan(&tagID)
+		stmt, params, err := sq.
+			Insert(tagsTableName).
+			Columns(tagNameColumnName).
+			Values(tag.Name).
+			Suffix(returningIDSuffix).
+			PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
+			ToSql()
 
 		if err != nil {
+			return nil, err
+		}
+
+		var tagID uint32
+		if err = transaction.QueryRowContext(ctx, stmt, params...).Scan(&tagID); err != nil {
 			return nil, err
 		}
 

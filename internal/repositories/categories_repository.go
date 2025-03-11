@@ -3,11 +3,17 @@ package repositories
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
+)
+
+const (
+	categoriesTableName = "categories"
 )
 
 func NewCategoriesRepository(
@@ -45,12 +51,20 @@ func (repo *CategoriesRepository) GetAllCategories(ctx context.Context) ([]entit
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(categoriesTableName).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT * 
-			FROM categories
-		`,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -101,19 +115,20 @@ func (repo *CategoriesRepository) GetCategoryByID(ctx context.Context, id uint32
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	category := &entities.Category{}
-	columns := db.GetEntityColumns(category)
-	err = connection.QueryRowContext(
-		ctx,
-		`
-			SELECT * 
-			FROM categories AS c
-			WHERE c.id = $1
-		`,
-		id,
-	).Scan(columns...)
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(categoriesTableName).
+		Where(sq.Eq{idColumnName: id}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
 
 	if err != nil {
+		return nil, err
+	}
+
+	category := &entities.Category{}
+	columns := db.GetEntityColumns(category)
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
 	}
 

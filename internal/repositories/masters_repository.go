@@ -3,11 +3,19 @@ package repositories
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
+)
+
+const (
+	mastersTableName     = "masters"
+	userIDColumnName     = "user_id"
+	masterInfoColumnName = "info"
 )
 
 func NewMastersRepository(
@@ -45,12 +53,20 @@ func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Ma
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(mastersTableName).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := connection.QueryContext(
 		ctx,
-		`
-			SELECT * 
-			FROM masters
-		`,
+		stmt,
+		params...,
 	)
 
 	if err != nil {
@@ -101,19 +117,20 @@ func (repo *MastersRepository) GetMasterByUserID(ctx context.Context, userID uin
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	master := &entities.Master{}
-	columns := db.GetEntityColumns(master)
-	err = connection.QueryRowContext(
-		ctx,
-		`
-			SELECT * 
-			FROM masters AS m
-			WHERE m.user_id = $1
-		`,
-		userID,
-	).Scan(columns...)
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(mastersTableName).
+		Where(sq.Eq{userIDColumnName: userID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
 
 	if err != nil {
+		return nil, err
+	}
+
+	master := &entities.Master{}
+	columns := db.GetEntityColumns(master)
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
 	}
 
@@ -134,19 +151,20 @@ func (repo *MastersRepository) GetMasterByID(ctx context.Context, id uint64) (*e
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	master := &entities.Master{}
-	columns := db.GetEntityColumns(master)
-	err = connection.QueryRowContext(
-		ctx,
-		`
-			SELECT * 
-			FROM masters AS m
-			WHERE m.id = $1
-		`,
-		id,
-	).Scan(columns...)
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(mastersTableName).
+		Where(sq.Eq{idColumnName: id}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
 
 	if err != nil {
+		return nil, err
+	}
+
+	master := &entities.Master{}
+	columns := db.GetEntityColumns(master)
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
 	}
 
@@ -170,19 +188,26 @@ func (repo *MastersRepository) RegisterMaster(
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	var masterID uint64
-	err = connection.QueryRowContext(
-		ctx,
-		`
-			INSERT INTO masters (user_id, info) 
-			VALUES ($1, $2)
-			RETURNING masters.id
-		`,
-		masterData.UserID,
-		masterData.Info,
-	).Scan(&masterID)
+	stmt, params, err := sq.
+		Insert(mastersTableName).
+		Columns(
+			userIDColumnName,
+			masterInfoColumnName,
+		).
+		Values(
+			masterData.UserID,
+			masterData.Info,
+		).
+		Suffix(returningIDSuffix).
+		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
+		ToSql()
 
 	if err != nil {
+		return 0, err
+	}
+
+	var masterID uint64
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(&masterID); err != nil {
 		return 0, err
 	}
 

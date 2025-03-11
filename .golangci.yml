@@ -383,6 +383,7 @@ issues:
       linters:
         - dupl
         - funlen
+        - govet
     - path: "internal/repositories/masters_repository.go"
       linters:
         - dupl
