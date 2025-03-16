@@ -73,3 +73,7 @@ func (service *MastersService) RegisterMaster(
 
 	return service.mastersRepository.RegisterMaster(ctx, masterData)
 }
+
+func (service *MastersService) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+	return service.mastersRepository.UpdateMaster(ctx, masterData)
+}

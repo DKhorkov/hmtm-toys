@@ -23,6 +23,7 @@ type MastersServiceClient interface {
 	GetMaster(ctx context.Context, in *GetMasterIn, opts ...grpc.CallOption) (*GetMasterOut, error)
 	GetMasterByUser(ctx context.Context, in *GetMasterByUserIn, opts ...grpc.CallOption) (*GetMasterOut, error)
 	GetMasters(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMastersOut, error)
+	UpdateMaster(ctx context.Context, in *UpdateMasterIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type mastersServiceClient struct {
@@ -69,6 +70,15 @@ func (c *mastersServiceClient) GetMasters(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
+func (c *mastersServiceClient) UpdateMaster(ctx context.Context, in *UpdateMasterIn, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/masters.MastersService/UpdateMaster", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MastersServiceServer is the server API for MastersService service.
 // All implementations must embed UnimplementedMastersServiceServer
 // for forward compatibility
@@ -77,6 +87,7 @@ type MastersServiceServer interface {
 	GetMaster(context.Context, *GetMasterIn) (*GetMasterOut, error)
 	GetMasterByUser(context.Context, *GetMasterByUserIn) (*GetMasterOut, error)
 	GetMasters(context.Context, *emptypb.Empty) (*GetMastersOut, error)
+	UpdateMaster(context.Context, *UpdateMasterIn) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMastersServiceServer()
 }
 
@@ -95,6 +106,9 @@ func (UnimplementedMastersServiceServer) GetMasterByUser(context.Context, *GetMa
 }
 func (UnimplementedMastersServiceServer) GetMasters(context.Context, *emptypb.Empty) (*GetMastersOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasters not implemented")
+}
+func (UnimplementedMastersServiceServer) UpdateMaster(context.Context, *UpdateMasterIn) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMaster not implemented")
 }
 func (UnimplementedMastersServiceServer) mustEmbedUnimplementedMastersServiceServer() {}
 
@@ -181,6 +195,24 @@ func _MastersService_GetMasters_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MastersService_UpdateMaster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMasterIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MastersServiceServer).UpdateMaster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/masters.MastersService/UpdateMaster",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MastersServiceServer).UpdateMaster(ctx, req.(*UpdateMasterIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MastersService_ServiceDesc is the grpc.ServiceDesc for MastersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -203,6 +235,10 @@ var MastersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMasters",
 			Handler:    _MastersService_GetMasters_Handler,
+		},
+		{
+			MethodName: "UpdateMaster",
+			Handler:    _MastersService_UpdateMaster_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

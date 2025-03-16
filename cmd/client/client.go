@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
-	"github.com/DKhorkov/libs/requestid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/emptypb"
+
+	"github.com/DKhorkov/libs/pointers"
+	"github.com/DKhorkov/libs/requestid"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
@@ -65,8 +66,8 @@ func main() {
 	}
 
 	masterID, err := client.RegisterMaster(ctx, &toys.RegisterMasterIn{
-		UserID: 1,
-		Info:   "testInfo",
+		UserID: 30,
+		Info:   pointers.New[string]("test master"),
 	})
 	fmt.Println(err, masterID)
 
@@ -109,6 +110,12 @@ func main() {
 		CategoryID:  1,
 		TagIDs:      []uint32{1, 2, 3, 4},
 		Attachments: []string{"newRef", "someRef", "anothererf"},
+	})
+	fmt.Println(err)
+
+	_, err = client.UpdateMaster(ctx, &toys.UpdateMasterIn{
+		ID:   masterID.GetMasterID(),
+		Info: pointers.New[string]("updated test master info"),
 	})
 	fmt.Println(err)
 }

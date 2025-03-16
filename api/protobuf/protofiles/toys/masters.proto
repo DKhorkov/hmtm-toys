@@ -13,11 +13,12 @@ service MastersService {
   rpc GetMaster(GetMasterIn) returns (GetMasterOut) {}
   rpc GetMasterByUser(GetMasterByUserIn) returns (GetMasterOut) {}
   rpc GetMasters(google.protobuf.Empty) returns (GetMastersOut) {}
+  rpc UpdateMaster(UpdateMasterIn) returns (google.protobuf.Empty) {}
 }
 
 message RegisterMasterIn {
   uint64 userID = 1;
-  string info = 2;
+  optional string info = 2;
 }
 
 message RegisterMasterOut {
@@ -31,7 +32,7 @@ message GetMasterIn {
 message GetMasterOut {
   uint64 ID = 1;
   uint64 userID = 2;
-  string info = 3;
+  optional string info = 3;
   google.protobuf.Timestamp createdAt = 5;
   google.protobuf.Timestamp updatedAt = 6;
 }
@@ -42,4 +43,9 @@ message GetMastersOut {
 
 message GetMasterByUserIn {
   uint64 userID = 1;
+}
+
+message UpdateMasterIn {
+  uint64 ID = 1;
+  optional string info = 2;
 }

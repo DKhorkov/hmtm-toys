@@ -10,6 +10,7 @@ import (
 	"go.uber.org/mock/gomock"
 
 	loggermock "github.com/DKhorkov/libs/logging/mocks"
+	"github.com/DKhorkov/libs/pointers"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -232,7 +233,7 @@ func TestMastersServiceRegisterMaster(t *testing.T) {
 	}{
 		{
 			name:     "register Master success",
-			master:   entities.RegisterMasterDTO{Info: "test", UserID: 1},
+			master:   entities.RegisterMasterDTO{Info: pointers.New[string]("test"), UserID: 1},
 			expected: 1,
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
@@ -243,7 +244,7 @@ func TestMastersServiceRegisterMaster(t *testing.T) {
 
 				mastersRepository.
 					EXPECT().
-					RegisterMaster(gomock.Any(), entities.RegisterMasterDTO{Info: "test", UserID: 1}).
+					RegisterMaster(gomock.Any(), entities.RegisterMasterDTO{Info: pointers.New[string]("test"), UserID: 1}).
 					Return(uint64(1), nil).
 					Times(1)
 			},
@@ -251,7 +252,7 @@ func TestMastersServiceRegisterMaster(t *testing.T) {
 		},
 		{
 			name:   "register Master fail - already exists",
-			master: entities.RegisterMasterDTO{Info: "test", UserID: 1},
+			master: entities.RegisterMasterDTO{Info: pointers.New[string]("test"), UserID: 1},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
 					EXPECT().

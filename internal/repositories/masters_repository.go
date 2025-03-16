@@ -213,3 +213,37 @@ func (repo *MastersRepository) RegisterMaster(
 
 	return masterID, nil
 }
+
+func (repo *MastersRepository) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
+	stmt, params, err := sq.
+		Update(mastersTableName).
+		Where(sq.Eq{idColumnName: masterData.ID}).
+		Set(masterInfoColumnName, masterData.Info).
+		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = connection.ExecContext(
+		ctx,
+		stmt,
+		params...,
+	)
+
+	return err
+}

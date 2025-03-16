@@ -31,6 +31,31 @@ type ServerAPI struct {
 	logger   logging.Logger
 }
 
+func (api *ServerAPI) UpdateMaster(ctx context.Context, in *toys.UpdateMasterIn) (*emptypb.Empty, error) {
+	masterData := entities.UpdateMasterDTO{
+		ID:   in.GetID(),
+		Info: in.Info,
+	}
+
+	if err := api.useCases.UpdateMaster(ctx, masterData); err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to update Master with ID=%d", in.GetID()),
+			err,
+		)
+
+		switch {
+		case errors.As(err, &customerrors.MasterNotFoundError{}):
+			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
+		default:
+			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+		}
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (api *ServerAPI) GetMasterByUser(ctx context.Context, in *toys.GetMasterByUserIn) (*toys.GetMasterOut, error) {
 	master, err := api.useCases.GetMasterByUserID(ctx, in.GetUserID())
 	if err != nil {
@@ -112,7 +137,7 @@ func (api *ServerAPI) GetMasters(ctx context.Context, _ *emptypb.Empty) (*toys.G
 func (api *ServerAPI) RegisterMaster(ctx context.Context, in *toys.RegisterMasterIn) (*toys.RegisterMasterOut, error) {
 	masterData := entities.RegisterMasterDTO{
 		UserID: in.GetUserID(),
-		Info:   in.GetInfo(),
+		Info:   in.Info,
 	}
 
 	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
