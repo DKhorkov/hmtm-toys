@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS masters
 (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER   NOT NULL UNIQUE,
-    info       TEXT      NOT NULL,
+    info       TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

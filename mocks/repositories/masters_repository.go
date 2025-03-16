@@ -100,3 +100,17 @@ func (mr *MockMastersRepositoryMockRecorder) RegisterMaster(ctx, masterData any)
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterMaster", reflect.TypeOf((*MockMastersRepository)(nil).RegisterMaster), ctx, masterData)
 }
+
+// UpdateMaster mocks base method.
+func (m *MockMastersRepository) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateMaster", ctx, masterData)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateMaster indicates an expected call of UpdateMaster.
+func (mr *MockMastersRepositoryMockRecorder) UpdateMaster(ctx, masterData any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaster", reflect.TypeOf((*MockMastersRepository)(nil).UpdateMaster), ctx, masterData)
+}

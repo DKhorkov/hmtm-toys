@@ -231,3 +231,11 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 
 	return useCases.toysService.UpdateToy(ctx, toyData)
 }
+
+func (useCases *UseCases) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+	if _, err := useCases.mastersService.GetMasterByID(ctx, masterData.ID); err != nil {
+		return err
+	}
+
+	return useCases.mastersService.UpdateMaster(ctx, masterData)
+}

@@ -22,6 +22,7 @@ type MastersRepository interface {
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	RegisterMaster(ctx context.Context, masterData entities.RegisterMasterDTO) (masterID uint64, err error)
+	UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error
 }
 
 //go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/categories_repository.go -exclude_interfaces=MastersRepository,TagsRepository,ToysRepository -package=mockrepositories
