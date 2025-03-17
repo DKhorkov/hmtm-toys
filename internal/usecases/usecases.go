@@ -12,12 +12,14 @@ func New(
 	categoriesService interfaces.CategoriesService,
 	mastersService interfaces.MastersService,
 	toysService interfaces.ToysService,
+	ssoService interfaces.SsoService,
 ) *UseCases {
 	return &UseCases{
 		tagsService:       tagsService,
 		categoriesService: categoriesService,
 		mastersService:    mastersService,
 		toysService:       toysService,
+		ssoService:        ssoService,
 	}
 }
 
@@ -26,6 +28,7 @@ type UseCases struct {
 	categoriesService interfaces.CategoriesService
 	mastersService    interfaces.MastersService
 	toysService       interfaces.ToysService
+	ssoService        interfaces.SsoService
 }
 
 func (useCases *UseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
@@ -111,6 +114,10 @@ func (useCases *UseCases) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
+	if _, err := useCases.ssoService.GetUserByID(ctx, masterData.UserID); err != nil {
+		return 0, err
+	}
+
 	return useCases.mastersService.RegisterMaster(ctx, masterData)
 }
 

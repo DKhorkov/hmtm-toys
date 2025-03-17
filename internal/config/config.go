@@ -40,6 +40,16 @@ func New() Config {
 				),
 			},
 		},
+		Clients: ClientsConfig{
+			SSO: ClientConfig{
+				Host:         loadenv.GetEnv("SSO_CLIENT_HOST", "0.0.0.0"),
+				Port:         loadenv.GetEnvAsInt("SSO_CLIENT_PORT", 8070),
+				RetriesCount: loadenv.GetEnvAsInt("SSO_RETRIES_COUNT", 3),
+				RetryTimeout: time.Second * time.Duration(
+					loadenv.GetEnvAsInt("SSO_RETRIES_TIMEOUT", 1),
+				),
+			},
+		},
 		Logging: logging.Config{
 			Level:       logging.Levels.DEBUG,
 			LogFilePath: fmt.Sprintf("logs/%s.log", time.Now().UTC().Format("02-01-2006")),
@@ -182,6 +192,33 @@ func New() Config {
 						},
 					},
 				},
+				Clients: SpanClients{
+					SSO: tracing.SpanConfig{
+						Opts: []trace.SpanStartOption{
+							trace.WithAttributes(
+								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+							),
+						},
+						Events: tracing.SpanEventsConfig{
+							Start: tracing.SpanEventConfig{
+								Name: "Calling gRPC SSO client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+							End: tracing.SpanEventConfig{
+								Name: "Received response from gRPC SSO client",
+								Opts: []trace.EventOption{
+									trace.WithAttributes(
+										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									),
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -200,6 +237,11 @@ type TracingConfig struct {
 type SpansConfig struct {
 	Root         tracing.SpanConfig
 	Repositories SpanRepositories
+	Clients      SpanClients
+}
+
+type SpanClients struct {
+	SSO tracing.SpanConfig
 }
 
 type SpanRepositories struct {
@@ -209,8 +251,20 @@ type SpanRepositories struct {
 	Toys       tracing.SpanConfig
 }
 
+type ClientsConfig struct {
+	SSO ClientConfig
+}
+
+type ClientConfig struct {
+	Host         string
+	Port         int
+	RetryTimeout time.Duration
+	RetriesCount int
+}
+
 type Config struct {
 	HTTP        HTTPConfig
+	Clients     ClientsConfig
 	Database    db.Config
 	Logging     logging.Config
 	Tracing     TracingConfig
