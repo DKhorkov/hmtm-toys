@@ -412,3 +412,9 @@ issues:
     - path: "cmd/server/server.go"
       linters:
         - funlen
+    - path: "internal/clients/sso/grpc/client.go"
+      linters:
+        - gosec
+    - path: "internal/repositories/sso_repository.go"
+      linters:
+        - protogetter # to be able using optional fields like *string

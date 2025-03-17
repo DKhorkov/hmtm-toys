@@ -8,6 +8,7 @@ import (
 	"github.com/DKhorkov/libs/tracing"
 
 	"github.com/DKhorkov/hmtm-toys/internal/app"
+	ssogrpcclient "github.com/DKhorkov/hmtm-toys/internal/clients/sso/grpc"
 	"github.com/DKhorkov/hmtm-toys/internal/config"
 	grpccontroller "github.com/DKhorkov/hmtm-toys/internal/controllers/grpc"
 	"github.com/DKhorkov/hmtm-toys/internal/repositories"
@@ -52,6 +53,23 @@ func main() {
 			logging.LogError(logger, "Error shutting down tracer", err)
 		}
 	}()
+
+	ssoClient, err := ssogrpcclient.New(
+		settings.Clients.SSO.Host,
+		settings.Clients.SSO.Port,
+		settings.Clients.SSO.RetriesCount,
+		settings.Clients.SSO.RetryTimeout,
+		logger,
+		traceProvider,
+		settings.Tracing.Spans.Clients.SSO,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ssoRepository := repositories.NewSsoRepository(ssoClient)
+	ssoService := services.NewSsoService(ssoRepository, logger)
 
 	tagsRepository := repositories.NewTagsRepository(
 		dbConnector,
@@ -106,6 +124,7 @@ func main() {
 		categoriesService,
 		mastersService,
 		toysService,
+		ssoService,
 	)
 
 	controller := grpccontroller.New(

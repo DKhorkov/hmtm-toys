@@ -15,3 +15,7 @@ type MastersService interface {
 type CategoriesService interface {
 	CategoriesRepository
 }
+
+type SsoService interface {
+	SsoRepository
+}
