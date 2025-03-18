@@ -103,11 +103,11 @@ func main() {
 
 	_, err = client.UpdateToy(ctx, &toys.UpdateToyIn{
 		ID:          2,
-		Name:        "23",
-		Description: "up",
-		Price:       10.,
-		Quantity:    1,
-		CategoryID:  1,
+		Description: pointers.New[string]("test"),
+		Name:        pointers.New[string]("test"),
+		CategoryID:  pointers.New[uint32](1),
+		Price:       pointers.New[float32](10),
+		Quantity:    pointers.New[uint32](1),
 		TagIDs:      []uint32{1, 2, 3, 4},
 		Attachments: []string{"newRef", "someRef", "anothererf"},
 	})
