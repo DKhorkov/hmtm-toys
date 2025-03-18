@@ -33,11 +33,11 @@ type ServerAPI struct {
 func (api *ServerAPI) UpdateToy(ctx context.Context, in *toys.UpdateToyIn) (*emptypb.Empty, error) {
 	toyData := entities.RawUpdateToyDTO{
 		ID:          in.GetID(),
-		CategoryID:  in.GetCategoryID(),
-		Name:        in.GetName(),
-		Description: in.GetDescription(),
-		Price:       in.GetPrice(),
-		Quantity:    in.GetQuantity(),
+		CategoryID:  in.CategoryID,
+		Name:        in.Name,
+		Description: in.Description,
+		Price:       in.Price,
+		Quantity:    in.Quantity,
 		TagIDs:      in.GetTagIDs(),
 		Attachments: in.GetAttachments(),
 	}

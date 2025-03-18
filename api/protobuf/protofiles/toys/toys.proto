@@ -78,11 +78,11 @@ message DeleteToyIn {
 
 message UpdateToyIn {
   uint64 ID = 1;
-  string name = 2;
-  string description = 3;
-  float price = 4;
-  uint32 quantity = 5;
-  uint32 categoryID = 6;
+  optional string name = 2;
+  optional string description = 3;
+  optional float price = 4;
+  optional uint32 quantity = 5;
+  optional uint32 categoryID = 6;
   repeated uint32 tagIDs = 7;
   repeated string attachments = 8;
 }

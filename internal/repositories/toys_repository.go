@@ -543,17 +543,32 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 		}
 	}()
 
-	stmt, params, err := sq.
+	builder := sq.
 		Update(toysTableName).
 		Where(sq.Eq{idColumnName: toyData.ID}).
-		Set(categoryIDColumnName, toyData.CategoryID).
-		Set(toyNameColumnName, toyData.Name).
-		Set(toyDescriptionColumnName, toyData.Description).
-		Set(toyPriceColumnName, toyData.Price).
-		Set(toyQuantityColumnName, toyData.Quantity).
-		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
-		ToSql()
+		PlaceholderFormat(sq.Dollar) // pq postgres driver works only with $ placeholders
 
+	if toyData.CategoryID != nil {
+		builder = builder.Set(categoryIDColumnName, toyData.CategoryID)
+	}
+
+	if toyData.Name != nil {
+		builder = builder.Set(toyNameColumnName, toyData.Name)
+	}
+
+	if toyData.Description != nil {
+		builder = builder.Set(toyDescriptionColumnName, toyData.Description)
+	}
+
+	if toyData.Price != nil {
+		builder = builder.Set(toyPriceColumnName, toyData.Price)
+	}
+
+	if toyData.Quantity != nil {
+		builder = builder.Set(toyQuantityColumnName, toyData.Quantity)
+	}
+
+	stmt, params, err := builder.ToSql()
 	if err != nil {
 		return err
 	}

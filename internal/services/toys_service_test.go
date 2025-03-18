@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/DKhorkov/libs/pointers"
+
 	"github.com/DKhorkov/hmtm-toys/internal/services"
 
 	"github.com/stretchr/testify/assert"
@@ -378,11 +380,11 @@ func TestToysServiceUpdateToy(t *testing.T) {
 			name: "add Toy success",
 			toy: entities.UpdateToyDTO{
 				ID:                    1,
-				Description:           "test",
-				Name:                  "test",
-				CategoryID:            1,
-				Price:                 10,
-				Quantity:              15,
+				Description:           pointers.New[string]("test"),
+				Name:                  pointers.New[string]("test"),
+				CategoryID:            pointers.New[uint32](1),
+				Price:                 pointers.New[float32](10),
+				Quantity:              pointers.New[uint32](1),
 				TagIDsToAdd:           []uint32{1, 2},
 				TagIDsToDelete:        []uint32{3, 4},
 				AttachmentsToAdd:      []string{"test"},
@@ -395,11 +397,11 @@ func TestToysServiceUpdateToy(t *testing.T) {
 						gomock.Any(),
 						entities.UpdateToyDTO{
 							ID:                    1,
-							Description:           "test",
-							Name:                  "test",
-							CategoryID:            1,
-							Price:                 10,
-							Quantity:              15,
+							Description:           pointers.New[string]("test"),
+							Name:                  pointers.New[string]("test"),
+							CategoryID:            pointers.New[uint32](1),
+							Price:                 pointers.New[float32](10),
+							Quantity:              pointers.New[uint32](1),
 							TagIDsToAdd:           []uint32{1, 2},
 							TagIDsToDelete:        []uint32{3, 4},
 							AttachmentsToAdd:      []string{"test"},
@@ -414,11 +416,11 @@ func TestToysServiceUpdateToy(t *testing.T) {
 			name: "add Toy fail - already exists",
 			toy: entities.UpdateToyDTO{
 				ID:                    1,
-				Description:           "test",
-				Name:                  "test",
-				CategoryID:            1,
-				Price:                 10,
-				Quantity:              15,
+				Description:           pointers.New[string]("test"),
+				Name:                  pointers.New[string]("test"),
+				CategoryID:            pointers.New[uint32](1),
+				Price:                 pointers.New[float32](10),
+				Quantity:              pointers.New[uint32](1),
 				TagIDsToAdd:           []uint32{1, 2},
 				TagIDsToDelete:        []uint32{3, 4},
 				AttachmentsToAdd:      []string{"test"},
@@ -431,11 +433,11 @@ func TestToysServiceUpdateToy(t *testing.T) {
 						gomock.Any(),
 						entities.UpdateToyDTO{
 							ID:                    1,
-							Description:           "test",
-							Name:                  "test",
-							CategoryID:            1,
-							Price:                 10,
-							Quantity:              15,
+							Description:           pointers.New[string]("test"),
+							Name:                  pointers.New[string]("test"),
+							CategoryID:            pointers.New[uint32](1),
+							Price:                 pointers.New[float32](10),
+							Quantity:              pointers.New[uint32](1),
 							TagIDsToAdd:           []uint32{1, 2},
 							TagIDsToDelete:        []uint32{3, 4},
 							AttachmentsToAdd:      []string{"test"},

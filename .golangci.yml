@@ -405,6 +405,7 @@ issues:
     - path: "internal/controllers/grpc/toys/server.go"
       linters:
         - dupl
+        - protogetter # to be able using optional fields like *string
     - path: "internal/config/config.go"
       linters:
         - nosprintfhostport
