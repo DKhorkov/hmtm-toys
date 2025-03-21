@@ -360,6 +360,7 @@ issues:
       linters:
         - govet
         - nilerr
+        - gocognit
     - path: "cmd/client/client.go"
       linters:
         - mnd
