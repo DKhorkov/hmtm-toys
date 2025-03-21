@@ -167,6 +167,18 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 		return err
 	}
 
+	if rawToyData.CategoryID != nil {
+		if _, err = useCases.GetCategoryByID(ctx, *rawToyData.CategoryID); err != nil {
+			return err
+		}
+	}
+
+	for _, tagID := range rawToyData.TagIDs {
+		if _, err = useCases.GetTagByID(ctx, tagID); err != nil {
+			return err
+		}
+	}
+
 	// Old Toy Tags IDs set:
 	oldTagIDsSet := make(map[uint32]struct{}, len(toy.Tags))
 	for _, tag := range toy.Tags {
