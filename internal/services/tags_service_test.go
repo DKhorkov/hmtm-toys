@@ -17,7 +17,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestTagsServiceGetTagByID(t *testing.T) {
+func TestTagsService_GetTagByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		tagID         uint32
@@ -83,7 +83,7 @@ func TestTagsServiceGetTagByID(t *testing.T) {
 	}
 }
 
-func TestTagsServiceGetAllTags(t *testing.T) {
+func TestTagsService_GetAllTags(t *testing.T) {
 	testCases := []struct {
 		name          string
 		expected      []entities.Tag
@@ -155,7 +155,7 @@ func TestTagsServiceGetAllTags(t *testing.T) {
 	}
 }
 
-func TestTagsServiceCreateTags(t *testing.T) {
+func TestTagsService_CreateTags(t *testing.T) {
 	testCases := []struct {
 		name           string
 		tagsData       []entities.CreateTagDTO

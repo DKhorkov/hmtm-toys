@@ -365,21 +365,9 @@ issues:
       linters:
         - mnd
         - govet
-    - path: "internal/services/tags_service.go"
+    - path: "internal/services/sso_service_test.go"
       linters:
-        - revive
-    - path: "internal/services/masters_service.go"
-      linters:
-        - revive
-    - path: "internal/services/categories_service.go"
-      linters:
-        - revive
-    - path: "internal/services/toys_service.go"
-      linters:
-        - revive
-    - path: "internal/services/toys_service_test.go"
-      linters:
-        - testpackage
+        - gochecknoglobals
     - path: "internal/repositories/tags_repository.go"
       linters:
         - dupl

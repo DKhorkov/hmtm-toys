@@ -18,7 +18,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestMastersServiceGetMasterByID(t *testing.T) {
+func TestMastersService_GetMasterByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		masterID      uint64
@@ -84,7 +84,7 @@ func TestMastersServiceGetMasterByID(t *testing.T) {
 	}
 }
 
-func TestMastersServiceGetMasterByUserID(t *testing.T) {
+func TestMastersService_GetMasterByUserID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		userID        uint64
@@ -150,7 +150,7 @@ func TestMastersServiceGetMasterByUserID(t *testing.T) {
 	}
 }
 
-func TestMastersServiceGetAllMasters(t *testing.T) {
+func TestMastersService_GetAllMasters(t *testing.T) {
 	testCases := []struct {
 		name          string
 		expected      []entities.Master
@@ -222,7 +222,7 @@ func TestMastersServiceGetAllMasters(t *testing.T) {
 	}
 }
 
-func TestMastersServiceRegisterMaster(t *testing.T) {
+func TestMastersService_RegisterMaster(t *testing.T) {
 	testCases := []struct {
 		name          string
 		master        entities.RegisterMasterDTO
@@ -282,6 +282,56 @@ func TestMastersServiceRegisterMaster(t *testing.T) {
 				require.Error(t, err)
 				require.IsType(t, tc.err, err)
 				assert.Zero(t, masterID)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestMastersService_UpdateMaster(t *testing.T) {
+	testCases := []struct {
+		name          string
+		master        entities.UpdateMasterDTO
+		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name: "update Master success",
+			master: entities.UpdateMasterDTO{
+				ID:   1,
+				Info: pointers.New[string]("test"),
+			},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					UpdateMaster(
+						gomock.Any(),
+						entities.UpdateMasterDTO{
+							ID:   1,
+							Info: pointers.New[string]("test"),
+						}).
+					Return(nil).
+					Times(1)
+			},
+		},
+	}
+
+	mockController := gomock.NewController(t)
+	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	mastersService := services.NewMastersService(mastersRepository, logger)
+	ctx := context.Background()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(mastersRepository, logger)
+			}
+
+			err := mastersService.UpdateMaster(ctx, tc.master)
+			if tc.errorExpected {
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
