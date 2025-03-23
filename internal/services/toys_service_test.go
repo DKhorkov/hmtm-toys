@@ -20,7 +20,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestToysServiceGetToyByID(t *testing.T) {
+func TestToysService_GetToyByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toyID         uint64
@@ -86,7 +86,7 @@ func TestToysServiceGetToyByID(t *testing.T) {
 	}
 }
 
-func TestToysServiceGetAllToys(t *testing.T) {
+func TestToysService_GetAllToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		expected      []entities.Toy
@@ -158,7 +158,7 @@ func TestToysServiceGetAllToys(t *testing.T) {
 	}
 }
 
-func TestToysServiceGetMasterToys(t *testing.T) {
+func TestToysService_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		masterID      uint64
@@ -230,7 +230,7 @@ func TestToysServiceGetMasterToys(t *testing.T) {
 	}
 }
 
-func TestToysServiceAddToy(t *testing.T) {
+func TestToysService_AddToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toy           entities.AddToyDTO
@@ -315,7 +315,7 @@ func TestToysServiceAddToy(t *testing.T) {
 	}
 }
 
-func TestToysServiceDeleteToy(t *testing.T) {
+func TestToysService_DeleteToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toyID         uint64
@@ -369,7 +369,7 @@ func TestToysServiceDeleteToy(t *testing.T) {
 	}
 }
 
-func TestToysServiceUpdateToy(t *testing.T) {
+func TestToysService_UpdateToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		toy           entities.UpdateToyDTO

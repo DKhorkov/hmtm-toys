@@ -17,7 +17,7 @@ import (
 	mockrepositories "github.com/DKhorkov/hmtm-toys/mocks/repositories"
 )
 
-func TestCategoriesServiceGetCategoryByID(t *testing.T) {
+func TestCategoriesService_GetCategoryByID(t *testing.T) {
 	testCases := []struct {
 		name          string
 		categoryID    uint32
@@ -83,7 +83,7 @@ func TestCategoriesServiceGetCategoryByID(t *testing.T) {
 	}
 }
 
-func TestCategoriesServiceGetAllCategories(t *testing.T) {
+func TestCategoriesService_GetAllCategories(t *testing.T) {
 	testCases := []struct {
 		name          string
 		expected      []entities.Category
