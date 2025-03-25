@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
-
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/loadenv"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func New() Config {
@@ -76,7 +75,10 @@ func New() Config {
 							Name: "Calling handler",
 							Opts: []trace.EventOption{
 								trace.WithAttributes(
-									attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									attribute.String(
+										"Environment",
+										loadenv.GetEnv("ENVIRONMENT", "local"),
+									),
 								),
 							},
 						},
@@ -84,7 +86,10 @@ func New() Config {
 							Name: "Received response from handler",
 							Opts: []trace.EventOption{
 								trace.WithAttributes(
-									attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+									attribute.String(
+										"Environment",
+										loadenv.GetEnv("ENVIRONMENT", "local"),
+									),
 								),
 							},
 						},
@@ -94,7 +99,10 @@ func New() Config {
 					Categories: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -102,7 +110,10 @@ func New() Config {
 								Name: "Calling database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -110,7 +121,10 @@ func New() Config {
 								Name: "Received response from database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -119,7 +133,10 @@ func New() Config {
 					Tags: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -127,7 +144,10 @@ func New() Config {
 								Name: "Calling database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -135,7 +155,10 @@ func New() Config {
 								Name: "Received response from database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -144,7 +167,10 @@ func New() Config {
 					Toys: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -152,7 +178,10 @@ func New() Config {
 								Name: "Calling database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -160,7 +189,10 @@ func New() Config {
 								Name: "Received response from database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -169,7 +201,10 @@ func New() Config {
 					Masters: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -177,7 +212,10 @@ func New() Config {
 								Name: "Calling database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -185,7 +223,10 @@ func New() Config {
 								Name: "Received response from database",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -196,7 +237,10 @@ func New() Config {
 					SSO: tracing.SpanConfig{
 						Opts: []trace.SpanStartOption{
 							trace.WithAttributes(
-								attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+								attribute.String(
+									"Environment",
+									loadenv.GetEnv("ENVIRONMENT", "local"),
+								),
 							),
 						},
 						Events: tracing.SpanEventsConfig{
@@ -204,7 +248,10 @@ func New() Config {
 								Name: "Calling gRPC SSO client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},
@@ -212,7 +259,10 @@ func New() Config {
 								Name: "Received response from gRPC SSO client",
 								Opts: []trace.EventOption{
 									trace.WithAttributes(
-										attribute.String("Environment", loadenv.GetEnv("ENVIRONMENT", "local")),
+										attribute.String(
+											"Environment",
+											loadenv.GetEnv("ENVIRONMENT", "local"),
+										),
 									),
 								},
 							},

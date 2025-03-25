@@ -46,6 +46,9 @@ func (service *TagsService) GetAllTags(ctx context.Context) ([]entities.Tag, err
 	return service.tagsRepository.GetAllTags(ctx)
 }
 
-func (service *TagsService) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+func (service *TagsService) CreateTags(
+	ctx context.Context,
+	tagsData []entities.CreateTagDTO,
+) ([]uint32, error) {
 	return service.tagsRepository.CreateTags(ctx, tagsData)
 }

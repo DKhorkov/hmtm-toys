@@ -32,7 +32,6 @@ func main() {
 		db.WithMaxConnectionLifetime(settings.Database.Pool.MaxConnectionLifetime),
 		db.WithMaxConnectionIdleTime(settings.Database.Pool.MaxConnectionIdleTime),
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -63,7 +62,6 @@ func main() {
 		traceProvider,
 		settings.Tracing.Spans.Clients.SSO,
 	)
-
 	if err != nil {
 		panic(err)
 	}

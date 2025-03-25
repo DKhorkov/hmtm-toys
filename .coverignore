@@ -1,3 +1,6 @@
 /mocks/
 /api/
 /cmd/
+/internal/config
+/internal/clients
+/internal/app

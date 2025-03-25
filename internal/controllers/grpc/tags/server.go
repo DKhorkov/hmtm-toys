@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DKhorkov/libs/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	customgrpc "github.com/DKhorkov/libs/grpc"
-	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
@@ -32,7 +32,10 @@ type ServerAPI struct {
 }
 
 // CreateTags create new tags with provided data.
-func (api *ServerAPI) CreateTags(ctx context.Context, in *toys.CreateTagsIn) (*toys.CreateTagsOut, error) {
+func (api *ServerAPI) CreateTags(
+	ctx context.Context,
+	in *toys.CreateTagsIn,
+) (*toys.CreateTagsOut, error) {
 	tagsData := make([]entities.CreateTagDTO, len(in.GetTags()))
 	for i, tag := range in.GetTags() {
 		tagsData[i] = entities.CreateTagDTO{

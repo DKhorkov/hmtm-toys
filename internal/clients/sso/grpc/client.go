@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"time"
 
-	grpclogging "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
-	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/retry"
+	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
+	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/tracing"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
 	customgrpc "github.com/DKhorkov/libs/grpc/interceptors"
-	"github.com/DKhorkov/libs/logging"
-	"github.com/DKhorkov/libs/tracing"
+	grpclogging "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/retry"
 )
 
 type Client struct {
@@ -60,7 +60,6 @@ func New(
 			grpcretry.UnaryClientInterceptor(retryOptions...),
 		),
 	)
-
 	if err != nil {
 		logging.LogError(
 			logger,

@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DKhorkov/libs/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	customgrpc "github.com/DKhorkov/libs/grpc"
-	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
@@ -120,13 +120,19 @@ func (api *ServerAPI) GetToys(ctx context.Context, _ *emptypb.Empty) (*toys.GetT
 }
 
 // GetMasterToys handler returns all Toys for master with provided ID.
-func (api *ServerAPI) GetMasterToys(ctx context.Context, in *toys.GetMasterToysIn) (*toys.GetToysOut, error) {
+func (api *ServerAPI) GetMasterToys(
+	ctx context.Context,
+	in *toys.GetMasterToysIn,
+) (*toys.GetToysOut, error) {
 	masterToys, err := api.useCases.GetMasterToys(ctx, in.GetMasterID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get all Toys for Master with ID=%d", in.GetMasterID()),
+			fmt.Sprintf(
+				"Error occurred while trying to get all Toys for Master with ID=%d",
+				in.GetMasterID(),
+			),
 			err,
 		)
 
@@ -141,13 +147,19 @@ func (api *ServerAPI) GetMasterToys(ctx context.Context, in *toys.GetMasterToysI
 	return &toys.GetToysOut{Toys: processedToys}, nil
 }
 
-func (api *ServerAPI) GetUserToys(ctx context.Context, in *toys.GetUserToysIn) (*toys.GetToysOut, error) {
+func (api *ServerAPI) GetUserToys(
+	ctx context.Context,
+	in *toys.GetUserToysIn,
+) (*toys.GetToysOut, error) {
 	userToys, err := api.useCases.GetUserToys(ctx, in.GetUserID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get all Toys for User with ID=%d", in.GetUserID()),
+			fmt.Sprintf(
+				"Error occurred while trying to get all Toys for User with ID=%d",
+				in.GetUserID(),
+			),
 			err,
 		)
 

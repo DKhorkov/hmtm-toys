@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
-
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
@@ -37,7 +37,9 @@ type CategoriesRepository struct {
 	spanConfig    tracing.SpanConfig
 }
 
-func (repo *CategoriesRepository) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (repo *CategoriesRepository) GetAllCategories(
+	ctx context.Context,
+) ([]entities.Category, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -56,7 +58,6 @@ func (repo *CategoriesRepository) GetAllCategories(ctx context.Context) ([]entit
 		From(categoriesTableName).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,6 @@ func (repo *CategoriesRepository) GetAllCategories(ctx context.Context) ([]entit
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,10 @@ func (repo *CategoriesRepository) GetAllCategories(ctx context.Context) ([]entit
 	return categories, nil
 }
 
-func (repo *CategoriesRepository) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (repo *CategoriesRepository) GetCategoryByID(
+	ctx context.Context,
+	id uint32,
+) (*entities.Category, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -121,7 +124,6 @@ func (repo *CategoriesRepository) GetCategoryByID(ctx context.Context, id uint32
 		Where(sq.Eq{idColumnName: id}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}

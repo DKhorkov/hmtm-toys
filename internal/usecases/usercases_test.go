@@ -1,0 +1,2030 @@
+package usecases
+
+import (
+	"context"
+	"errors"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
+
+	"github.com/DKhorkov/libs/pointers"
+
+	"github.com/DKhorkov/hmtm-toys/internal/entities"
+	mockservices "github.com/DKhorkov/hmtm-toys/mocks/services"
+)
+
+const (
+	tagID      uint32 = 1
+	categoryID uint32 = 1
+	toyID      uint64 = 1
+	masterID   uint64 = 1
+	userID     uint64 = 1
+)
+
+var (
+	ctx = context.Background()
+)
+
+func TestUseCases_GetTagByID(t *testing.T) {
+	testCases := []struct {
+		name       string
+		tagID      uint32
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      *entities.Tag
+		errorExpected bool
+	}{
+		{
+			name:  "success",
+			tagID: tagID,
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				tagsService.
+					EXPECT().
+					GetTagByID(gomock.Any(), tagID).
+					Return(
+						&entities.Tag{
+							ID:   tagID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+			},
+			expected: &entities.Tag{
+				ID:   tagID,
+				Name: "test",
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetTagByID(ctx, tc.tagID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetAllTags(t *testing.T) {
+	testCases := []struct {
+		name       string
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []entities.Tag
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				tagsService.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return(
+						[]entities.Tag{
+							{
+								ID:   tagID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: []entities.Tag{
+				{
+					ID:   tagID,
+					Name: "test",
+				},
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetAllTags(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetCategoryByID(t *testing.T) {
+	testCases := []struct {
+		name       string
+		categoryID uint32
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      *entities.Category
+		errorExpected bool
+	}{
+		{
+			name:       "success",
+			categoryID: categoryID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(
+						&entities.Category{
+							ID:   categoryID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+			},
+			expected: &entities.Category{
+				ID:   categoryID,
+				Name: "test",
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetCategoryByID(ctx, tc.categoryID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetAllCategories(t *testing.T) {
+	testCases := []struct {
+		name       string
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []entities.Category
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				categoriesService.
+					EXPECT().
+					GetAllCategories(gomock.Any()).
+					Return(
+						[]entities.Category{
+							{
+								ID:   categoryID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: []entities.Category{
+				{
+					ID:   categoryID,
+					Name: "test",
+				},
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetAllCategories(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetToyByID(t *testing.T) {
+	testCases := []struct {
+		name       string
+		toyID      uint64
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      *entities.Toy
+		errorExpected bool
+	}{
+		{
+			name:  "success",
+			toyID: toyID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(
+						&entities.Toy{
+							ID:   toyID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+			},
+			expected: &entities.Toy{
+				ID:   toyID,
+				Name: "test",
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetToyByID(ctx, tc.toyID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetAllToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []entities.Toy
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetAllToys(gomock.Any()).
+					Return(
+						[]entities.Toy{
+							{
+								ID:   toyID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: []entities.Toy{
+				{
+					ID:   toyID,
+					Name: "test",
+				},
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetAllToys(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetMasterToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		masterID   uint64
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []entities.Toy
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			masterID: masterID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetMasterToys(gomock.Any(), masterID).
+					Return(
+						[]entities.Toy{
+							{
+								ID:   toyID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: []entities.Toy{
+				{
+					ID:   toyID,
+					Name: "test",
+				},
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetMasterToys(ctx, masterID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetUserToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		userID     uint64
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []entities.Toy
+		errorExpected bool
+	}{
+		{
+			name:   "success",
+			userID: userID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(
+						&entities.Master{
+							ID: masterID,
+						},
+						nil,
+					).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					GetMasterToys(gomock.Any(), masterID).
+					Return(
+						[]entities.Toy{
+							{
+								ID:   toyID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: []entities.Toy{
+				{
+					ID:   toyID,
+					Name: "test",
+				},
+			},
+		},
+		{
+			name:   "master not found",
+			userID: userID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(nil, errors.New("master not found")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetUserToys(ctx, userID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetMasterByID(t *testing.T) {
+	testCases := []struct {
+		name       string
+		masterID   uint64
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      *entities.Master
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			masterID: masterID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByID(gomock.Any(), masterID).
+					Return(
+						&entities.Master{
+							ID:   masterID,
+							Info: pointers.New[string]("test"),
+						}, nil,
+					).
+					Times(1)
+			},
+			expected: &entities.Master{
+				ID:   masterID,
+				Info: pointers.New[string]("test"),
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetMasterByID(ctx, tc.masterID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetAllMasters(t *testing.T) {
+	testCases := []struct {
+		name       string
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []entities.Master
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetAllMasters(gomock.Any()).
+					Return(
+						[]entities.Master{
+							{
+								ID:   masterID,
+								Info: pointers.New[string]("test"),
+							},
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: []entities.Master{
+				{
+					ID:   masterID,
+					Info: pointers.New[string]("test"),
+				},
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetAllMasters(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_GetMasterByUserID(t *testing.T) {
+	testCases := []struct {
+		name       string
+		userID     uint64
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      *entities.Master
+		errorExpected bool
+	}{
+		{
+			name:   "success",
+			userID: userID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(
+						&entities.Master{
+							ID:   toyID,
+							Info: pointers.New[string]("test"),
+						},
+						nil,
+					).
+					Times(1)
+			},
+			expected: &entities.Master{
+				ID:   toyID,
+				Info: pointers.New[string]("test"),
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.GetMasterByUserID(ctx, tc.userID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_AddToy(t *testing.T) {
+	testCases := []struct {
+		name       string
+		toy        entities.RawAddToyDTO
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "test",
+				Description: "test",
+				Quantity:    1,
+				Price:       110.5,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(
+						&entities.Master{
+							ID:     masterID,
+							UserID: userID,
+						},
+						nil,
+					).
+					Times(1)
+
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(
+						&entities.Category{
+							ID:   categoryID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					GetTagByID(gomock.Any(), tagID).
+					Return(
+						&entities.Tag{
+							ID:   tagID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					AddToy(
+						gomock.Any(),
+						entities.AddToyDTO{
+							MasterID:    masterID,
+							CategoryID:  categoryID,
+							Name:        "test",
+							Description: "test",
+							Quantity:    1,
+							Price:       110.5,
+							TagIDs:      []uint32{tagID},
+							Attachments: []string{"test"},
+						},
+					).
+					Return(toyID, nil).
+					Times(1)
+			},
+			expected: toyID,
+		},
+		{
+			name: "Master not found",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "test",
+				Description: "test",
+				Quantity:    1,
+				Price:       110.5,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "Category not found",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "test",
+				Description: "test",
+				Quantity:    1,
+				Price:       110.5,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(
+						&entities.Master{
+							ID:     masterID,
+							UserID: userID,
+						},
+						nil,
+					).
+					Times(1)
+
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "Tag not found",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "test",
+				Description: "test",
+				Quantity:    1,
+				Price:       110.5,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(
+						&entities.Master{
+							ID:     masterID,
+							UserID: userID,
+						},
+						nil,
+					).
+					Times(1)
+
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(
+						&entities.Category{
+							ID:   categoryID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					GetTagByID(gomock.Any(), tagID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.AddToy(ctx, tc.toy)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_RegisterMaster(t *testing.T) {
+	testCases := []struct {
+		name       string
+		master     entities.RegisterMasterDTO
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			master: entities.RegisterMasterDTO{
+				UserID: userID,
+				Info:   pointers.New[string]("test"),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				ssoService *mockservices.MockSsoService,
+			) {
+				ssoService.
+					EXPECT().
+					GetUserByID(gomock.Any(), userID).
+					Return(
+						&entities.User{
+							ID: userID,
+						},
+						nil,
+					).
+					Times(1)
+
+				mastersService.
+					EXPECT().
+					RegisterMaster(
+						gomock.Any(),
+						entities.RegisterMasterDTO{
+							UserID: userID,
+							Info:   pointers.New[string]("test"),
+						},
+					).
+					Return(masterID, nil).
+					Times(1)
+			},
+			expected: masterID,
+		},
+		{
+			name: "User not found",
+			master: entities.RegisterMasterDTO{
+				UserID: userID,
+				Info:   pointers.New[string]("test"),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				ssoService *mockservices.MockSsoService,
+			) {
+				ssoService.
+					EXPECT().
+					GetUserByID(gomock.Any(), userID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.RegisterMaster(ctx, tc.master)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_UpdateMaster(t *testing.T) {
+	testCases := []struct {
+		name       string
+		master     entities.UpdateMasterDTO
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			master: entities.UpdateMasterDTO{
+				ID:   masterID,
+				Info: pointers.New[string]("test"),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByID(gomock.Any(), masterID).
+					Return(
+						&entities.Master{
+							ID:     masterID,
+							UserID: userID,
+							Info:   pointers.New[string]("test"),
+						},
+						nil,
+					).
+					Times(1)
+
+				mastersService.
+					EXPECT().
+					UpdateMaster(
+						gomock.Any(),
+						entities.UpdateMasterDTO{
+							ID:   masterID,
+							Info: pointers.New[string]("test"),
+						},
+					).
+					Return(nil).
+					Times(1)
+			},
+		},
+		{
+			name: "Master not found",
+			master: entities.UpdateMasterDTO{
+				ID:   masterID,
+				Info: pointers.New[string]("test"),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByID(gomock.Any(), masterID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			err := useCases.UpdateMaster(ctx, tc.master)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestUseCases_DeleteToy(t *testing.T) {
+	testCases := []struct {
+		name       string
+		toyID      uint64
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		errorExpected bool
+	}{
+		{
+			name:  "success",
+			toyID: toyID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(
+						&entities.Toy{
+							ID:   toyID,
+							Name: "test",
+						},
+						nil,
+					).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					DeleteToy(gomock.Any(), toyID).
+					Return(nil).
+					Times(1)
+			},
+		},
+		{
+			name:  "Toy not found",
+			toyID: toyID,
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(nil, errors.New("test")).
+					Times(1)
+
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			err := useCases.DeleteToy(ctx, tc.toyID)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestUseCases_CreateTags(t *testing.T) {
+	testCases := []struct {
+		name       string
+		tags       []entities.CreateTagDTO
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      []uint32
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			tags: []entities.CreateTagDTO{
+				{
+					Name: "test",
+				},
+				{
+					Name: "newTag",
+				},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				tagsService.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return(
+						[]entities.Tag{
+							{
+								ID:   tagID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					CreateTags(
+						gomock.Any(),
+						[]entities.CreateTagDTO{
+							{
+								Name: "newTag",
+							},
+						},
+					).
+					Return([]uint32{2}, nil).
+					Times(1)
+			},
+			expected: []uint32{2, tagID},
+		},
+		{
+			name: "get all Tags error",
+			tags: []entities.CreateTagDTO{
+				{
+					Name: "test",
+				},
+				{
+					Name: "newTag",
+				},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				tagsService.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "create Tags error",
+			tags: []entities.CreateTagDTO{
+				{
+					Name: "test",
+				},
+				{
+					Name: "newTag",
+				},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				tagsService.
+					EXPECT().
+					GetAllTags(gomock.Any()).
+					Return(
+						[]entities.Tag{
+							{
+								ID:   tagID,
+								Name: "test",
+							},
+						},
+						nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					CreateTags(
+						gomock.Any(),
+						[]entities.CreateTagDTO{
+							{
+								Name: "newTag",
+							},
+						},
+					).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.CreateTags(ctx, tc.tags)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_UpdateToy(t *testing.T) {
+	testCases := []struct {
+		name       string
+		toy        entities.RawUpdateToyDTO
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("test"),
+				Description: pointers.New[string]("test"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(
+						&entities.Toy{
+							ID:          toyID,
+							CategoryID:  categoryID,
+							Name:        "test",
+							Description: "test",
+							Quantity:    1,
+							Price:       110.5,
+							Tags: []entities.Tag{
+								{
+									ID:   tagID,
+									Name: "test",
+								},
+								{
+									ID:   3,
+									Name: "tagToDelete",
+								},
+							},
+							Attachments: []entities.Attachment{
+								{
+									ID:   1,
+									Link: "oldAttachment",
+								},
+								{
+									ID:   2,
+									Link: "attachmentToDelete",
+								},
+							},
+						},
+						nil,
+					).
+					Times(1)
+
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(
+						&entities.Category{
+							ID:   categoryID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					GetTagByID(gomock.Any(), tagID).
+					Return(
+						&entities.Tag{
+							ID:   tagID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					GetTagByID(gomock.Any(), uint32(2)).
+					Return(
+						&entities.Tag{
+							ID:   2,
+							Name: "tagToAdd",
+						}, nil,
+					).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					UpdateToy(
+						gomock.Any(),
+						entities.UpdateToyDTO{
+							ID:                    toyID,
+							CategoryID:            pointers.New[uint32](categoryID),
+							Name:                  pointers.New[string]("test"),
+							Description:           pointers.New[string]("test"),
+							Quantity:              pointers.New[uint32](1),
+							Price:                 pointers.New[float32](110.5),
+							TagIDsToAdd:           []uint32{2},
+							TagIDsToDelete:        []uint32{3},
+							AttachmentsToAdd:      []string{"newAttachment"},
+							AttachmentIDsToDelete: []uint64{2},
+						},
+					).
+					Return(nil).
+					Times(1)
+			},
+		},
+		{
+			name: "Tag not found",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("test"),
+				Description: pointers.New[string]("test"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(
+						&entities.Toy{
+							ID:          toyID,
+							CategoryID:  categoryID,
+							Name:        "test",
+							Description: "test",
+							Quantity:    1,
+							Price:       110.5,
+							Tags: []entities.Tag{
+								{
+									ID:   tagID,
+									Name: "test",
+								},
+								{
+									ID:   3,
+									Name: "tagToDelete",
+								},
+							},
+							Attachments: []entities.Attachment{
+								{
+									ID:   1,
+									Link: "oldAttachment",
+								},
+								{
+									ID:   2,
+									Link: "attachmentToDelete",
+								},
+							},
+						},
+						nil,
+					).
+					Times(1)
+
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(
+						&entities.Category{
+							ID:   categoryID,
+							Name: "test",
+						}, nil,
+					).
+					Times(1)
+
+				tagsService.
+					EXPECT().
+					GetTagByID(gomock.Any(), tagID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "Category not found",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("test"),
+				Description: pointers.New[string]("test"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(
+						&entities.Toy{
+							ID:          toyID,
+							CategoryID:  categoryID,
+							Name:        "test",
+							Description: "test",
+							Quantity:    1,
+							Price:       110.5,
+							Tags: []entities.Tag{
+								{
+									ID:   tagID,
+									Name: "test",
+								},
+								{
+									ID:   3,
+									Name: "tagToDelete",
+								},
+							},
+							Attachments: []entities.Attachment{
+								{
+									ID:   1,
+									Link: "oldAttachment",
+								},
+								{
+									ID:   2,
+									Link: "attachmentToDelete",
+								},
+							},
+						},
+						nil,
+					).
+					Times(1)
+
+				categoriesService.
+					EXPECT().
+					GetCategoryByID(gomock.Any(), categoryID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "Toy not found",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("test"),
+				Description: pointers.New[string]("test"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			setupMocks: func(
+				tagsService *mockservices.MockTagsService,
+				categoriesService *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					GetToyByID(gomock.Any(), toyID).
+					Return(nil, errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			err := useCases.UpdateToy(ctx, tc.toy)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
