@@ -160,6 +160,8 @@ tasks:
       - lint
     dir: ../
     cmds:
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+      - export PATH=$PATH:$(go env GOPATH)/bin
       - task: create_postgres_folders
       - sudo chmod -R 777 postgres_data
       - sudo chmod -R 777 postgres_backups
