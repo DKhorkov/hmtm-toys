@@ -1,4 +1,4 @@
-name: main-workflow
+name: linters-workflow
 run-name: ${{ github.actor }} is testing changes
 on: [push, pull_request]
 jobs:
@@ -15,18 +15,4 @@ jobs:
       - name: Run linters
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v2
-  tests:
-    runs-on: ubuntu-latest
-    name: Tests
-    steps:
-      - name: Check out source repository
-        uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: stable
-      - name: Install dependencies
-        run: go get ./...
-      - name: Run tests
-        run: go test -v ./...
+          version: v2.0
