@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
-
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
@@ -57,7 +57,6 @@ func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, err
 		From(tagsTableName).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +66,6 @@ func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, err
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +120,6 @@ func (repo *TagsRepository) GetTagByID(ctx context.Context, id uint32) (*entitie
 		Where(sq.Eq{idColumnName: id}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +133,10 @@ func (repo *TagsRepository) GetTagByID(ctx context.Context, id uint32) (*entitie
 	return tag, nil
 }
 
-func (repo *TagsRepository) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
+func (repo *TagsRepository) CreateTags(
+	ctx context.Context,
+	tagsData []entities.CreateTagDTO,
+) ([]uint32, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -164,7 +164,6 @@ func (repo *TagsRepository) CreateTags(ctx context.Context, tagsData []entities.
 			Suffix(returningIDSuffix).
 			PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
 			ToSql()
-
 		if err != nil {
 			return nil, err
 		}

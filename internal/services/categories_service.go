@@ -26,7 +26,10 @@ type CategoriesService struct {
 	logger               logging.Logger
 }
 
-func (service *CategoriesService) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (service *CategoriesService) GetCategoryByID(
+	ctx context.Context,
+	id uint32,
+) (*entities.Category, error) {
 	category, err := service.categoriesRepository.GetCategoryByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -42,6 +45,8 @@ func (service *CategoriesService) GetCategoryByID(ctx context.Context, id uint32
 	return category, nil
 }
 
-func (service *CategoriesService) GetAllCategories(ctx context.Context) ([]entities.Category, error) {
+func (service *CategoriesService) GetAllCategories(
+	ctx context.Context,
+) ([]entities.Category, error) {
 	return service.categoriesRepository.GetAllCategories(ctx)
 }

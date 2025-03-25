@@ -3,9 +3,8 @@ package repositories
 import (
 	"context"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
@@ -26,7 +25,6 @@ func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entitie
 			ID: id,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -34,14 +32,16 @@ func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entitie
 	return repo.processUserResponse(response), nil
 }
 
-func (repo *SsoRepository) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+func (repo *SsoRepository) GetUserByEmail(
+	ctx context.Context,
+	email string,
+) (*entities.User, error) {
 	response, err := repo.client.GetUserByEmail(
 		ctx,
 		&sso.GetUserByEmailIn{
 			Email: email,
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,6 @@ func (repo *SsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, er
 		ctx,
 		&emptypb.Empty{},
 	)
-
 	if err != nil {
 		return nil, err
 	}

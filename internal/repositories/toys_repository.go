@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 
-	sq "github.com/Masterminds/squirrel"
-
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
@@ -72,7 +72,6 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 		From(toysTableName).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +81,6 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +135,10 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 	return toys, nil
 }
 
-func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetMasterToys(
+	ctx context.Context,
+	masterID uint64,
+) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -157,7 +158,6 @@ func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) 
 		Where(sq.Eq{masterIDColumnName: masterID}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,6 @@ func (repo *ToysRepository) GetMasterToys(ctx context.Context, masterID uint64) 
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +241,6 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 		Where(sq.Eq{idColumnName: id}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +268,10 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 	return toy, nil
 }
 
-func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+func (repo *ToysRepository) AddToy(
+	ctx context.Context,
+	toyData entities.AddToyDTO,
+) (uint64, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -310,7 +311,6 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 		Suffix(returningIDSuffix).
 		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
 		ToSql()
-
 	if err != nil {
 		return 0, err
 	}
@@ -325,7 +325,8 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 	}
 
 	if len(toyData.TagIDs) > 0 {
-		builder := sq.Insert(toysAndTagsAssociationTableName).Columns(toyIDColumnName, tagIDColumnName)
+		builder := sq.Insert(toysAndTagsAssociationTableName).
+			Columns(toyIDColumnName, tagIDColumnName)
 		for _, tagID := range toyData.TagIDs {
 			builder = builder.Values(toyID, tagID)
 		}
@@ -340,7 +341,8 @@ func (repo *ToysRepository) AddToy(ctx context.Context, toyData entities.AddToyD
 	}
 
 	if len(toyData.Attachments) > 0 {
-		builder := sq.Insert(toysAttachmentsTableName).Columns(toyIDColumnName, attachmentLinkColumnName)
+		builder := sq.Insert(toysAttachmentsTableName).
+			Columns(toyIDColumnName, attachmentLinkColumnName)
 		for _, attachment := range toyData.Attachments {
 			builder = builder.Values(toyID, attachment)
 		}
@@ -379,12 +381,13 @@ func (repo *ToysRepository) getToyTags(
 		Where(
 			sq.Expr(
 				fmt.Sprintf("%s IN (?)", idColumnName),
-				sq.Select(tagIDColumnName).From(toysAndTagsAssociationTableName).Where(sq.Eq{toyIDColumnName: toyID}),
+				sq.Select(tagIDColumnName).
+					From(toysAndTagsAssociationTableName).
+					Where(sq.Eq{toyIDColumnName: toyID}),
 			),
 		).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +397,6 @@ func (repo *ToysRepository) getToyTags(
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +448,6 @@ func (repo *ToysRepository) getToyAttachments(
 		Where(sq.Eq{toyIDColumnName: toyID}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +457,6 @@ func (repo *ToysRepository) getToyAttachments(
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -510,7 +510,6 @@ func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
 		Where(sq.Eq{idColumnName: id}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return err
 	}
@@ -578,7 +577,8 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 	}
 
 	if len(toyData.TagIDsToAdd) > 0 {
-		builder := sq.Insert(toysAndTagsAssociationTableName).Columns(toyIDColumnName, tagIDColumnName)
+		builder := sq.Insert(toysAndTagsAssociationTableName).
+			Columns(toyIDColumnName, tagIDColumnName)
 		for _, tagID := range toyData.TagIDsToAdd {
 			builder = builder.Values(toyData.ID, tagID)
 		}
@@ -603,7 +603,6 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 			).
 			PlaceholderFormat(sq.Dollar).
 			ToSql()
-
 		if err != nil {
 			return err
 		}
@@ -614,7 +613,8 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 	}
 
 	if len(toyData.AttachmentsToAdd) > 0 {
-		builder := sq.Insert(toysAttachmentsTableName).Columns(toyIDColumnName, attachmentLinkColumnName)
+		builder := sq.Insert(toysAttachmentsTableName).
+			Columns(toyIDColumnName, attachmentLinkColumnName)
 		for _, attachment := range toyData.AttachmentsToAdd {
 			builder = builder.Values(toyData.ID, attachment)
 		}
@@ -634,7 +634,6 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 			Where(sq.Eq{idColumnName: toyData.AttachmentIDsToDelete}).
 			PlaceholderFormat(sq.Dollar).
 			ToSql()
-
 		if err != nil {
 			return err
 		}

@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
-
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
 	"github.com/DKhorkov/libs/tracing"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
@@ -58,7 +58,6 @@ func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Ma
 		From(mastersTableName).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +67,6 @@ func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Ma
 		stmt,
 		params...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +101,10 @@ func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Ma
 	return masters, nil
 }
 
-func (repo *MastersRepository) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (repo *MastersRepository) GetMasterByUserID(
+	ctx context.Context,
+	userID uint64,
+) (*entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -123,7 +124,6 @@ func (repo *MastersRepository) GetMasterByUserID(ctx context.Context, userID uin
 		Where(sq.Eq{userIDColumnName: userID}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,10 @@ func (repo *MastersRepository) GetMasterByUserID(ctx context.Context, userID uin
 	return master, nil
 }
 
-func (repo *MastersRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (repo *MastersRepository) GetMasterByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -157,7 +160,6 @@ func (repo *MastersRepository) GetMasterByID(ctx context.Context, id uint64) (*e
 		Where(sq.Eq{idColumnName: id}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +203,6 @@ func (repo *MastersRepository) RegisterMaster(
 		Suffix(returningIDSuffix).
 		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
 		ToSql()
-
 	if err != nil {
 		return 0, err
 	}
@@ -214,7 +215,10 @@ func (repo *MastersRepository) RegisterMaster(
 	return masterID, nil
 }
 
-func (repo *MastersRepository) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+func (repo *MastersRepository) UpdateMaster(
+	ctx context.Context,
+	masterData entities.UpdateMasterDTO,
+) error {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -234,7 +238,6 @@ func (repo *MastersRepository) UpdateMaster(ctx context.Context, masterData enti
 		Set(masterInfoColumnName, masterData.Info).
 		PlaceholderFormat(sq.Dollar). // pq postgres driver works only with $ placeholders
 		ToSql()
-
 	if err != nil {
 		return err
 	}

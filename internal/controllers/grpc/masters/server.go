@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DKhorkov/libs/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	customgrpc "github.com/DKhorkov/libs/grpc"
-	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
@@ -31,7 +31,10 @@ type ServerAPI struct {
 	logger   logging.Logger
 }
 
-func (api *ServerAPI) UpdateMaster(ctx context.Context, in *toys.UpdateMasterIn) (*emptypb.Empty, error) {
+func (api *ServerAPI) UpdateMaster(
+	ctx context.Context,
+	in *toys.UpdateMasterIn,
+) (*emptypb.Empty, error) {
 	masterData := entities.UpdateMasterDTO{
 		ID:   in.GetID(),
 		Info: in.Info,
@@ -56,13 +59,19 @@ func (api *ServerAPI) UpdateMaster(ctx context.Context, in *toys.UpdateMasterIn)
 	return &emptypb.Empty{}, nil
 }
 
-func (api *ServerAPI) GetMasterByUser(ctx context.Context, in *toys.GetMasterByUserIn) (*toys.GetMasterOut, error) {
+func (api *ServerAPI) GetMasterByUser(
+	ctx context.Context,
+	in *toys.GetMasterByUserIn,
+) (*toys.GetMasterOut, error) {
 	master, err := api.useCases.GetMasterByUserID(ctx, in.GetUserID())
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
 			api.logger,
-			fmt.Sprintf("Error occurred while trying to get Master for User with ID=%d", in.GetUserID()),
+			fmt.Sprintf(
+				"Error occurred while trying to get Master for User with ID=%d",
+				in.GetUserID(),
+			),
 			err,
 		)
 
@@ -84,7 +93,10 @@ func (api *ServerAPI) GetMasterByUser(ctx context.Context, in *toys.GetMasterByU
 }
 
 // GetMaster handler returns Master for provided ID.
-func (api *ServerAPI) GetMaster(ctx context.Context, in *toys.GetMasterIn) (*toys.GetMasterOut, error) {
+func (api *ServerAPI) GetMaster(
+	ctx context.Context,
+	in *toys.GetMasterIn,
+) (*toys.GetMasterOut, error) {
 	master, err := api.useCases.GetMasterByID(ctx, in.GetID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -112,10 +124,18 @@ func (api *ServerAPI) GetMaster(ctx context.Context, in *toys.GetMasterIn) (*toy
 }
 
 // GetMasters handler returns all Masters.
-func (api *ServerAPI) GetMasters(ctx context.Context, _ *emptypb.Empty) (*toys.GetMastersOut, error) {
+func (api *ServerAPI) GetMasters(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*toys.GetMastersOut, error) {
 	masters, err := api.useCases.GetAllMasters(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Masters", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			"Error occurred while trying to get all Masters",
+			err,
+		)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
@@ -134,7 +154,10 @@ func (api *ServerAPI) GetMasters(ctx context.Context, _ *emptypb.Empty) (*toys.G
 }
 
 // RegisterMaster handler register new Master for User.
-func (api *ServerAPI) RegisterMaster(ctx context.Context, in *toys.RegisterMasterIn) (*toys.RegisterMasterOut, error) {
+func (api *ServerAPI) RegisterMaster(
+	ctx context.Context,
+	in *toys.RegisterMasterIn,
+) (*toys.RegisterMasterOut, error) {
 	masterData := entities.RegisterMasterDTO{
 		UserID: in.GetUserID(),
 		Info:   in.Info,
@@ -142,7 +165,12 @@ func (api *ServerAPI) RegisterMaster(ctx context.Context, in *toys.RegisterMaste
 
 	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to register Master", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			"Error occurred while trying to register Master",
+			err,
+		)
 
 		switch {
 		case errors.As(err, &customerrors.MasterAlreadyExistsError{}):

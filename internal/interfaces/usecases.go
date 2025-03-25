@@ -17,7 +17,10 @@ type UseCases interface {
 	GetAllMasters(ctx context.Context) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
-	RegisterMaster(ctx context.Context, rawMasterData entities.RegisterMasterDTO) (masterID uint64, err error)
+	RegisterMaster(
+		ctx context.Context,
+		rawMasterData entities.RegisterMasterDTO,
+	) (masterID uint64, err error)
 	UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error
 
 	// Toys cases:

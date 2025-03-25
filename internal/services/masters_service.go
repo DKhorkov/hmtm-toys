@@ -26,7 +26,10 @@ type MastersService struct {
 	logger            logging.Logger
 }
 
-func (service *MastersService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
+func (service *MastersService) GetMasterByID(
+	ctx context.Context,
+	id uint64,
+) (*entities.Master, error) {
 	master, err := service.mastersRepository.GetMasterByID(ctx, id)
 	if err != nil {
 		logging.LogErrorContext(
@@ -42,7 +45,10 @@ func (service *MastersService) GetMasterByID(ctx context.Context, id uint64) (*e
 	return master, nil
 }
 
-func (service *MastersService) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (service *MastersService) GetMasterByUserID(
+	ctx context.Context,
+	userID uint64,
+) (*entities.Master, error) {
 	master, err := service.mastersRepository.GetMasterByUserID(ctx, userID)
 	if err != nil {
 		logging.LogErrorContext(
@@ -74,6 +80,9 @@ func (service *MastersService) RegisterMaster(
 	return service.mastersRepository.RegisterMaster(ctx, masterData)
 }
 
-func (service *MastersService) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
+func (service *MastersService) UpdateMaster(
+	ctx context.Context,
+	masterData entities.UpdateMasterDTO,
+) error {
 	return service.mastersRepository.UpdateMaster(ctx, masterData)
 }

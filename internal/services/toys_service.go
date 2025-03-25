@@ -46,11 +46,17 @@ func (service *ToysService) GetAllToys(ctx context.Context) ([]entities.Toy, err
 	return service.toysRepository.GetAllToys(ctx)
 }
 
-func (service *ToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (service *ToysService) GetMasterToys(
+	ctx context.Context,
+	masterID uint64,
+) ([]entities.Toy, error) {
 	return service.toysRepository.GetMasterToys(ctx, masterID)
 }
 
-func (service *ToysService) AddToy(ctx context.Context, toyData entities.AddToyDTO) (uint64, error) {
+func (service *ToysService) AddToy(
+	ctx context.Context,
+	toyData entities.AddToyDTO,
+) (uint64, error) {
 	if service.checkToyExistence(ctx, toyData) {
 		return 0, &customerrors.ToyAlreadyExistsError{}
 	}
@@ -58,11 +64,15 @@ func (service *ToysService) AddToy(ctx context.Context, toyData entities.AddToyD
 	return service.toysRepository.AddToy(ctx, toyData)
 }
 
-func (service *ToysService) checkToyExistence(ctx context.Context, toyData entities.AddToyDTO) bool {
+func (service *ToysService) checkToyExistence(
+	ctx context.Context,
+	toyData entities.AddToyDTO,
+) bool {
 	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID)
 	if err == nil {
 		for _, toy := range toys {
-			if toy.Name == toyData.Name && toy.CategoryID == toyData.CategoryID && toy.Description == toyData.Description {
+			if toy.Name == toyData.Name && toy.CategoryID == toyData.CategoryID &&
+				toy.Description == toyData.Description {
 				return true
 			}
 		}

@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DKhorkov/libs/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	customgrpc "github.com/DKhorkov/libs/grpc"
-	"github.com/DKhorkov/libs/logging"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
@@ -31,7 +31,10 @@ type ServerAPI struct {
 }
 
 // GetCategory handler returns Category for provided ID.
-func (api *ServerAPI) GetCategory(ctx context.Context, in *toys.GetCategoryIn) (*toys.GetCategoryOut, error) {
+func (api *ServerAPI) GetCategory(
+	ctx context.Context,
+	in *toys.GetCategoryIn,
+) (*toys.GetCategoryOut, error) {
 	category, err := api.useCases.GetCategoryByID(ctx, in.GetID())
 	if err != nil {
 		logging.LogErrorContext(
@@ -58,10 +61,18 @@ func (api *ServerAPI) GetCategory(ctx context.Context, in *toys.GetCategoryIn) (
 }
 
 // GetCategories handler returns all Categories.
-func (api *ServerAPI) GetCategories(ctx context.Context, _ *emptypb.Empty) (*toys.GetCategoriesOut, error) {
+func (api *ServerAPI) GetCategories(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*toys.GetCategoriesOut, error) {
 	categories, err := api.useCases.GetAllCategories(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Categories", err)
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			"Error occurred while trying to get all Categories",
+			err,
+		)
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 

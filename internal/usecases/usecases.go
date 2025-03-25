@@ -39,7 +39,10 @@ func (useCases *UseCases) GetAllTags(ctx context.Context) ([]entities.Tag, error
 	return useCases.tagsService.GetAllTags(ctx)
 }
 
-func (useCases *UseCases) GetCategoryByID(ctx context.Context, id uint32) (*entities.Category, error) {
+func (useCases *UseCases) GetCategoryByID(
+	ctx context.Context,
+	id uint32,
+) (*entities.Category, error) {
 	return useCases.categoriesService.GetCategoryByID(ctx, id)
 }
 
@@ -55,21 +58,27 @@ func (useCases *UseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error
 	return useCases.toysService.GetAllToys(ctx)
 }
 
-func (useCases *UseCases) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (useCases *UseCases) GetMasterToys(
+	ctx context.Context,
+	masterID uint64,
+) ([]entities.Toy, error) {
 	return useCases.toysService.GetMasterToys(ctx, masterID)
 }
 
 func (useCases *UseCases) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
-	master, err := useCases.mastersService.GetMasterByUserID(ctx, userID)
+	master, err := useCases.GetMasterByUserID(ctx, userID)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return useCases.GetMasterToys(ctx, master.ID)
 }
 
-func (useCases *UseCases) AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (uint64, error) {
-	master, err := useCases.mastersService.GetMasterByUserID(ctx, rawToyData.UserID)
+func (useCases *UseCases) AddToy(
+	ctx context.Context,
+	rawToyData entities.RawAddToyDTO,
+) (uint64, error) {
+	master, err := useCases.GetMasterByUserID(ctx, rawToyData.UserID)
 	if err != nil {
 		return 0, err
 	}
@@ -102,7 +111,10 @@ func (useCases *UseCases) GetMasterByID(ctx context.Context, id uint64) (*entiti
 	return useCases.mastersService.GetMasterByID(ctx, id)
 }
 
-func (useCases *UseCases) GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error) {
+func (useCases *UseCases) GetMasterByUserID(
+	ctx context.Context,
+	userID uint64,
+) (*entities.Master, error) {
 	return useCases.mastersService.GetMasterByUserID(ctx, userID)
 }
 
@@ -121,8 +133,11 @@ func (useCases *UseCases) RegisterMaster(
 	return useCases.mastersService.RegisterMaster(ctx, masterData)
 }
 
-func (useCases *UseCases) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
-	allTags, err := useCases.tagsService.GetAllTags(ctx)
+func (useCases *UseCases) CreateTags(
+	ctx context.Context,
+	tagsData []entities.CreateTagDTO,
+) ([]uint32, error) {
+	allTags, err := useCases.GetAllTags(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -154,15 +169,18 @@ func (useCases *UseCases) CreateTags(ctx context.Context, tagsData []entities.Cr
 }
 
 func (useCases *UseCases) DeleteToy(ctx context.Context, id uint64) error {
-	if _, err := useCases.toysService.GetToyByID(ctx, id); err != nil {
+	if _, err := useCases.GetToyByID(ctx, id); err != nil {
 		return err
 	}
 
 	return useCases.toysService.DeleteToy(ctx, id)
 }
 
-func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error {
-	toy, err := useCases.toysService.GetToyByID(ctx, rawToyData.ID)
+func (useCases *UseCases) UpdateToy(
+	ctx context.Context,
+	rawToyData entities.RawUpdateToyDTO,
+) error {
+	toy, err := useCases.GetToyByID(ctx, rawToyData.ID)
 	if err != nil {
 		return err
 	}
@@ -251,8 +269,11 @@ func (useCases *UseCases) UpdateToy(ctx context.Context, rawToyData entities.Raw
 	return useCases.toysService.UpdateToy(ctx, toyData)
 }
 
-func (useCases *UseCases) UpdateMaster(ctx context.Context, masterData entities.UpdateMasterDTO) error {
-	if _, err := useCases.mastersService.GetMasterByID(ctx, masterData.ID); err != nil {
+func (useCases *UseCases) UpdateMaster(
+	ctx context.Context,
+	masterData entities.UpdateMasterDTO,
+) error {
+	if _, err := useCases.GetMasterByID(ctx, masterData.ID); err != nil {
 		return err
 	}
 

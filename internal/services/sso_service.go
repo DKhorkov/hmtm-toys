@@ -25,7 +25,12 @@ type SsoService struct {
 func (service *SsoService) GetAllUsers(ctx context.Context) ([]entities.User, error) {
 	users, err := service.ssoRepository.GetAllUsers(ctx)
 	if err != nil {
-		logging.LogErrorContext(ctx, service.logger, "Error occurred while trying to get all Users", err)
+		logging.LogErrorContext(
+			ctx,
+			service.logger,
+			"Error occurred while trying to get all Users",
+			err,
+		)
 	}
 
 	return users, err
@@ -45,7 +50,10 @@ func (service *SsoService) GetUserByID(ctx context.Context, id uint64) (*entitie
 	return user, err
 }
 
-func (service *SsoService) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
+func (service *SsoService) GetUserByEmail(
+	ctx context.Context,
+	email string,
+) (*entities.User, error) {
 	user, err := service.ssoRepository.GetUserByEmail(ctx, email)
 	if err != nil {
 		logging.LogErrorContext(
