@@ -18,6 +18,14 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+var (
+	toyNotFoundError      = &customerrors.ToyNotFoundError{}
+	toyAlreadyExistsError = &customerrors.ToyAlreadyExistsError{}
+	tagNotFoundError      = &customerrors.TagNotFoundError{}
+	masterNotFoundError   = &customerrors.MasterNotFoundError{}
+	categoryNotFoundError = &customerrors.CategoryNotFoundError{}
+)
+
 // RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
 func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterToysServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
@@ -51,7 +59,7 @@ func (api *ServerAPI) UpdateToy(ctx context.Context, in *toys.UpdateToyIn) (*emp
 		)
 
 		switch {
-		case errors.As(err, &customerrors.ToyNotFoundError{}):
+		case errors.As(err, &toyNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
@@ -71,7 +79,7 @@ func (api *ServerAPI) DeleteToy(ctx context.Context, in *toys.DeleteToyIn) (*emp
 		)
 
 		switch {
-		case errors.As(err, &customerrors.ToyNotFoundError{}):
+		case errors.As(err, &toyNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
@@ -93,7 +101,7 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 		)
 
 		switch {
-		case errors.As(err, &customerrors.ToyNotFoundError{}):
+		case errors.As(err, &toyNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
@@ -192,11 +200,11 @@ func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddT
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to add new Toy", err)
 
 		switch {
-		case errors.As(err, &customerrors.MasterNotFoundError{}),
-			errors.As(err, &customerrors.CategoryNotFoundError{}),
-			errors.As(err, &customerrors.TagNotFoundError{}):
+		case errors.As(err, &masterNotFoundError),
+			errors.As(err, &categoryNotFoundError),
+			errors.As(err, &tagNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
-		case errors.As(err, &customerrors.ToyAlreadyExistsError{}):
+		case errors.As(err, &toyAlreadyExistsError):
 			return nil, &customgrpc.BaseError{Status: codes.AlreadyExists, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}

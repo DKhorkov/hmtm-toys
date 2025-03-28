@@ -19,6 +19,8 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+var tagNotFoundError = &customerrors.TagNotFoundError{}
+
 // RegisterServer handler (serverAPI) for TagsServer to gRPC server:.
 func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterTagsServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
@@ -77,7 +79,7 @@ func (api *ServerAPI) GetTag(ctx context.Context, in *toys.GetTagIn) (*toys.GetT
 		)
 
 		switch {
-		case errors.As(err, &customerrors.TagNotFoundError{}):
+		case errors.As(err, &tagNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
