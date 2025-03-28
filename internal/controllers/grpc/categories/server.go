@@ -18,6 +18,8 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+var categoryNotFoundError = &customerrors.CategoryNotFoundError{}
+
 // RegisterServer handler (serverAPI) for CategoriesServer to gRPC server:.
 func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterCategoriesServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
@@ -45,7 +47,7 @@ func (api *ServerAPI) GetCategory(
 		)
 
 		switch {
-		case errors.As(err, &customerrors.CategoryNotFoundError{}):
+		case errors.As(err, &categoryNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}

@@ -19,6 +19,11 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+var (
+	masterNotFoundError      = &customerrors.MasterNotFoundError{}
+	masterAlreadyExistsError = &customerrors.MasterAlreadyExistsError{}
+)
+
 // RegisterServer handler (serverAPI) for MastersServer to gRPC server:.
 func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
 	toys.RegisterMastersServiceServer(gRPCServer, &ServerAPI{useCases: useCases, logger: logger})
@@ -49,7 +54,7 @@ func (api *ServerAPI) UpdateMaster(
 		)
 
 		switch {
-		case errors.As(err, &customerrors.MasterNotFoundError{}):
+		case errors.As(err, &masterNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
@@ -76,7 +81,7 @@ func (api *ServerAPI) GetMasterByUser(
 		)
 
 		switch {
-		case errors.As(err, &customerrors.MasterNotFoundError{}):
+		case errors.As(err, &masterNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
@@ -107,7 +112,7 @@ func (api *ServerAPI) GetMaster(
 		)
 
 		switch {
-		case errors.As(err, &customerrors.MasterNotFoundError{}):
+		case errors.As(err, &masterNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
@@ -173,7 +178,7 @@ func (api *ServerAPI) RegisterMaster(
 		)
 
 		switch {
-		case errors.As(err, &customerrors.MasterAlreadyExistsError{}):
+		case errors.As(err, &masterAlreadyExistsError):
 			return nil, &customgrpc.BaseError{Status: codes.AlreadyExists, Message: err.Error()}
 		default:
 			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
