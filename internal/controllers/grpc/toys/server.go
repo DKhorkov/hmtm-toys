@@ -108,7 +108,7 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 		}
 	}
 
-	return prepareToyOut(*toy), nil
+	return mapToyToOut(*toy), nil
 }
 
 // GetToys handler returns all Toys.
@@ -121,7 +121,7 @@ func (api *ServerAPI) GetToys(ctx context.Context, _ *emptypb.Empty) (*toys.GetT
 
 	processedToys := make([]*toys.GetToyOut, len(allToys))
 	for i, toy := range allToys {
-		processedToys[i] = prepareToyOut(toy)
+		processedToys[i] = mapToyToOut(toy)
 	}
 
 	return &toys.GetToysOut{Toys: processedToys}, nil
@@ -149,7 +149,7 @@ func (api *ServerAPI) GetMasterToys(
 
 	processedToys := make([]*toys.GetToyOut, len(masterToys))
 	for i, toy := range masterToys {
-		processedToys[i] = prepareToyOut(toy)
+		processedToys[i] = mapToyToOut(toy)
 	}
 
 	return &toys.GetToysOut{Toys: processedToys}, nil
@@ -176,7 +176,7 @@ func (api *ServerAPI) GetUserToys(
 
 	processedToys := make([]*toys.GetToyOut, len(userToys))
 	for i, toy := range userToys {
-		processedToys[i] = prepareToyOut(toy)
+		processedToys[i] = mapToyToOut(toy)
 	}
 
 	return &toys.GetToysOut{Toys: processedToys}, nil
