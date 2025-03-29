@@ -7,7 +7,7 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 )
 
-func prepareToyOut(toy entities.Toy) *toys.GetToyOut {
+func mapToyToOut(toy entities.Toy) *toys.GetToyOut {
 	tags := make([]*toys.GetTagOut, len(toy.Tags))
 	for i, tag := range toy.Tags {
 		tags[i] = &toys.GetTagOut{

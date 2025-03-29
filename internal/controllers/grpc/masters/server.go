@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	customgrpc "github.com/DKhorkov/libs/grpc"
 
@@ -88,13 +87,7 @@ func (api *ServerAPI) GetMasterByUser(
 		}
 	}
 
-	return &toys.GetMasterOut{
-		ID:        master.ID,
-		UserID:    master.UserID,
-		Info:      master.Info,
-		CreatedAt: timestamppb.New(master.CreatedAt),
-		UpdatedAt: timestamppb.New(master.UpdatedAt),
-	}, nil
+	return mapMasterToOut(*master), nil
 }
 
 // GetMaster handler returns Master for provided ID.
@@ -119,13 +112,7 @@ func (api *ServerAPI) GetMaster(
 		}
 	}
 
-	return &toys.GetMasterOut{
-		ID:        master.ID,
-		UserID:    master.UserID,
-		Info:      master.Info,
-		CreatedAt: timestamppb.New(master.CreatedAt),
-		UpdatedAt: timestamppb.New(master.UpdatedAt),
-	}, nil
+	return mapMasterToOut(*master), nil
 }
 
 // GetMasters handler returns all Masters.
@@ -146,13 +133,7 @@ func (api *ServerAPI) GetMasters(
 
 	processedMasters := make([]*toys.GetMasterOut, len(masters))
 	for i, master := range masters {
-		processedMasters[i] = &toys.GetMasterOut{
-			ID:        master.ID,
-			UserID:    master.UserID,
-			Info:      master.Info,
-			CreatedAt: timestamppb.New(master.CreatedAt),
-			UpdatedAt: timestamppb.New(master.UpdatedAt),
-		}
+		processedMasters[i] = mapMasterToOut(master)
 	}
 
 	return &toys.GetMastersOut{Masters: processedMasters}, nil
