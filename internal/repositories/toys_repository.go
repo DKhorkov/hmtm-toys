@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -97,10 +96,12 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 	}()
 
 	var toys []entities.Toy
+
 	for rows.Next() {
 		toy := entities.Toy{}
 		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
 		columns = columns[:len(columns)-2]   // Not to paste Tags and Attachments fields to Scan function.
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -183,10 +184,12 @@ func (repo *ToysRepository) GetMasterToys(
 	}()
 
 	var toys []entities.Toy
+
 	for rows.Next() {
 		toy := entities.Toy{}
 		columns := db.GetEntityColumns(&toy) // Only pointer to use rows.Scan() successfully
 		columns = columns[:len(columns)-2]   // Not to paste Tags and Attachments fields to Scan function.
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -248,6 +251,7 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 	toy := &entities.Toy{}
 	columns := db.GetEntityColumns(toy)
 	columns = columns[:len(columns)-2] // Not to paste Tags and Attachments fields to Scan function.
+
 	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
 	}
@@ -265,6 +269,7 @@ func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entitie
 	}
 
 	toy.Attachments = attachments
+
 	return toy, nil
 }
 
@@ -380,7 +385,7 @@ func (repo *ToysRepository) getToyTags(
 		From(tagsTableName).
 		Where(
 			sq.Expr(
-				fmt.Sprintf("%s IN (?)", idColumnName),
+				idColumnName+" IN (?)",
 				sq.Select(tagIDColumnName).
 					From(toysAndTagsAssociationTableName).
 					Where(sq.Eq{toyIDColumnName: toyID}),
@@ -413,9 +418,11 @@ func (repo *ToysRepository) getToyTags(
 	}()
 
 	var tags []entities.Tag
+
 	for rows.Next() {
 		var tag entities.Tag
 		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -473,9 +480,11 @@ func (repo *ToysRepository) getToyAttachments(
 	}()
 
 	var attachments []entities.Attachment
+
 	for rows.Next() {
 		var attachment entities.Attachment
 		columns := db.GetEntityColumns(&attachment) // Only pointer to use rows.Scan() successfully
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err

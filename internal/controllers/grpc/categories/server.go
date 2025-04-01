@@ -75,6 +75,7 @@ func (api *ServerAPI) GetCategories(
 			"Error occurred while trying to get all Categories",
 			err,
 		)
+
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 
