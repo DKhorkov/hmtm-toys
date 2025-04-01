@@ -128,6 +128,7 @@ func (api *ServerAPI) GetMasters(
 			"Error occurred while trying to get all Masters",
 			err,
 		)
+
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 

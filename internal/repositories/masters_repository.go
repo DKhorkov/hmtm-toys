@@ -83,9 +83,11 @@ func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Ma
 	}()
 
 	var masters []entities.Master
+
 	for rows.Next() {
 		master := entities.Master{}
 		columns := db.GetEntityColumns(&master) // Only pointer to use rows.Scan() successfully
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -129,6 +131,7 @@ func (repo *MastersRepository) GetMasterByUserID(
 	}
 
 	master := &entities.Master{}
+
 	columns := db.GetEntityColumns(master)
 	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
@@ -165,6 +168,7 @@ func (repo *MastersRepository) GetMasterByID(
 	}
 
 	master := &entities.Master{}
+
 	columns := db.GetEntityColumns(master)
 	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err

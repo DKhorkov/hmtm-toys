@@ -99,6 +99,7 @@ func (api *ServerAPI) GetTags(ctx context.Context, _ *emptypb.Empty) (*toys.GetT
 	tags, err := api.useCases.GetAllTags(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Tags", err)
+
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 

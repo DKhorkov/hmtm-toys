@@ -83,9 +83,11 @@ func (repo *CategoriesRepository) GetAllCategories(
 	}()
 
 	var categories []entities.Category
+
 	for rows.Next() {
 		category := entities.Category{}
 		columns := db.GetEntityColumns(&category) // Only pointer to use rows.Scan() successfully
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -129,6 +131,7 @@ func (repo *CategoriesRepository) GetCategoryByID(
 	}
 
 	category := &entities.Category{}
+
 	columns := db.GetEntityColumns(category)
 	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err

@@ -116,6 +116,7 @@ func (api *ServerAPI) GetToys(ctx context.Context, _ *emptypb.Empty) (*toys.GetT
 	allToys, err := api.useCases.GetAllToys(ctx)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
+
 		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
 	}
 

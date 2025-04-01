@@ -148,7 +148,9 @@ func (useCases *UseCases) CreateTags(
 	}
 
 	var existingTagIDs []uint32
+
 	var tagsToCreate []entities.CreateTagDTO
+
 	for _, tag := range tagsData {
 		if _, ok := allTagsSet[tag.Name]; ok {
 			existingTagIDs = append(existingTagIDs, allTagsSet[tag.Name])
@@ -165,6 +167,7 @@ func (useCases *UseCases) CreateTags(
 	}
 
 	createdTagIDs = append(createdTagIDs, existingTagIDs...)
+
 	return createdTagIDs, nil
 }
 
@@ -211,6 +214,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// Add new Tag if it is not already exists:
 	tagIDsToAdd := make([]uint32, 0)
+
 	for _, tagID := range rawToyData.TagIDs {
 		if _, ok := oldTagIDsSet[tagID]; !ok {
 			tagIDsToAdd = append(tagIDsToAdd, tagID)
@@ -219,6 +223,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// Delete old Tag if it is not used by Toy now:
 	tagIDsToDelete := make([]uint32, 0)
+
 	for _, tag := range toy.Tags {
 		if _, ok := newTagIDsSet[tag.ID]; !ok {
 			tagIDsToDelete = append(tagIDsToDelete, tag.ID)
@@ -239,6 +244,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// Add new Attachments if it is not already exists:
 	attachmentsToAdd := make([]string, 0)
+
 	for _, attachment := range rawToyData.Attachments {
 		if _, ok := oldAttachmentsSet[attachment]; !ok {
 			attachmentsToAdd = append(attachmentsToAdd, attachment)
@@ -247,6 +253,7 @@ func (useCases *UseCases) UpdateToy(
 
 	// Delete old Attachments if it is not used by Toy now:
 	attachmentsToDelete := make([]uint64, 0)
+
 	for _, attachment := range toy.Attachments {
 		if _, ok := newAttachmentsSet[attachment.Link]; !ok {
 			attachmentsToDelete = append(attachmentsToDelete, attachment.ID)

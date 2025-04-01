@@ -59,6 +59,7 @@ func main() {
 
 	allToys, err := client.GetToys(ctx, &emptypb.Empty{})
 	fmt.Println(err)
+
 	for _, toy := range allToys.GetToys() {
 		fmt.Println(toy)
 	}
@@ -71,6 +72,7 @@ func main() {
 
 	allMasters, err := client.GetMasters(ctx, &emptypb.Empty{})
 	fmt.Println(err)
+
 	for _, master := range allMasters.GetMasters() {
 		fmt.Println(master)
 	}

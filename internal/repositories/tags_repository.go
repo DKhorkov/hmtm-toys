@@ -82,9 +82,11 @@ func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, err
 	}()
 
 	var tags []entities.Tag
+
 	for rows.Next() {
 		tag := entities.Tag{}
 		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
+
 		err = rows.Scan(columns...)
 		if err != nil {
 			return nil, err
@@ -125,6 +127,7 @@ func (repo *TagsRepository) GetTagByID(ctx context.Context, id uint32) (*entitie
 	}
 
 	tag := &entities.Tag{}
+
 	columns := db.GetEntityColumns(tag)
 	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(columns...); err != nil {
 		return nil, err
@@ -156,6 +159,7 @@ func (repo *TagsRepository) CreateTags(
 	}()
 
 	tagIDs := make([]uint32, len(tagsData))
+
 	for i, tag := range tagsData {
 		stmt, params, err := sq.
 			Insert(tagsTableName).
