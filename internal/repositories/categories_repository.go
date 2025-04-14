@@ -16,6 +16,13 @@ const (
 	categoriesTableName = "categories"
 )
 
+type CategoriesRepository struct {
+	dbConnector   db.Connector
+	logger        logging.Logger
+	traceProvider tracing.Provider
+	spanConfig    tracing.SpanConfig
+}
+
 func NewCategoriesRepository(
 	dbConnector db.Connector,
 	logger logging.Logger,
@@ -28,13 +35,6 @@ func NewCategoriesRepository(
 		traceProvider: traceProvider,
 		spanConfig:    spanConfig,
 	}
-}
-
-type CategoriesRepository struct {
-	dbConnector   db.Connector
-	logger        logging.Logger
-	traceProvider tracing.Provider
-	spanConfig    tracing.SpanConfig
 }
 
 func (repo *CategoriesRepository) GetAllCategories(

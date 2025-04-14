@@ -11,6 +11,11 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+type ToysService struct {
+	toysRepository interfaces.ToysRepository
+	logger         logging.Logger
+}
+
 func NewToysService(
 	toysRepository interfaces.ToysRepository,
 	logger logging.Logger,
@@ -19,11 +24,6 @@ func NewToysService(
 		toysRepository: toysRepository,
 		logger:         logger,
 	}
-}
-
-type ToysService struct {
-	toysRepository interfaces.ToysRepository
-	logger         logging.Logger
 }
 
 func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
@@ -64,6 +64,14 @@ func (service *ToysService) AddToy(
 	return service.toysRepository.AddToy(ctx, toyData)
 }
 
+func (service *ToysService) DeleteToy(ctx context.Context, id uint64) error {
+	return service.toysRepository.DeleteToy(ctx, id)
+}
+
+func (service *ToysService) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
+	return service.toysRepository.UpdateToy(ctx, toyData)
+}
+
 func (service *ToysService) checkToyExistence(
 	ctx context.Context,
 	toyData entities.AddToyDTO,
@@ -79,12 +87,4 @@ func (service *ToysService) checkToyExistence(
 	}
 
 	return false
-}
-
-func (service *ToysService) DeleteToy(ctx context.Context, id uint64) error {
-	return service.toysRepository.DeleteToy(ctx, id)
-}
-
-func (service *ToysService) UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error {
-	return service.toysRepository.UpdateToy(ctx, toyData)
 }

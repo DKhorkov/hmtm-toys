@@ -17,6 +17,13 @@ const (
 	tagNameColumnName = "name"
 )
 
+type TagsRepository struct {
+	dbConnector   db.Connector
+	logger        logging.Logger
+	traceProvider tracing.Provider
+	spanConfig    tracing.SpanConfig
+}
+
 func NewTagsRepository(
 	dbConnector db.Connector,
 	logger logging.Logger,
@@ -29,13 +36,6 @@ func NewTagsRepository(
 		traceProvider: traceProvider,
 		spanConfig:    spanConfig,
 	}
-}
-
-type TagsRepository struct {
-	dbConnector   db.Connector
-	logger        logging.Logger
-	traceProvider tracing.Provider
-	spanConfig    tracing.SpanConfig
 }
 
 func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, error) {
