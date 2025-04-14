@@ -10,16 +10,16 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+type SsoService struct {
+	ssoRepository interfaces.SsoRepository
+	logger        logging.Logger
+}
+
 func NewSsoService(ssoRepository interfaces.SsoRepository, logger logging.Logger) *SsoService {
 	return &SsoService{
 		ssoRepository: ssoRepository,
 		logger:        logger,
 	}
-}
-
-type SsoService struct {
-	ssoRepository interfaces.SsoRepository
-	logger        logging.Logger
 }
 
 func (service *SsoService) GetAllUsers(ctx context.Context) ([]entities.User, error) {

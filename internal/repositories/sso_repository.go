@@ -10,12 +10,12 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
-func NewSsoRepository(client interfaces.SsoClient) *SsoRepository {
-	return &SsoRepository{client: client}
-}
-
 type SsoRepository struct {
 	client interfaces.SsoClient
+}
+
+func NewSsoRepository(client interfaces.SsoClient) *SsoRepository {
+	return &SsoRepository{client: client}
 }
 
 func (repo *SsoRepository) GetUserByID(ctx context.Context, id uint64) (*entities.User, error) {

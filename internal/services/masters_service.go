@@ -11,6 +11,11 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+type MastersService struct {
+	mastersRepository interfaces.MastersRepository
+	logger            logging.Logger
+}
+
 func NewMastersService(
 	mastersRepository interfaces.MastersRepository,
 	logger logging.Logger,
@@ -19,11 +24,6 @@ func NewMastersService(
 		mastersRepository: mastersRepository,
 		logger:            logger,
 	}
-}
-
-type MastersService struct {
-	mastersRepository interfaces.MastersRepository
-	logger            logging.Logger
 }
 
 func (service *MastersService) GetMasterByID(

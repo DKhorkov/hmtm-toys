@@ -18,6 +18,13 @@ const (
 	masterInfoColumnName = "info"
 )
 
+type MastersRepository struct {
+	dbConnector   db.Connector
+	logger        logging.Logger
+	traceProvider tracing.Provider
+	spanConfig    tracing.SpanConfig
+}
+
 func NewMastersRepository(
 	dbConnector db.Connector,
 	logger logging.Logger,
@@ -30,13 +37,6 @@ func NewMastersRepository(
 		traceProvider: traceProvider,
 		spanConfig:    spanConfig,
 	}
-}
-
-type MastersRepository struct {
-	dbConnector   db.Connector
-	logger        logging.Logger
-	traceProvider tracing.Provider
-	spanConfig    tracing.SpanConfig
 }
 
 func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {

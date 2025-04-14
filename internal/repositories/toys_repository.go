@@ -31,6 +31,13 @@ const (
 	returningIDSuffix               = "RETURNING id"
 )
 
+type ToysRepository struct {
+	dbConnector   db.Connector
+	logger        logging.Logger
+	traceProvider tracing.Provider
+	spanConfig    tracing.SpanConfig
+}
+
 func NewToysRepository(
 	dbConnector db.Connector,
 	logger logging.Logger,
@@ -43,13 +50,6 @@ func NewToysRepository(
 		traceProvider: traceProvider,
 		spanConfig:    spanConfig,
 	}
-}
-
-type ToysRepository struct {
-	dbConnector   db.Connector
-	logger        logging.Logger
-	traceProvider tracing.Provider
-	spanConfig    tracing.SpanConfig
 }
 
 func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
@@ -369,137 +369,6 @@ func (repo *ToysRepository) AddToy(
 	return toyID, nil
 }
 
-func (repo *ToysRepository) getToyTags(
-	ctx context.Context,
-	toyID uint64,
-	connection *sql.Conn,
-) ([]entities.Tag, error) {
-	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-	defer span.End()
-
-	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
-	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
-
-	stmt, params, err := sq.
-		Select(selectAllColumns).
-		From(tagsTableName).
-		Where(
-			sq.Expr(
-				idColumnName+" IN (?)",
-				sq.Select(tagIDColumnName).
-					From(toysAndTagsAssociationTableName).
-					Where(sq.Eq{toyIDColumnName: toyID}),
-			),
-		).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := connection.QueryContext(
-		ctx,
-		stmt,
-		params...,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if err = rows.Close(); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				repo.logger,
-				"error during closing SQL rows",
-				err,
-			)
-		}
-	}()
-
-	var tags []entities.Tag
-
-	for rows.Next() {
-		var tag entities.Tag
-		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
-
-		err = rows.Scan(columns...)
-		if err != nil {
-			return nil, err
-		}
-
-		tags = append(tags, tag)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return tags, nil
-}
-
-func (repo *ToysRepository) getToyAttachments(
-	ctx context.Context,
-	toyID uint64,
-	connection *sql.Conn,
-) ([]entities.Attachment, error) {
-	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
-	defer span.End()
-
-	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
-	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
-
-	stmt, params, err := sq.
-		Select(selectAllColumns).
-		From(toysAttachmentsTableName).
-		Where(sq.Eq{toyIDColumnName: toyID}).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := connection.QueryContext(
-		ctx,
-		stmt,
-		params...,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if err = rows.Close(); err != nil {
-			logging.LogErrorContext(
-				ctx,
-				repo.logger,
-				"error during closing SQL rows",
-				err,
-			)
-		}
-	}()
-
-	var attachments []entities.Attachment
-
-	for rows.Next() {
-		var attachment entities.Attachment
-		columns := db.GetEntityColumns(&attachment) // Only pointer to use rows.Scan() successfully
-
-		err = rows.Scan(columns...)
-		if err != nil {
-			return nil, err
-		}
-
-		attachments = append(attachments, attachment)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return attachments, nil
-}
-
 func (repo *ToysRepository) DeleteToy(ctx context.Context, id uint64) error {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
@@ -653,4 +522,135 @@ func (repo *ToysRepository) UpdateToy(ctx context.Context, toyData entities.Upda
 	}
 
 	return transaction.Commit()
+}
+
+func (repo *ToysRepository) getToyAttachments(
+	ctx context.Context,
+	toyID uint64,
+	connection *sql.Conn,
+) ([]entities.Attachment, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(toysAttachmentsTableName).
+		Where(sq.Eq{toyIDColumnName: toyID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
+		stmt,
+		params...,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
+
+	var attachments []entities.Attachment
+
+	for rows.Next() {
+		var attachment entities.Attachment
+		columns := db.GetEntityColumns(&attachment) // Only pointer to use rows.Scan() successfully
+
+		err = rows.Scan(columns...)
+		if err != nil {
+			return nil, err
+		}
+
+		attachments = append(attachments, attachment)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return attachments, nil
+}
+
+func (repo *ToysRepository) getToyTags(
+	ctx context.Context,
+	toyID uint64,
+	connection *sql.Conn,
+) ([]entities.Tag, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	stmt, params, err := sq.
+		Select(selectAllColumns).
+		From(tagsTableName).
+		Where(
+			sq.Expr(
+				idColumnName+" IN (?)",
+				sq.Select(tagIDColumnName).
+					From(toysAndTagsAssociationTableName).
+					Where(sq.Eq{toyIDColumnName: toyID}),
+			),
+		).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := connection.QueryContext(
+		ctx,
+		stmt,
+		params...,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err = rows.Close(); err != nil {
+			logging.LogErrorContext(
+				ctx,
+				repo.logger,
+				"error during closing SQL rows",
+				err,
+			)
+		}
+	}()
+
+	var tags []entities.Tag
+
+	for rows.Next() {
+		var tag entities.Tag
+		columns := db.GetEntityColumns(&tag) // Only pointer to use rows.Scan() successfully
+
+		err = rows.Scan(columns...)
+		if err != nil {
+			return nil, err
+		}
+
+		tags = append(tags, tag)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return tags, nil
 }

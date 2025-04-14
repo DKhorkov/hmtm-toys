@@ -11,6 +11,11 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+type CategoriesService struct {
+	categoriesRepository interfaces.CategoriesRepository
+	logger               logging.Logger
+}
+
 func NewCategoriesService(
 	categoriesRepository interfaces.CategoriesRepository,
 	logger logging.Logger,
@@ -19,11 +24,6 @@ func NewCategoriesService(
 		categoriesRepository: categoriesRepository,
 		logger:               logger,
 	}
-}
-
-type CategoriesService struct {
-	categoriesRepository interfaces.CategoriesRepository
-	logger               logging.Logger
 }
 
 func (service *CategoriesService) GetCategoryByID(

@@ -11,6 +11,11 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
+type TagsService struct {
+	tagsRepository interfaces.TagsRepository
+	logger         logging.Logger
+}
+
 func NewTagsService(
 	tagsRepository interfaces.TagsRepository,
 	logger logging.Logger,
@@ -19,11 +24,6 @@ func NewTagsService(
 		tagsRepository: tagsRepository,
 		logger:         logger,
 	}
-}
-
-type TagsService struct {
-	tagsRepository interfaces.TagsRepository
-	logger         logging.Logger
 }
 
 func (service *TagsService) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
