@@ -3,25 +3,13 @@ package usecases
 import (
 	"context"
 
+	"github.com/DKhorkov/libs/validation"
+
+	"github.com/DKhorkov/hmtm-toys/internal/config"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
+	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
-
-func New(
-	tagsService interfaces.TagsService,
-	categoriesService interfaces.CategoriesService,
-	mastersService interfaces.MastersService,
-	toysService interfaces.ToysService,
-	ssoService interfaces.SsoService,
-) *UseCases {
-	return &UseCases{
-		tagsService:       tagsService,
-		categoriesService: categoriesService,
-		mastersService:    mastersService,
-		toysService:       toysService,
-		ssoService:        ssoService,
-	}
-}
 
 type UseCases struct {
 	tagsService       interfaces.TagsService
@@ -29,6 +17,25 @@ type UseCases struct {
 	mastersService    interfaces.MastersService
 	toysService       interfaces.ToysService
 	ssoService        interfaces.SsoService
+	validationConfig  config.ValidationConfig
+}
+
+func New(
+	tagsService interfaces.TagsService,
+	categoriesService interfaces.CategoriesService,
+	mastersService interfaces.MastersService,
+	toysService interfaces.ToysService,
+	ssoService interfaces.SsoService,
+	validationConfig config.ValidationConfig,
+) *UseCases {
+	return &UseCases{
+		tagsService:       tagsService,
+		categoriesService: categoriesService,
+		mastersService:    mastersService,
+		toysService:       toysService,
+		ssoService:        ssoService,
+		validationConfig:  validationConfig,
+	}
 }
 
 func (useCases *UseCases) GetTagByID(ctx context.Context, id uint32) (*entities.Tag, error) {
@@ -126,6 +133,14 @@ func (useCases *UseCases) RegisterMaster(
 	ctx context.Context,
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
+	if masterData.Info != nil &&
+		!validation.ValidateValueByRules(
+			*masterData.Info,
+			useCases.validationConfig.MasterInfoRegExps,
+		) {
+		return 0, &customerrors.InvalidMasterInfoError{}
+	}
+
 	if _, err := useCases.ssoService.GetUserByID(ctx, masterData.UserID); err != nil {
 		return 0, err
 	}
@@ -280,6 +295,14 @@ func (useCases *UseCases) UpdateMaster(
 	ctx context.Context,
 	masterData entities.UpdateMasterDTO,
 ) error {
+	if masterData.Info != nil &&
+		!validation.ValidateValueByRules(
+			*masterData.Info,
+			useCases.validationConfig.MasterInfoRegExps,
+		) {
+		return &customerrors.InvalidMasterInfoError{}
+	}
+
 	if _, err := useCases.GetMasterByID(ctx, masterData.ID); err != nil {
 		return err
 	}

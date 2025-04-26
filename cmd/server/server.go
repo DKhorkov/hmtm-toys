@@ -123,6 +123,7 @@ func main() {
 		mastersService,
 		toysService,
 		ssoService,
+		settings.Validation,
 	)
 
 	controller := grpccontroller.New(

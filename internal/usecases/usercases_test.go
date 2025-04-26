@@ -3,6 +3,8 @@ package usecases
 import (
 	"context"
 	"errors"
+	"github.com/DKhorkov/hmtm-toys/internal/config"
+	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -23,7 +25,12 @@ const (
 )
 
 var (
-	ctx = context.Background()
+	ctx              = context.Background()
+	validationConfig = config.ValidationConfig{
+		MasterInfoRegExps: []string{
+			"^[\\s\\S]{0,30}$",
+		},
+	}
 )
 
 func TestUseCases_GetTagByID(t *testing.T) {
@@ -80,6 +87,7 @@ func TestUseCases_GetTagByID(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -163,6 +171,7 @@ func TestUseCases_GetAllTags(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -244,6 +253,7 @@ func TestUseCases_GetCategoryByID(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -327,6 +337,7 @@ func TestUseCases_GetAllCategories(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -408,6 +419,7 @@ func TestUseCases_GetToyByID(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -491,6 +503,7 @@ func TestUseCases_GetAllToys(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -577,6 +590,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -692,6 +706,7 @@ func TestUseCases_GetUserToys(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -773,6 +788,7 @@ func TestUseCases_GetMasterByID(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -856,6 +872,7 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -938,6 +955,7 @@ func TestUseCases_GetMasterByUserID(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -1184,6 +1202,7 @@ func TestUseCases_AddToy(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -1223,6 +1242,7 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 		)
 		expected      uint64
 		errorExpected bool
+		expectedError error
 	}{
 		{
 			name: "success",
@@ -1283,6 +1303,14 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 			},
 			errorExpected: true,
 		},
+		{
+			name: "Master not found",
+			master: entities.RegisterMasterDTO{
+				Info: pointers.New[string]("too long master info that would not work"),
+			},
+			errorExpected: true,
+			expectedError: &customerrors.InvalidMasterInfoError{},
+		},
 	}
 
 	ctrl := gomock.NewController(t)
@@ -1297,6 +1325,7 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -1314,6 +1343,9 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 			actual, err := useCases.RegisterMaster(ctx, tc.master)
 			if tc.errorExpected {
 				require.Error(t, err)
+				if tc.expectedError != nil {
+					require.IsType(t, tc.expectedError, err)
+				}
 			} else {
 				require.NoError(t, err)
 			}
@@ -1335,6 +1367,7 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 			ssoService *mockservices.MockSsoService,
 		)
 		errorExpected bool
+		expectedError error
 	}{
 		{
 			name: "success",
@@ -1396,6 +1429,15 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 			},
 			errorExpected: true,
 		},
+		{
+			name: "Master not found",
+			master: entities.UpdateMasterDTO{
+				ID:   masterID,
+				Info: pointers.New[string]("too long master info that would not work"),
+			},
+			errorExpected: true,
+			expectedError: &customerrors.InvalidMasterInfoError{},
+		},
 	}
 
 	ctrl := gomock.NewController(t)
@@ -1410,6 +1452,7 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -1427,6 +1470,9 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 			err := useCases.UpdateMaster(ctx, tc.master)
 			if tc.errorExpected {
 				require.Error(t, err)
+				if tc.expectedError != nil {
+					require.IsType(t, tc.expectedError, err)
+				}
 			} else {
 				require.NoError(t, err)
 			}
@@ -1509,6 +1555,7 @@ func TestUseCases_DeleteToy(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -1678,6 +1725,7 @@ func TestUseCases_CreateTags(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
@@ -2005,6 +2053,7 @@ func TestUseCases_UpdateToy(t *testing.T) {
 		mastersService,
 		toysService,
 		ssoService,
+		validationConfig,
 	)
 
 	for _, tc := range testCases {
