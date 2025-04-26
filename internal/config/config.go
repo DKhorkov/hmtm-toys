@@ -271,6 +271,15 @@ func New() Config {
 				},
 			},
 		},
+		Validation: ValidationConfig{
+			MasterInfoRegExps: loadenv.GetEnvAsSlice(
+				"MASTER_INFO_REGEXP",
+				[]string{
+					"^[\\s\\S]{0,1000}$",
+				},
+				";",
+			),
+		},
 	}
 }
 
@@ -312,12 +321,17 @@ type ClientConfig struct {
 	RetriesCount int
 }
 
+type ValidationConfig struct {
+	MasterInfoRegExps []string // since Go's regex doesn't support backtracking.
+}
+
 type Config struct {
 	HTTP        HTTPConfig
 	Clients     ClientsConfig
 	Database    db.Config
 	Logging     logging.Config
 	Tracing     TracingConfig
+	Validation  ValidationConfig
 	Environment string
 	Version     string
 }
