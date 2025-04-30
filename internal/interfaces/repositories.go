@@ -43,7 +43,6 @@ type TagsRepository interface {
 
 //go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/sso_repository.go -exclude_interfaces=MastersRepository,CategoriesRepository,ToysRepository,TagsRepository -package=mockrepositories
 type SsoRepository interface {
-	GetAllUsers(ctx context.Context) ([]entities.User, error)
 	GetUserByID(ctx context.Context, id uint64) (*entities.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*entities.User, error)
 }
