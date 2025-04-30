@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/DKhorkov/hmtm-sso/api/protobuf/generated/go/sso"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
@@ -47,23 +46,6 @@ func (repo *SsoRepository) GetUserByEmail(
 	}
 
 	return repo.processUserResponse(response), nil
-}
-
-func (repo *SsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
-	response, err := repo.client.GetUsers(
-		ctx,
-		&emptypb.Empty{},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	users := make([]entities.User, len(response.GetUsers()))
-	for i, userResponse := range response.GetUsers() {
-		users[i] = *repo.processUserResponse(userResponse)
-	}
-
-	return users, nil
 }
 
 func (repo *SsoRepository) processUserResponse(userResponse *sso.GetUserOut) *entities.User {
