@@ -86,20 +86,31 @@ func TestToysService_GetToyByID(t *testing.T) {
 	}
 }
 
-func TestToysService_GetAllToys(t *testing.T) {
+func TestToysService_GetToys(t *testing.T) {
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		expected      []entities.Toy
 		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger)
 		errorExpected bool
 	}{
 		{
-			name:     "all Toys with existing Toys",
+			name: "all Toys with existing Toys",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			expected: []entities.Toy{{ID: 1}},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							{ID: 1},
@@ -110,22 +121,42 @@ func TestToysService_GetAllToys(t *testing.T) {
 			},
 		},
 		{
-			name:     "all Toys without existing Toys",
+			name: "all Toys without existing Toys",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			expected: []entities.Toy{},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 			},
 		},
 		{
 			name: "all Toys error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("test error")).
 					Times(1)
 			},
@@ -145,7 +176,7 @@ func TestToysService_GetAllToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			toys, err := toysService.GetAllToys(ctx)
+			toys, err := toysService.GetToys(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -162,6 +193,7 @@ func TestToysService_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		masterID      uint64
+		pagination    *entities.Pagination
 		expected      []entities.Toy
 		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger)
 		errorExpected bool
@@ -175,10 +207,21 @@ func TestToysService_GetMasterToys(t *testing.T) {
 				},
 			},
 			masterID: 1,
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(1)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							{
@@ -194,10 +237,21 @@ func TestToysService_GetMasterToys(t *testing.T) {
 		{
 			name:     "get Master Toys error",
 			masterID: 1,
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(1)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("test error")).
 					Times(1)
 			},
@@ -217,7 +271,7 @@ func TestToysService_GetMasterToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			toys, err := toysService.GetMasterToys(ctx, tc.masterID)
+			toys, err := toysService.GetMasterToys(ctx, tc.masterID, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -246,7 +300,11 @@ func TestToysService_AddToy(t *testing.T) {
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(1)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(1),
+						nil,
+					).
 					Return([]entities.Toy{}, nil).
 					Times(1)
 
@@ -272,7 +330,11 @@ func TestToysService_AddToy(t *testing.T) {
 			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
 				toysRepository.
 					EXPECT().
-					GetMasterToys(gomock.Any(), uint64(1)).
+					GetMasterToys(
+						gomock.Any(),
+						uint64(1),
+						nil,
+					).
 					Return(
 						[]entities.Toy{
 							{

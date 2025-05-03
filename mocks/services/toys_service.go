@@ -70,34 +70,19 @@ func (mr *MockToysServiceMockRecorder) DeleteToy(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteToy", reflect.TypeOf((*MockToysService)(nil).DeleteToy), ctx, id)
 }
 
-// GetAllToys mocks base method.
-func (m *MockToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllToys", ctx)
-	ret0, _ := ret[0].([]entities.Toy)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllToys indicates an expected call of GetAllToys.
-func (mr *MockToysServiceMockRecorder) GetAllToys(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllToys", reflect.TypeOf((*MockToysService)(nil).GetAllToys), ctx)
-}
-
 // GetMasterToys mocks base method.
-func (m *MockToysService) GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error) {
+func (m *MockToysService) GetMasterToys(ctx context.Context, masterID uint64, pagination *entities.Pagination) ([]entities.Toy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasterToys", ctx, masterID)
+	ret := m.ctrl.Call(m, "GetMasterToys", ctx, masterID, pagination)
 	ret0, _ := ret[0].([]entities.Toy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasterToys indicates an expected call of GetMasterToys.
-func (mr *MockToysServiceMockRecorder) GetMasterToys(ctx, masterID any) *gomock.Call {
+func (mr *MockToysServiceMockRecorder) GetMasterToys(ctx, masterID, pagination any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterToys", reflect.TypeOf((*MockToysService)(nil).GetMasterToys), ctx, masterID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterToys", reflect.TypeOf((*MockToysService)(nil).GetMasterToys), ctx, masterID, pagination)
 }
 
 // GetToyByID mocks base method.
@@ -113,6 +98,21 @@ func (m *MockToysService) GetToyByID(ctx context.Context, id uint64) (*entities.
 func (mr *MockToysServiceMockRecorder) GetToyByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToyByID", reflect.TypeOf((*MockToysService)(nil).GetToyByID), ctx, id)
+}
+
+// GetToys mocks base method.
+func (m *MockToysService) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetToys", ctx, pagination)
+	ret0, _ := ret[0].([]entities.Toy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetToys indicates an expected call of GetToys.
+func (mr *MockToysServiceMockRecorder) GetToys(ctx, pagination any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToys", reflect.TypeOf((*MockToysService)(nil).GetToys), ctx, pagination)
 }
 
 // UpdateToy mocks base method.

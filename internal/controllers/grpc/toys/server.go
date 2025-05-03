@@ -112,8 +112,16 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 }
 
 // GetToys handler returns all Toys.
-func (api *ServerAPI) GetToys(ctx context.Context, _ *emptypb.Empty) (*toys.GetToysOut, error) {
-	allToys, err := api.useCases.GetAllToys(ctx)
+func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.GetToysOut, error) {
+	var pagination *entities.Pagination
+	if in.Pagination != nil {
+		pagination = &entities.Pagination{
+			Limit:  in.Pagination.Limit,
+			Offset: in.Pagination.Offset,
+		}
+	}
+
+	allToys, err := api.useCases.GetToys(ctx, pagination)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
 
@@ -133,7 +141,15 @@ func (api *ServerAPI) GetMasterToys(
 	ctx context.Context,
 	in *toys.GetMasterToysIn,
 ) (*toys.GetToysOut, error) {
-	masterToys, err := api.useCases.GetMasterToys(ctx, in.GetMasterID())
+	var pagination *entities.Pagination
+	if in.Pagination != nil {
+		pagination = &entities.Pagination{
+			Limit:  in.Pagination.Limit,
+			Offset: in.Pagination.Offset,
+		}
+	}
+
+	masterToys, err := api.useCases.GetMasterToys(ctx, in.GetMasterID(), pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -160,7 +176,15 @@ func (api *ServerAPI) GetUserToys(
 	ctx context.Context,
 	in *toys.GetUserToysIn,
 ) (*toys.GetToysOut, error) {
-	userToys, err := api.useCases.GetUserToys(ctx, in.GetUserID())
+	var pagination *entities.Pagination
+	if in.Pagination != nil {
+		pagination = &entities.Pagination{
+			Limit:  in.Pagination.Limit,
+			Offset: in.Pagination.Offset,
+		}
+	}
+
+	userToys, err := api.useCases.GetUserToys(ctx, in.GetUserID(), pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,

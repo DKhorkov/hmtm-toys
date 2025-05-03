@@ -96,7 +96,7 @@ func (s *MastersRepositoryTestSuite) TearDownSuite() {
 	s.NoError(s.dbConnector.Close())
 }
 
-func (s *MastersRepositoryTestSuite) TestGetAllMastersWithExisting() {
+func (s *MastersRepositoryTestSuite) TestGetMastersWithExisting() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
@@ -115,7 +115,7 @@ func (s *MastersRepositoryTestSuite) TestGetAllMastersWithExisting() {
 	)
 	s.NoError(err)
 
-	masters, err := s.mastersRepository.GetAllMasters(s.ctx)
+	masters, err := s.mastersRepository.GetMasters(s.ctx, nil)
 	s.NoError(err)
 	s.NotEmpty(masters)
 	s.Equal(2, len(masters))
@@ -129,14 +129,43 @@ func (s *MastersRepositoryTestSuite) TestGetAllMastersWithExisting() {
 	s.Equal(*info2, *masters[1].Info)
 }
 
-func (s *MastersRepositoryTestSuite) TestGetAllMastersWithoutExisting() {
+func (s *MastersRepositoryTestSuite) TestGetMastersWithoutExisting() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	masters, err := s.mastersRepository.GetAllMasters(s.ctx)
+	masters, err := s.mastersRepository.GetMasters(s.ctx, nil)
+	s.NoError(err)
+	s.Empty(masters)
+}
+
+func (s *MastersRepositoryTestSuite) TestGetMastersWithExistingMastersAndPagination() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	createdAt := time.Now().UTC()
+	info1 := pointers.New("Master Info 1")
+	info2 := pointers.New("Master Info 2")
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO masters (id, user_id, info, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)",
+		1, 1, info1, createdAt, createdAt,
+		2, 2, info2, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	pagination := &entities.Pagination{
+		Limit:  pointers.New[uint64](1),
+		Offset: pointers.New[uint64](2),
+	}
+
+	masters, err := s.mastersRepository.GetMasters(s.ctx, pagination)
 	s.NoError(err)
 	s.Empty(masters)
 }

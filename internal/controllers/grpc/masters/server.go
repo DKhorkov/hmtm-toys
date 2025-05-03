@@ -116,11 +116,16 @@ func (api *ServerAPI) GetMaster(
 }
 
 // GetMasters handler returns all Masters.
-func (api *ServerAPI) GetMasters(
-	ctx context.Context,
-	_ *emptypb.Empty,
-) (*toys.GetMastersOut, error) {
-	masters, err := api.useCases.GetAllMasters(ctx)
+func (api *ServerAPI) GetMasters(ctx context.Context, in *toys.GetMastersIn) (*toys.GetMastersOut, error) {
+	var pagination *entities.Pagination
+	if in.Pagination != nil {
+		pagination = &entities.Pagination{
+			Limit:  in.Pagination.Limit,
+			Offset: in.Pagination.Offset,
+		}
+	}
+
+	masters, err := api.useCases.GetMasters(ctx, pagination)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,

@@ -42,15 +42,16 @@ func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entitie
 	return toy, nil
 }
 
-func (service *ToysService) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	return service.toysRepository.GetAllToys(ctx)
+func (service *ToysService) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+	return service.toysRepository.GetToys(ctx, pagination)
 }
 
 func (service *ToysService) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
-	return service.toysRepository.GetMasterToys(ctx, masterID)
+	return service.toysRepository.GetMasterToys(ctx, masterID, pagination)
 }
 
 func (service *ToysService) AddToy(
@@ -76,7 +77,7 @@ func (service *ToysService) checkToyExistence(
 	ctx context.Context,
 	toyData entities.AddToyDTO,
 ) bool {
-	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID)
+	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID, nil)
 	if err == nil {
 		for _, toy := range toys {
 			if toy.Name == toyData.Name && toy.CategoryID == toyData.CategoryID &&

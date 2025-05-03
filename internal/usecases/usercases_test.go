@@ -446,9 +446,10 @@ func TestUseCases_GetToyByID(t *testing.T) {
 	}
 }
 
-func TestUseCases_GetAllToys(t *testing.T) {
+func TestUseCases_GetToys(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
 			categoriesService *mockservices.MockCategoriesService,
@@ -461,6 +462,10 @@ func TestUseCases_GetAllToys(t *testing.T) {
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
 				_ *mockservices.MockCategoriesService,
@@ -470,7 +475,13 @@ func TestUseCases_GetAllToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							{
@@ -518,7 +529,7 @@ func TestUseCases_GetAllToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetAllToys(ctx)
+			actual, err := useCases.GetToys(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -534,6 +545,7 @@ func TestUseCases_GetAllToys(t *testing.T) {
 func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		masterID   uint64
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
@@ -546,7 +558,11 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 		errorExpected bool
 	}{
 		{
-			name:     "success",
+			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			masterID: masterID,
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -557,7 +573,14 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							{
@@ -605,7 +628,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetMasterToys(ctx, masterID)
+			actual, err := useCases.GetMasterToys(ctx, tc.masterID, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -621,6 +644,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 func TestUseCases_GetUserToys(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		userID     uint64
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
@@ -633,7 +657,11 @@ func TestUseCases_GetUserToys(t *testing.T) {
 		errorExpected bool
 	}{
 		{
-			name:   "success",
+			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			userID: userID,
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -655,7 +683,14 @@ func TestUseCases_GetUserToys(t *testing.T) {
 
 				toysService.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							{
@@ -675,7 +710,11 @@ func TestUseCases_GetUserToys(t *testing.T) {
 			},
 		},
 		{
-			name:   "master not found",
+			name: "master not found",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			userID: userID,
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -721,7 +760,7 @@ func TestUseCases_GetUserToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetUserToys(ctx, userID)
+			actual, err := useCases.GetUserToys(ctx, tc.userID, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -815,9 +854,10 @@ func TestUseCases_GetMasterByID(t *testing.T) {
 	}
 }
 
-func TestUseCases_GetAllMasters(t *testing.T) {
+func TestUseCases_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name       string
+		pagination *entities.Pagination
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
 			categoriesService *mockservices.MockCategoriesService,
@@ -830,6 +870,10 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 	}{
 		{
 			name: "success",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
 				_ *mockservices.MockCategoriesService,
@@ -839,7 +883,13 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 			) {
 				mastersService.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Master{
 							{
@@ -887,7 +937,7 @@ func TestUseCases_GetAllMasters(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetAllMasters(ctx)
+			actual, err := useCases.GetMasters(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

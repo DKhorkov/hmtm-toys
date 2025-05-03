@@ -15,7 +15,7 @@ type UseCases interface {
 	CategoriesService
 
 	// Masters cases:
-	GetAllMasters(ctx context.Context) ([]entities.Master, error)
+	GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	RegisterMaster(
@@ -26,10 +26,10 @@ type UseCases interface {
 
 	// Toys cases:
 	AddToy(ctx context.Context, rawToyData entities.RawAddToyDTO) (toyID uint64, err error)
-	GetAllToys(ctx context.Context) ([]entities.Toy, error)
+	GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error)
 	GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error)
-	GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error)
-	GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error)
+	GetMasterToys(ctx context.Context, masterID uint64, pagination *entities.Pagination) ([]entities.Toy, error)
+	GetUserToys(ctx context.Context, userID uint64, pagination *entities.Pagination) ([]entities.Toy, error)
 	DeleteToy(ctx context.Context, id uint64) error
 	UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error
 }

@@ -41,21 +41,6 @@ func (m *MockMastersRepository) EXPECT() *MockMastersRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetAllMasters mocks base method.
-func (m *MockMastersRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllMasters", ctx)
-	ret0, _ := ret[0].([]entities.Master)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllMasters indicates an expected call of GetAllMasters.
-func (mr *MockMastersRepositoryMockRecorder) GetAllMasters(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllMasters", reflect.TypeOf((*MockMastersRepository)(nil).GetAllMasters), ctx)
-}
-
 // GetMasterByID mocks base method.
 func (m *MockMastersRepository) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	m.ctrl.T.Helper()
@@ -84,6 +69,21 @@ func (m *MockMastersRepository) GetMasterByUserID(ctx context.Context, userID ui
 func (mr *MockMastersRepositoryMockRecorder) GetMasterByUserID(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterByUserID", reflect.TypeOf((*MockMastersRepository)(nil).GetMasterByUserID), ctx, userID)
+}
+
+// GetMasters mocks base method.
+func (m *MockMastersRepository) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination)
+	ret0, _ := ret[0].([]entities.Master)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMasters indicates an expected call of GetMasters.
+func (mr *MockMastersRepositoryMockRecorder) GetMasters(ctx, pagination any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockMastersRepository)(nil).GetMasters), ctx, pagination)
 }
 
 // RegisterMaster mocks base method.

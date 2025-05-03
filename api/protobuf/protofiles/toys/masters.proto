@@ -12,7 +12,7 @@ service MastersService {
   rpc RegisterMaster(RegisterMasterIn) returns (RegisterMasterOut) {}
   rpc GetMaster(GetMasterIn) returns (GetMasterOut) {}
   rpc GetMasterByUser(GetMasterByUserIn) returns (GetMasterOut) {}
-  rpc GetMasters(google.protobuf.Empty) returns (GetMastersOut) {}
+  rpc GetMasters(GetMastersIn) returns (GetMastersOut) {}
   rpc UpdateMaster(UpdateMasterIn) returns (google.protobuf.Empty) {}
 }
 
@@ -35,6 +35,15 @@ message GetMasterOut {
   optional string info = 3;
   google.protobuf.Timestamp createdAt = 5;
   google.protobuf.Timestamp updatedAt = 6;
+}
+
+message Pagination {
+  optional uint64 limit = 1;
+  optional uint64 offset = 2;
+}
+
+message GetMastersIn {
+  optional Pagination pagination = 1;
 }
 
 message GetMastersOut {

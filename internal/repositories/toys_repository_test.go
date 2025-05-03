@@ -96,7 +96,7 @@ func (s *ToysRepositoryTestSuite) TearDownSuite() {
 	s.NoError(s.dbConnector.Close())
 }
 
-func (s *ToysRepositoryTestSuite) TestGetAllToysWithExisting() {
+func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToys() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
@@ -139,7 +139,7 @@ func (s *ToysRepositoryTestSuite) TestGetAllToysWithExisting() {
 	)
 	s.NoError(err)
 
-	toys, err := s.toysRepository.GetAllToys(s.ctx)
+	toys, err := s.toysRepository.GetToys(s.ctx, nil)
 	s.NoError(err)
 	s.NotEmpty(toys)
 	s.Equal(2, len(toys))
@@ -156,19 +156,72 @@ func (s *ToysRepositoryTestSuite) TestGetAllToysWithExisting() {
 	s.Equal("file1.jpg", toys[0].Attachments[0].Link)
 }
 
-func (s *ToysRepositoryTestSuite) TestGetAllToysWithoutExisting() {
+func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToysAndPagination() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	toys, err := s.toysRepository.GetAllToys(s.ctx)
+	createdAt := time.Now().UTC()
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys (id, master_id, category_id, name, description, price, quantity, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		1, 1, 2, "Toy 1", "Desc 1", 99.99, 5, createdAt, createdAt,
+		2, 2, 3, "Toy 2", "Desc 2", 49.99, 3, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO tags (id, name, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?), (?, ?, ?, ?)",
+		10, "Tag 1", createdAt, createdAt,
+		20, "Tag 2", createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_tags_associations (id, toy_id, tag_id) "+
+			"VALUES (?, ?, ?), (?, ?, ?)",
+		1, 1, 10,
+		2, 1, 20,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_attachments (id, toy_id, link, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?)",
+		1, 1, "file1.jpg", createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	pagination := &entities.Pagination{
+		Limit:  pointers.New[uint64](1),
+		Offset: pointers.New[uint64](2),
+	}
+
+	toys, err := s.toysRepository.GetToys(s.ctx, pagination)
 	s.NoError(err)
 	s.Empty(toys)
 }
 
-func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExisting() {
+func (s *ToysRepositoryTestSuite) TestGetToysWithoutExisting() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	toys, err := s.toysRepository.GetToys(s.ctx, nil)
+	s.NoError(err)
+	s.Empty(toys)
+}
+
+func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToys() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
@@ -186,7 +239,7 @@ func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExisting() {
 	)
 	s.NoError(err)
 
-	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID)
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, nil)
 	s.NoError(err)
 	s.NotEmpty(toys)
 	s.Equal(2, len(toys))
@@ -194,14 +247,42 @@ func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExisting() {
 	s.Equal(masterID, toys[1].MasterID)
 }
 
-func (s *ToysRepositoryTestSuite) TestGetMasterToysWithoutExisting() {
+func (s *ToysRepositoryTestSuite) TestGetMasterToysWithoutExistingToys() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	toys, err := s.toysRepository.GetMasterToys(s.ctx, 999)
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, 999, nil)
+	s.NoError(err)
+	s.Empty(toys)
+}
+
+func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToysAndPagination() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	masterID := uint64(1)
+	createdAt := time.Now().UTC()
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys (id, master_id, category_id, name, description, price, quantity, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		1, masterID, 2, "Toy 1", "Desc 1", 99.99, 5, createdAt, createdAt,
+		2, masterID, 3, "Toy 2", "Desc 2", 49.99, 3, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	pagination := &entities.Pagination{
+		Limit:  pointers.New[uint64](1),
+		Offset: pointers.New[uint64](2),
+	}
+
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, pagination)
 	s.NoError(err)
 	s.Empty(toys)
 }

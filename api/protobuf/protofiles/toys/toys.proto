@@ -3,6 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "toys/tags.proto";
+import "toys/masters.proto";
 
 package toys;
 
@@ -12,7 +13,7 @@ option go_package = "github.com/DKhorkov/hmtm-toys/api/protobuf/toys;toys";
 service ToysService {
   rpc AddToy(AddToyIn) returns (AddToyOut) {}
   rpc GetToy(GetToyIn) returns (GetToyOut) {}
-  rpc GetToys(google.protobuf.Empty) returns (GetToysOut) {}
+  rpc GetToys(GetToysIn) returns (GetToysOut) {}
   rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
   rpc GetUserToys(GetUserToysIn) returns (GetToysOut) {}
   rpc DeleteToy(DeleteToyIn) returns (google.protobuf.Empty) {}
@@ -60,16 +61,22 @@ message GetToyOut {
   google.protobuf.Timestamp updatedAt = 11;
 }
 
+message GetToysIn {
+  optional masters.Pagination pagination = 1;
+}
+
 message GetToysOut {
   repeated GetToyOut toys = 1;
 }
 
 message GetMasterToysIn {
   uint64 masterID = 1;
+  optional masters.Pagination pagination = 2;
 }
 
 message GetUserToysIn {
   uint64 userID = 1;
+  optional masters.Pagination pagination = 2;
 }
 
 message DeleteToyIn {
