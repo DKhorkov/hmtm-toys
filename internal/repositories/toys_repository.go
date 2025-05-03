@@ -52,7 +52,7 @@ func NewToysRepository(
 	}
 }
 
-func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -66,11 +66,21 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	stmt, params, err := sq.
+	builder := sq.
 		Select(selectAllColumns).
 		From(toysTableName).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
+		OrderBy(idColumnName).
+		PlaceholderFormat(sq.Dollar)
+
+	if pagination != nil && pagination.Limit != nil {
+		builder = builder.Limit(*pagination.Limit)
+	}
+
+	if pagination != nil && pagination.Offset != nil {
+		builder = builder.Offset(*pagination.Offset)
+	}
+
+	stmt, params, err := builder.ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +149,7 @@ func (repo *ToysRepository) GetAllToys(ctx context.Context) ([]entities.Toy, err
 func (repo *ToysRepository) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
@@ -153,12 +164,22 @@ func (repo *ToysRepository) GetMasterToys(
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	stmt, params, err := sq.
+	builder := sq.
 		Select(selectAllColumns).
 		From(toysTableName).
 		Where(sq.Eq{masterIDColumnName: masterID}).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
+		OrderBy(idColumnName).
+		PlaceholderFormat(sq.Dollar)
+
+	if pagination != nil && pagination.Limit != nil {
+		builder = builder.Limit(*pagination.Limit)
+	}
+
+	if pagination != nil && pagination.Offset != nil {
+		builder = builder.Offset(*pagination.Offset)
+	}
+
+	stmt, params, err := builder.ToSql()
 	if err != nil {
 		return nil, err
 	}

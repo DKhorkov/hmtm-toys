@@ -61,24 +61,29 @@ func (useCases *UseCases) GetToyByID(ctx context.Context, id uint64) (*entities.
 	return useCases.toysService.GetToyByID(ctx, id)
 }
 
-func (useCases *UseCases) GetAllToys(ctx context.Context) ([]entities.Toy, error) {
-	return useCases.toysService.GetAllToys(ctx)
+func (useCases *UseCases) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+	return useCases.toysService.GetToys(ctx, pagination)
 }
 
 func (useCases *UseCases) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
+	pagination *entities.Pagination,
 ) ([]entities.Toy, error) {
-	return useCases.toysService.GetMasterToys(ctx, masterID)
+	return useCases.toysService.GetMasterToys(ctx, masterID, pagination)
 }
 
-func (useCases *UseCases) GetUserToys(ctx context.Context, userID uint64) ([]entities.Toy, error) {
+func (useCases *UseCases) GetUserToys(
+	ctx context.Context,
+	userID uint64,
+	pagination *entities.Pagination,
+) ([]entities.Toy, error) {
 	master, err := useCases.GetMasterByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return useCases.GetMasterToys(ctx, master.ID)
+	return useCases.GetMasterToys(ctx, master.ID, pagination)
 }
 
 func (useCases *UseCases) AddToy(
@@ -125,8 +130,8 @@ func (useCases *UseCases) GetMasterByUserID(
 	return useCases.mastersService.GetMasterByUserID(ctx, userID)
 }
 
-func (useCases *UseCases) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
-	return useCases.mastersService.GetAllMasters(ctx)
+func (useCases *UseCases) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+	return useCases.mastersService.GetMasters(ctx, pagination)
 }
 
 func (useCases *UseCases) RegisterMaster(

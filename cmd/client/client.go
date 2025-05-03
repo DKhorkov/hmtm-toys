@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 )
@@ -57,7 +56,7 @@ func main() {
 	fmt.Println(err)
 	fmt.Println(toyByID)
 
-	allToys, err := client.GetToys(ctx, &emptypb.Empty{})
+	allToys, err := client.GetToys(ctx, &toys.GetToysIn{})
 	fmt.Println(err)
 
 	for _, toy := range allToys.GetToys() {
@@ -70,7 +69,7 @@ func main() {
 	})
 	fmt.Println(err, masterID)
 
-	allMasters, err := client.GetMasters(ctx, &emptypb.Empty{})
+	allMasters, err := client.GetMasters(ctx, &toys.GetMastersIn{})
 	fmt.Println(err)
 
 	for _, master := range allMasters.GetMasters() {

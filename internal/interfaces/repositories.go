@@ -9,16 +9,16 @@ import (
 //go:generate mockgen -source=repositories.go -destination=../../mocks/repositories/toys_repository.go -exclude_interfaces=MastersRepository,CategoriesRepository,TagsRepository,SsoRepository -package=mockrepositories
 type ToysRepository interface {
 	AddToy(ctx context.Context, toyData entities.AddToyDTO) (toyID uint64, err error)
-	GetAllToys(ctx context.Context) ([]entities.Toy, error)
+	GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error)
 	GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error)
-	GetMasterToys(ctx context.Context, masterID uint64) ([]entities.Toy, error)
+	GetMasterToys(ctx context.Context, masterID uint64, pagination *entities.Pagination) ([]entities.Toy, error)
 	DeleteToy(ctx context.Context, id uint64) error
 	UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error
 }
 
 //go:generate mockgen -source=repositories.go  -destination=../../mocks/repositories/masters_repository.go -exclude_interfaces=TagsRepository,CategoriesRepository,ToysRepository,SsoRepository -package=mockrepositories
 type MastersRepository interface {
-	GetAllMasters(ctx context.Context) ([]entities.Master, error)
+	GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	RegisterMaster(

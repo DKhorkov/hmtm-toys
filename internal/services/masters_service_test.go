@@ -150,20 +150,31 @@ func TestMastersService_GetMasterByUserID(t *testing.T) {
 	}
 }
 
-func TestMastersService_GetAllMasters(t *testing.T) {
+func TestMastersService_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name          string
+		pagination    *entities.Pagination
 		expected      []entities.Master
 		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
 		errorExpected bool
 	}{
 		{
-			name:     "all Masters with existing Masters",
+			name: "all Masters with existing Masters",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			expected: []entities.Master{{ID: 1}},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Master{
 							{ID: 1},
@@ -174,22 +185,42 @@ func TestMastersService_GetAllMasters(t *testing.T) {
 			},
 		},
 		{
-			name:     "all Masters without existing Masters",
+			name: "all Masters without existing Masters",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			expected: []entities.Master{},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return([]entities.Master{}, nil).
 					Times(1)
 			},
 		},
 		{
 			name: "all Masters error",
+			pagination: &entities.Pagination{
+				Limit:  pointers.New[uint64](1),
+				Offset: pointers.New[uint64](1),
+			},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("test error")).
 					Times(1)
 			},
@@ -209,7 +240,7 @@ func TestMastersService_GetAllMasters(t *testing.T) {
 				tc.setupMocks(mastersRepository, logger)
 			}
 
-			masters, err := mastersService.GetAllMasters(ctx)
+			masters, err := mastersService.GetMasters(ctx, tc.pagination)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

@@ -39,7 +39,10 @@ func NewMastersRepository(
 	}
 }
 
-func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
+func (repo *MastersRepository) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+) ([]entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -53,11 +56,21 @@ func (repo *MastersRepository) GetAllMasters(ctx context.Context) ([]entities.Ma
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	stmt, params, err := sq.
+	builder := sq.
 		Select(selectAllColumns).
 		From(mastersTableName).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
+		OrderBy(idColumnName).
+		PlaceholderFormat(sq.Dollar)
+
+	if pagination != nil && pagination.Limit != nil {
+		builder = builder.Limit(*pagination.Limit)
+	}
+
+	if pagination != nil && pagination.Offset != nil {
+		builder = builder.Offset(*pagination.Offset)
+	}
+
+	stmt, params, err := builder.ToSql()
 	if err != nil {
 		return nil, err
 	}

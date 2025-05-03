@@ -5,18 +5,16 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	mockusecases "github.com/DKhorkov/hmtm-toys/mocks/usecases"
 	mocklogger "github.com/DKhorkov/libs/logging/mocks"
 	"github.com/DKhorkov/libs/pointers"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -222,6 +220,7 @@ func TestTagsServer_GetMasterByUser(t *testing.T) {
 func TestTagsServer_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name          string
+		in            *toys.GetMastersIn
 		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetMastersOut
 		errorExpected bool
@@ -229,10 +228,22 @@ func TestTagsServer_GetMasters(t *testing.T) {
 	}{
 		{
 			name: "success",
+			in: &toys.GetMastersIn{
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Master{
 							*master,
@@ -249,10 +260,22 @@ func TestTagsServer_GetMasters(t *testing.T) {
 		},
 		{
 			name: "error",
+			in: &toys.GetMastersIn{
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetAllMasters(gomock.Any()).
+					GetMasters(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("some error")).
 					Times(1)
 
@@ -280,7 +303,7 @@ func TestTagsServer_GetMasters(t *testing.T) {
 				tc.setupMocks(usecases, logger)
 			}
 
-			actual, err := tagsServer.GetMasters(ctx, &emptypb.Empty{})
+			actual, err := tagsServer.GetMasters(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))

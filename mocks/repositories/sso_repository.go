@@ -41,21 +41,6 @@ func (m *MockSsoRepository) EXPECT() *MockSsoRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetAllUsers mocks base method.
-func (m *MockSsoRepository) GetAllUsers(ctx context.Context) ([]entities.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllUsers", ctx)
-	ret0, _ := ret[0].([]entities.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllUsers indicates an expected call of GetAllUsers.
-func (mr *MockSsoRepositoryMockRecorder) GetAllUsers(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockSsoRepository)(nil).GetAllUsers), ctx)
-}
-
 // GetUserByEmail mocks base method.
 func (m *MockSsoRepository) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
 	m.ctrl.T.Helper()

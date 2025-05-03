@@ -5,18 +5,16 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/DKhorkov/hmtm-toys/api/protobuf/generated/go/toys"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
 	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	mockusecases "github.com/DKhorkov/hmtm-toys/mocks/usecases"
 	mocklogger "github.com/DKhorkov/libs/logging/mocks"
 	"github.com/DKhorkov/libs/pointers"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -152,6 +150,7 @@ func TestTagsServer_GetToy(t *testing.T) {
 func TestTagsServer_GetToys(t *testing.T) {
 	testCases := []struct {
 		name          string
+		in            *toys.GetToysIn
 		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetToysOut
 		errorExpected bool
@@ -159,10 +158,22 @@ func TestTagsServer_GetToys(t *testing.T) {
 	}{
 		{
 			name: "success",
+			in: &toys.GetToysIn{
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							*toy,
@@ -179,10 +190,22 @@ func TestTagsServer_GetToys(t *testing.T) {
 		},
 		{
 			name: "error",
+			in: &toys.GetToysIn{
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
+			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetAllToys(gomock.Any()).
+					GetToys(
+						gomock.Any(),
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("some error")).
 					Times(1)
 
@@ -210,7 +233,7 @@ func TestTagsServer_GetToys(t *testing.T) {
 				tc.setupMocks(usecases, logger)
 			}
 
-			actual, err := tagsServer.GetToys(ctx, &emptypb.Empty{})
+			actual, err := tagsServer.GetToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -236,11 +259,22 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 			name: "success",
 			in: &toys.GetMasterToysIn{
 				MasterID: masterID,
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							*toy,
@@ -259,11 +293,22 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 			name: "error",
 			in: &toys.GetMasterToysIn{
 				MasterID: masterID,
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetMasterToys(gomock.Any(), masterID).
+					GetMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("some error")).
 					Times(1)
 
@@ -317,11 +362,22 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 			name: "success",
 			in: &toys.GetUserToysIn{
 				UserID: userID,
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetUserToys(gomock.Any(), userID).
+					GetUserToys(
+						gomock.Any(),
+						userID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(
 						[]entities.Toy{
 							*toy,
@@ -340,11 +396,22 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 			name: "error",
 			in: &toys.GetUserToysIn{
 				UserID: userID,
+				Pagination: &toys.Pagination{
+					Limit:  pointers.New[uint64](1),
+					Offset: pointers.New[uint64](1),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					GetUserToys(gomock.Any(), userID).
+					GetUserToys(
+						gomock.Any(),
+						userID,
+						&entities.Pagination{
+							Limit:  pointers.New[uint64](1),
+							Offset: pointers.New[uint64](1),
+						},
+					).
 					Return(nil, errors.New("some error")).
 					Times(1)
 

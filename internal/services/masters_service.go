@@ -64,8 +64,11 @@ func (service *MastersService) GetMasterByUserID(
 	return master, nil
 }
 
-func (service *MastersService) GetAllMasters(ctx context.Context) ([]entities.Master, error) {
-	return service.mastersRepository.GetAllMasters(ctx)
+func (service *MastersService) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+) ([]entities.Master, error) {
+	return service.mastersRepository.GetMasters(ctx, pagination)
 }
 
 func (service *MastersService) RegisterMaster(
