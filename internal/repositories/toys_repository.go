@@ -15,6 +15,7 @@ import (
 
 const (
 	selectAllColumns                = "*"
+	selectCount                     = "COUNT(*)"
 	toysTableName                   = "toys"
 	toysAndTagsAssociationTableName = "toys_tags_associations"
 	toysAttachmentsTableName        = "toys_attachments"
@@ -144,6 +145,37 @@ func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pa
 	}
 
 	return toys, nil
+}
+
+func (repo *ToysRepository) CountToys(ctx context.Context) (uint64, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
+	stmt, params, err := sq.
+		Select(selectCount).
+		From(toysTableName).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	var count uint64
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (repo *ToysRepository) GetMasterToys(

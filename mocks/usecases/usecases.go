@@ -56,6 +56,21 @@ func (mr *MockUseCasesMockRecorder) AddToy(ctx, rawToyData any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToy", reflect.TypeOf((*MockUseCases)(nil).AddToy), ctx, rawToyData)
 }
 
+// CountToys mocks base method.
+func (m *MockUseCases) CountToys(ctx context.Context) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountToys", ctx)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountToys indicates an expected call of CountToys.
+func (mr *MockUseCasesMockRecorder) CountToys(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountToys", reflect.TypeOf((*MockUseCases)(nil).CountToys), ctx)
+}
+
 // CreateTags mocks base method.
 func (m *MockUseCases) CreateTags(ctx context.Context, tagsData []entities.CreateTagDTO) ([]uint32, error) {
 	m.ctrl.T.Helper()

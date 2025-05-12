@@ -14,6 +14,7 @@ service ToysService {
   rpc AddToy(AddToyIn) returns (AddToyOut) {}
   rpc GetToy(GetToyIn) returns (GetToyOut) {}
   rpc GetToys(GetToysIn) returns (GetToysOut) {}
+  rpc CountToys(CountToysIn) returns (CountOut) {}
   rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
   rpc GetUserToys(GetUserToysIn) returns (GetToysOut) {}
   rpc DeleteToy(DeleteToyIn) returns (google.protobuf.Empty) {}
@@ -92,4 +93,12 @@ message UpdateToyIn {
   optional uint32 categoryID = 6;
   repeated uint32 tagIDs = 7;
   repeated string attachments = 8;
+}
+
+message CountToysIn {
+
+}
+
+message CountOut {
+  uint64 count = 1;
 }
