@@ -5,3 +5,7 @@ grpcurl -proto api/protobuf/protofiles/toys/masters.proto -plaintext -d '{"pagin
 ###
 
 grpcurl -proto api/protobuf/protofiles/toys/toys.proto -plaintext -d '{"pagination": {"limit": 2,"offset": 3}}' localhost:8060 toys.ToysService.GetToys
+
+###
+
+grpcurl -proto api/protobuf/protofiles/toys/toys.proto -plaintext -d '' localhost:8060 toys.ToysService.CountToys

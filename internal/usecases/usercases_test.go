@@ -542,6 +542,77 @@ func TestUseCases_GetToys(t *testing.T) {
 	}
 }
 
+func TestUseCases_CountToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+		validationConfig,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.CountToys(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string

@@ -38,6 +38,22 @@ type ServerAPI struct {
 	logger   logging.Logger
 }
 
+func (api *ServerAPI) CountToys(ctx context.Context, in *toys.CountToysIn) (*toys.CountOut, error) {
+	count, err := api.useCases.CountToys(ctx)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			"Error occurred while trying to count Toys",
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	return &toys.CountOut{Count: count}, nil
+}
+
 func (api *ServerAPI) UpdateToy(ctx context.Context, in *toys.UpdateToyIn) (*emptypb.Empty, error) {
 	toyData := entities.RawUpdateToyDTO{
 		ID:          in.GetID(),

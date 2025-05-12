@@ -189,6 +189,61 @@ func TestToysService_GetToys(t *testing.T) {
 	}
 }
 
+func TestToysService_CountToys(t *testing.T) {
+	testCases := []struct {
+		name          string
+		expected      uint64
+		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			expected: 1,
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+		},
+		{
+			name: "error",
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(0), errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	mockController := gomock.NewController(t)
+	toysRepository := mockrepositories.NewMockToysRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	toysService := services.NewToysService(toysRepository, logger)
+	ctx := context.Background()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysRepository, logger)
+			}
+
+			toys, err := toysService.CountToys(ctx)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			assert.Equal(t, tc.expected, toys)
+		})
+	}
+}
+
 func TestToysService_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string

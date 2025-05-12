@@ -46,6 +46,10 @@ func (service *ToysService) GetToys(ctx context.Context, pagination *entities.Pa
 	return service.toysRepository.GetToys(ctx, pagination)
 }
 
+func (service *ToysService) CountToys(ctx context.Context) (uint64, error) {
+	return service.toysRepository.CountToys(ctx)
+}
+
 func (service *ToysService) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,

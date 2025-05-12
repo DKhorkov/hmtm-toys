@@ -221,6 +221,40 @@ func (s *ToysRepositoryTestSuite) TestGetToysWithoutExisting() {
 	s.Empty(toys)
 }
 
+func (s *ToysRepositoryTestSuite) TestCountToysWithExistingToys() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	createdAt := time.Now().UTC()
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys (id, master_id, category_id, name, description, price, quantity, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		1, 1, 2, "Toy 1", "Desc 1", 99.99, 5, createdAt, createdAt,
+		2, 2, 3, "Toy 2", "Desc 2", 49.99, 3, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	count, err := s.toysRepository.CountToys(s.ctx)
+	s.NoError(err)
+	s.Equal(uint64(2), count)
+}
+
+func (s *ToysRepositoryTestSuite) TestCountToysWithoutExisting() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	count, err := s.toysRepository.CountToys(s.ctx)
+	s.NoError(err)
+	s.Zero(count)
+}
+
 func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToys() {
 	s.traceProvider.
 		EXPECT().

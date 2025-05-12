@@ -246,6 +246,76 @@ func TestTagsServer_GetToys(t *testing.T) {
 	}
 }
 
+func TestTagsServer_CountToys(t *testing.T) {
+	testCases := []struct {
+		name          string
+		in            *toys.CountToysIn
+		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		expected      *toys.CountOut
+		errorExpected bool
+		errorCode     codes.Code
+	}{
+		{
+			name: "success",
+			in:   &toys.CountToysIn{},
+			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: &toys.CountOut{
+				Count: 1,
+			},
+		},
+		{
+			name: "error",
+			in:   &toys.CountToysIn{},
+			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CountToys(gomock.Any()).
+					Return(uint64(0), errors.New("some error")).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.Internal,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	usecases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	tagsServer := &ServerAPI{
+		logger:   logger,
+		useCases: usecases,
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(usecases, logger)
+			}
+
+			actual, err := tagsServer.CountToys(ctx, tc.in)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.Equal(t, tc.errorCode, status.Code(err))
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestTagsServer_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
