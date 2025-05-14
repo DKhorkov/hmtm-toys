@@ -232,14 +232,14 @@ func TestToysService_CountToys(t *testing.T) {
 				tc.setupMocks(toysRepository, logger)
 			}
 
-			toys, err := toysService.CountToys(ctx)
+			actual, err := toysService.CountToys(ctx)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
 
-			assert.Equal(t, tc.expected, toys)
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }
