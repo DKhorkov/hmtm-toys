@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -30,6 +31,8 @@ const (
 	masterIDColumnName              = "master_id"
 	attachmentLinkColumnName        = "link"
 	returningIDSuffix               = "RETURNING id"
+	DESC                            = "DESC"
+	ASC                             = "ASC"
 )
 
 type ToysRepository struct {
@@ -70,7 +73,7 @@ func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pa
 	builder := sq.
 		Select(selectAllColumns).
 		From(toysTableName).
-		OrderBy(idColumnName).
+		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar)
 
 	if pagination != nil && pagination.Limit != nil {
@@ -200,7 +203,7 @@ func (repo *ToysRepository) GetMasterToys(
 		Select(selectAllColumns).
 		From(toysTableName).
 		Where(sq.Eq{masterIDColumnName: masterID}).
-		OrderBy(idColumnName).
+		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar)
 
 	if pagination != nil && pagination.Limit != nil {

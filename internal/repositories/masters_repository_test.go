@@ -116,17 +116,21 @@ func (s *MastersRepositoryTestSuite) TestGetMastersWithExisting() {
 	s.NoError(err)
 
 	masters, err := s.mastersRepository.GetMasters(s.ctx, nil)
+
+	// Reversed order
 	s.NoError(err)
 	s.NotEmpty(masters)
 	s.Equal(2, len(masters))
-	s.Equal(uint64(1), masters[0].UserID)
+	s.Equal(uint64(1), masters[1].UserID)
+	s.NotNil(masters[1].Info)
+	s.Equal(*info1, *masters[1].Info)
+	s.WithinDuration(createdAt, masters[1].CreatedAt, time.Second)
+	s.WithinDuration(createdAt, masters[1].UpdatedAt, time.Second)
+	s.Equal(uint64(2), masters[0].UserID)
 	s.NotNil(masters[0].Info)
-	s.Equal(*info1, *masters[0].Info)
+	s.Equal(*info2, *masters[0].Info)
 	s.WithinDuration(createdAt, masters[0].CreatedAt, time.Second)
 	s.WithinDuration(createdAt, masters[0].UpdatedAt, time.Second)
-	s.Equal(uint64(2), masters[1].UserID)
-	s.NotNil(masters[1].Info)
-	s.Equal(*info2, *masters[1].Info)
 }
 
 func (s *MastersRepositoryTestSuite) TestGetMastersWithoutExisting() {

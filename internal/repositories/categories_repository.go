@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -56,6 +57,7 @@ func (repo *CategoriesRepository) GetAllCategories(
 	stmt, params, err := sq.
 		Select(selectAllColumns).
 		From(categoriesTableName).
+		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {

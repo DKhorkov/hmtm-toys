@@ -122,12 +122,14 @@ func (s *CategoriesRepositoryTestSuite) TestGetAllCategoriesWithExisting() {
 	s.NoError(err)
 	s.NotEmpty(categories)
 	s.Equal(2, len(categories))
-	s.Equal(uint32(1), categories[0].ID)
-	s.Equal("Category 1", categories[0].Name)
+	s.Equal(uint32(1), categories[1].ID)
+	s.Equal("Category 1", categories[1].Name)
+	s.WithinDuration(createdAt, categories[1].CreatedAt, time.Second)
+	s.WithinDuration(createdAt, categories[1].UpdatedAt, time.Second)
+	s.Equal(uint32(2), categories[0].ID)
+	s.Equal("Category 2", categories[0].Name)
 	s.WithinDuration(createdAt, categories[0].CreatedAt, time.Second)
 	s.WithinDuration(createdAt, categories[0].UpdatedAt, time.Second)
-	s.Equal(uint32(2), categories[1].ID)
-	s.Equal("Category 2", categories[1].Name)
 }
 
 func (s *CategoriesRepositoryTestSuite) TestGetAllCategoriesWithoutExisting() {

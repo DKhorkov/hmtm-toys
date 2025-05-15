@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -55,6 +56,7 @@ func (repo *TagsRepository) GetAllTags(ctx context.Context) ([]entities.Tag, err
 	stmt, params, err := sq.
 		Select(selectAllColumns).
 		From(tagsTableName).
+		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
