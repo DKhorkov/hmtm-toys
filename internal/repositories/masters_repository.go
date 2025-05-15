@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -59,7 +60,7 @@ func (repo *MastersRepository) GetMasters(
 	builder := sq.
 		Select(selectAllColumns).
 		From(mastersTableName).
-		OrderBy(idColumnName).
+		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar)
 
 	if pagination != nil && pagination.Limit != nil {

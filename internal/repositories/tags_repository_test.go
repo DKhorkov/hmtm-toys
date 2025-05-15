@@ -115,12 +115,14 @@ func (s *TagsRepositoryTestSuite) TestGetAllTagsWithExisting() {
 	s.NoError(err)
 	s.NotEmpty(tags)
 	s.Equal(2, len(tags))
-	s.Equal(uint32(1), tags[0].ID)
-	s.Equal("Tag 1", tags[0].Name)
+	s.Equal(uint32(1), tags[1].ID)
+	s.Equal("Tag 1", tags[1].Name)
+	s.WithinDuration(createdAt, tags[1].CreatedAt, time.Second)
+	s.WithinDuration(createdAt, tags[1].UpdatedAt, time.Second)
+	s.Equal(uint32(2), tags[0].ID)
+	s.Equal("Tag 2", tags[0].Name)
 	s.WithinDuration(createdAt, tags[0].CreatedAt, time.Second)
 	s.WithinDuration(createdAt, tags[0].UpdatedAt, time.Second)
-	s.Equal(uint32(2), tags[1].ID)
-	s.Equal("Tag 2", tags[1].Name)
 }
 
 func (s *TagsRepositoryTestSuite) TestGetAllTagsWithoutExisting() {
