@@ -69,3 +69,13 @@ type RawUpdateToyDTO struct {
 	TagIDs      []uint32 `json:"tagIds,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
 }
+
+type ToysFilters struct {
+	Search              *string  `json:"search,omitempty"`
+	PriceCeil           *float32 `json:"priceCeil,omitempty"`     // max price
+	PriceFloor          *float32 `json:"priceFloor,omitempty"`    // min price
+	QuantityFloor       *uint32  `json:"quantityFloor,omitempty"` // min quantity
+	CategoryID          *uint32  `json:"categoryId,omitempty"`
+	TagIDs              []uint32 `json:"tagIds,omitempty"`
+	CreatedAtOrderByAsc *bool    `json:"createdAtOrderByAsc,omitempty"`
+}

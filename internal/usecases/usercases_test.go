@@ -450,6 +450,7 @@ func TestUseCases_GetToys(t *testing.T) {
 	testCases := []struct {
 		name       string
 		pagination *entities.Pagination
+		filters    *entities.ToysFilters
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
 			categoriesService *mockservices.MockCategoriesService,
@@ -466,6 +467,15 @@ func TestUseCases_GetToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
 				_ *mockservices.MockCategoriesService,
@@ -480,6 +490,15 @@ func TestUseCases_GetToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(
@@ -529,7 +548,7 @@ func TestUseCases_GetToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetToys(ctx, tc.pagination)
+			actual, err := useCases.GetToys(ctx, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -545,6 +564,7 @@ func TestUseCases_GetToys(t *testing.T) {
 func TestUseCases_CountToys(t *testing.T) {
 	testCases := []struct {
 		name       string
+		filters    *entities.ToysFilters
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
 			categoriesService *mockservices.MockCategoriesService,
@@ -557,6 +577,15 @@ func TestUseCases_CountToys(t *testing.T) {
 	}{
 		{
 			name: "success",
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
 				_ *mockservices.MockCategoriesService,
@@ -566,7 +595,18 @@ func TestUseCases_CountToys(t *testing.T) {
 			) {
 				toysService.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(1), nil).
 					Times(1)
 			},
@@ -601,7 +641,7 @@ func TestUseCases_CountToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.CountToys(ctx)
+			actual, err := useCases.CountToys(ctx, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -617,6 +657,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string
 		pagination *entities.Pagination
+		filters    *entities.ToysFilters
 		masterID   uint64
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
@@ -634,6 +675,15 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
 			masterID: masterID,
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -650,6 +700,15 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(
@@ -699,7 +758,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetMasterToys(ctx, tc.masterID, tc.pagination)
+			actual, err := useCases.GetMasterToys(ctx, tc.masterID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -716,6 +775,7 @@ func TestUseCases_GetUserToys(t *testing.T) {
 	testCases := []struct {
 		name       string
 		pagination *entities.Pagination
+		filters    *entities.ToysFilters
 		userID     uint64
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
@@ -732,6 +792,15 @@ func TestUseCases_GetUserToys(t *testing.T) {
 			pagination: &entities.Pagination{
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
+			},
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
 			},
 			userID: userID,
 			setupMocks: func(
@@ -760,6 +829,15 @@ func TestUseCases_GetUserToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(
@@ -831,7 +909,7 @@ func TestUseCases_GetUserToys(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetUserToys(ctx, tc.userID, tc.pagination)
+			actual, err := useCases.GetUserToys(ctx, tc.userID, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {

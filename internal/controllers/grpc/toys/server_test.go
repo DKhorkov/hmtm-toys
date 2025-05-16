@@ -163,6 +163,15 @@ func TestTagsServer_GetToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
@@ -172,6 +181,15 @@ func TestTagsServer_GetToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(
@@ -195,6 +213,15 @@ func TestTagsServer_GetToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
@@ -204,6 +231,15 @@ func TestTagsServer_GetToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("some error")).
@@ -257,11 +293,32 @@ func TestTagsServer_CountToys(t *testing.T) {
 	}{
 		{
 			name: "success",
-			in:   &toys.CountToysIn{},
+			in: &toys.CountToysIn{
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(1), nil).
 					Times(1)
 			},
@@ -271,11 +328,32 @@ func TestTagsServer_CountToys(t *testing.T) {
 		},
 		{
 			name: "error",
-			in:   &toys.CountToysIn{},
+			in: &toys.CountToysIn{
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
 					EXPECT().
-					CountToys(gomock.Any()).
+					CountToys(
+						gomock.Any(),
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
 					Return(uint64(0), errors.New("some error")).
 					Times(1)
 
@@ -333,6 +411,15 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
@@ -343,6 +430,15 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(
@@ -367,6 +463,15 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
@@ -377,6 +482,15 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("some error")).
@@ -436,6 +550,15 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
 				usecases.
@@ -446,6 +569,15 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(
@@ -470,6 +602,15 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryID:          pointers.New[uint32](1),
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
 			},
 			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
 				usecases.
@@ -480,6 +621,15 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryID:          pointers.New[uint32](1),
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
 					Return(nil, errors.New("some error")).

@@ -56,7 +56,24 @@ func main() {
 	fmt.Println(err)
 	fmt.Println(toyByID)
 
-	allToys, err := client.GetToys(ctx, &toys.GetToysIn{})
+	allToys, err := client.GetToys(
+		ctx,
+		&toys.GetToysIn{
+			Pagination: &toys.Pagination{
+				Limit:  pointers.New[uint64](100),
+				Offset: pointers.New[uint64](0),
+			},
+			Filters: &toys.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryID:          pointers.New[uint32](1),
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+		},
+	)
 	fmt.Println(err)
 
 	for _, toy := range allToys.GetToys() {

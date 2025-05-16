@@ -39,7 +39,20 @@ type ServerAPI struct {
 }
 
 func (api *ServerAPI) CountToys(ctx context.Context, in *toys.CountToysIn) (*toys.CountOut, error) {
-	count, err := api.useCases.CountToys(ctx)
+	var filters *entities.ToysFilters
+	if in.Filters != nil {
+		filters = &entities.ToysFilters{
+			Search:              in.Filters.Search,
+			PriceCeil:           in.Filters.PriceCeil,
+			PriceFloor:          in.Filters.PriceFloor,
+			QuantityFloor:       in.Filters.QuantityFloor,
+			CategoryID:          in.Filters.CategoryID,
+			TagIDs:              in.Filters.TagIDs,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	count, err := api.useCases.CountToys(ctx, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -129,6 +142,19 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 
 // GetToys handler returns all Toys.
 func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.GetToysOut, error) {
+	var filters *entities.ToysFilters
+	if in.Filters != nil {
+		filters = &entities.ToysFilters{
+			Search:              in.Filters.Search,
+			PriceCeil:           in.Filters.PriceCeil,
+			PriceFloor:          in.Filters.PriceFloor,
+			QuantityFloor:       in.Filters.QuantityFloor,
+			CategoryID:          in.Filters.CategoryID,
+			TagIDs:              in.Filters.TagIDs,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
 	var pagination *entities.Pagination
 	if in.Pagination != nil {
 		pagination = &entities.Pagination{
@@ -137,7 +163,7 @@ func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.Ge
 		}
 	}
 
-	allToys, err := api.useCases.GetToys(ctx, pagination)
+	allToys, err := api.useCases.GetToys(ctx, pagination, filters)
 	if err != nil {
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to get all Toys", err)
 
@@ -157,6 +183,19 @@ func (api *ServerAPI) GetMasterToys(
 	ctx context.Context,
 	in *toys.GetMasterToysIn,
 ) (*toys.GetToysOut, error) {
+	var filters *entities.ToysFilters
+	if in.Filters != nil {
+		filters = &entities.ToysFilters{
+			Search:              in.Filters.Search,
+			PriceCeil:           in.Filters.PriceCeil,
+			PriceFloor:          in.Filters.PriceFloor,
+			QuantityFloor:       in.Filters.QuantityFloor,
+			CategoryID:          in.Filters.CategoryID,
+			TagIDs:              in.Filters.TagIDs,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
 	var pagination *entities.Pagination
 	if in.Pagination != nil {
 		pagination = &entities.Pagination{
@@ -165,7 +204,7 @@ func (api *ServerAPI) GetMasterToys(
 		}
 	}
 
-	masterToys, err := api.useCases.GetMasterToys(ctx, in.GetMasterID(), pagination)
+	masterToys, err := api.useCases.GetMasterToys(ctx, in.GetMasterID(), pagination, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,
@@ -192,6 +231,19 @@ func (api *ServerAPI) GetUserToys(
 	ctx context.Context,
 	in *toys.GetUserToysIn,
 ) (*toys.GetToysOut, error) {
+	var filters *entities.ToysFilters
+	if in.Filters != nil {
+		filters = &entities.ToysFilters{
+			Search:              in.Filters.Search,
+			PriceCeil:           in.Filters.PriceCeil,
+			PriceFloor:          in.Filters.PriceFloor,
+			QuantityFloor:       in.Filters.QuantityFloor,
+			CategoryID:          in.Filters.CategoryID,
+			TagIDs:              in.Filters.TagIDs,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
 	var pagination *entities.Pagination
 	if in.Pagination != nil {
 		pagination = &entities.Pagination{
@@ -200,7 +252,7 @@ func (api *ServerAPI) GetUserToys(
 		}
 	}
 
-	userToys, err := api.useCases.GetUserToys(ctx, in.GetUserID(), pagination)
+	userToys, err := api.useCases.GetUserToys(ctx, in.GetUserID(), pagination, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,

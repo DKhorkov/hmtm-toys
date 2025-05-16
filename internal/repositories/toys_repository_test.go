@@ -139,21 +139,21 @@ func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToys() {
 	)
 	s.NoError(err)
 
-	toys, err := s.toysRepository.GetToys(s.ctx, nil)
+	toys, err := s.toysRepository.GetToys(s.ctx, nil, nil)
 	s.NoError(err)
 	s.NotEmpty(toys)
 	s.Equal(2, len(toys))
-	s.Equal(uint64(1), toys[1].MasterID)
-	s.Equal(uint32(2), toys[1].CategoryID)
-	s.Equal("Toy 1", toys[1].Name)
-	s.Equal("Desc 1", toys[1].Description)
-	s.InDelta(99.99, toys[1].Price, 0.01)
-	s.Equal(uint32(5), toys[1].Quantity)
-	s.Equal(2, len(toys[1].Tags))
-	s.Contains([]string{toys[1].Tags[0].Name, toys[1].Tags[1].Name}, "Tag 1")
-	s.Contains([]string{toys[1].Tags[0].Name, toys[1].Tags[1].Name}, "Tag 2")
-	s.Equal(1, len(toys[1].Attachments))
-	s.Equal("file1.jpg", toys[1].Attachments[0].Link)
+	s.Equal(uint64(1), toys[0].MasterID)
+	s.Equal(uint32(2), toys[0].CategoryID)
+	s.Equal("Toy 1", toys[0].Name)
+	s.Equal("Desc 1", toys[0].Description)
+	s.InDelta(99.99, toys[0].Price, 0.01)
+	s.Equal(uint32(5), toys[0].Quantity)
+	s.Equal(2, len(toys[0].Tags))
+	s.Contains([]string{toys[0].Tags[0].Name, toys[0].Tags[1].Name}, "Tag 1")
+	s.Contains([]string{toys[0].Tags[0].Name, toys[0].Tags[1].Name}, "Tag 2")
+	s.Equal(1, len(toys[0].Attachments))
+	s.Equal("file1.jpg", toys[0].Attachments[0].Link)
 }
 
 func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToysAndPagination() {
@@ -204,9 +204,79 @@ func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToysAndPagination() {
 		Offset: pointers.New[uint64](2),
 	}
 
-	toys, err := s.toysRepository.GetToys(s.ctx, pagination)
+	toys, err := s.toysRepository.GetToys(s.ctx, pagination, nil)
 	s.NoError(err)
 	s.Empty(toys)
+}
+
+func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToysAndFilters() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(3) // Основной + getToyTags + getToyAttachments
+
+	createdAt := time.Now().UTC()
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys (id, master_id, category_id, name, description, price, quantity, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		1, 1, 2, "Toy 1", "Desc 1", 99.99, 5, createdAt, createdAt,
+		2, 2, 3, "Toy 2", "Desc 2", 49.99, 3, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO tags (id, name, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?), (?, ?, ?, ?)",
+		10, "Tag 1", createdAt, createdAt,
+		20, "Tag 2", createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_tags_associations (id, toy_id, tag_id) "+
+			"VALUES (?, ?, ?), (?, ?, ?)",
+		1, 1, 10,
+		2, 1, 20,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_attachments (id, toy_id, link, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?)",
+		1, 1, "file1.jpg", createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	filters := &entities.ToysFilters{
+		//Search:              pointers.New("toy2"), // no ILike in sqlite
+		PriceCeil:           pointers.New[float32](1000),
+		PriceFloor:          pointers.New[float32](10),
+		QuantityFloor:       pointers.New[uint32](1),
+		CategoryID:          pointers.New[uint32](2),
+		TagIDs:              []uint32{10, 20},
+		CreatedAtOrderByAsc: pointers.New(true),
+	}
+
+	toys, err := s.toysRepository.GetToys(s.ctx, nil, filters)
+	s.NoError(err)
+	s.NotEmpty(toys)
+	s.Equal(1, len(toys))
+	s.Equal(uint64(1), toys[0].MasterID)
+	s.Equal(uint32(2), toys[0].CategoryID)
+	s.Equal("Toy 1", toys[0].Name)
+	s.Equal("Desc 1", toys[0].Description)
+	s.InDelta(99.99, toys[0].Price, 0.01)
+	s.Equal(uint32(5), toys[0].Quantity)
+	s.Equal(2, len(toys[0].Tags))
+	s.Contains([]string{toys[0].Tags[0].Name, toys[0].Tags[1].Name}, "Tag 1")
+	s.Contains([]string{toys[0].Tags[0].Name, toys[0].Tags[1].Name}, "Tag 2")
+	s.Equal(1, len(toys[0].Attachments))
+	s.Equal("file1.jpg", toys[0].Attachments[0].Link)
 }
 
 func (s *ToysRepositoryTestSuite) TestGetToysWithoutExisting() {
@@ -216,7 +286,7 @@ func (s *ToysRepositoryTestSuite) TestGetToysWithoutExisting() {
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	toys, err := s.toysRepository.GetToys(s.ctx, nil)
+	toys, err := s.toysRepository.GetToys(s.ctx, nil, nil)
 	s.NoError(err)
 	s.Empty(toys)
 }
@@ -238,19 +308,60 @@ func (s *ToysRepositoryTestSuite) TestCountToysWithExistingToys() {
 	)
 	s.NoError(err)
 
-	count, err := s.toysRepository.CountToys(s.ctx)
+	count, err := s.toysRepository.CountToys(s.ctx, nil)
 	s.NoError(err)
 	s.Equal(uint64(2), count)
 }
 
-func (s *ToysRepositoryTestSuite) TestCountToysWithoutExisting() {
+func (s *ToysRepositoryTestSuite) TestCountToysWithExistingToysAndFilters() {
 	s.traceProvider.
 		EXPECT().
 		Span(gomock.Any(), gomock.Any()).
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	count, err := s.toysRepository.CountToys(s.ctx)
+	createdAt := time.Now().UTC()
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys (id, master_id, category_id, name, description, price, quantity, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		1, 1, 2, "Toy 1", "Desc 1", 99.99, 5, createdAt, createdAt,
+		2, 2, 3, "Toy 2", "Desc 2", 49.99, 3, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_tags_associations (id, toy_id, tag_id) "+
+			"VALUES (?, ?, ?), (?, ?, ?)",
+		1, 1, 10,
+		2, 1, 20,
+	)
+	s.NoError(err)
+
+	filters := &entities.ToysFilters{
+		//Search:              pointers.New("toy2"), // no ILike in sqlite
+		PriceCeil:           pointers.New[float32](1000),
+		PriceFloor:          pointers.New[float32](10),
+		QuantityFloor:       pointers.New[uint32](1),
+		CategoryID:          pointers.New[uint32](2),
+		TagIDs:              []uint32{10, 20},
+		CreatedAtOrderByAsc: pointers.New(true),
+	}
+
+	count, err := s.toysRepository.CountToys(s.ctx, filters)
+	s.NoError(err)
+	s.Equal(uint64(1), count)
+}
+
+func (s *ToysRepositoryTestSuite) TestCountToysWithoutExistingToys() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	count, err := s.toysRepository.CountToys(s.ctx, nil)
 	s.NoError(err)
 	s.Zero(count)
 }
@@ -273,7 +384,7 @@ func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToys() {
 	)
 	s.NoError(err)
 
-	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, nil)
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, nil, nil)
 	s.NoError(err)
 	s.NotEmpty(toys)
 	s.Equal(2, len(toys))
@@ -288,7 +399,7 @@ func (s *ToysRepositoryTestSuite) TestGetMasterToysWithoutExistingToys() {
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	toys, err := s.toysRepository.GetMasterToys(s.ctx, 999, nil)
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, 999, nil, nil)
 	s.NoError(err)
 	s.Empty(toys)
 }
@@ -316,9 +427,80 @@ func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToysAndPagination
 		Offset: pointers.New[uint64](2),
 	}
 
-	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, pagination)
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, pagination, nil)
 	s.NoError(err)
 	s.Empty(toys)
+}
+
+func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToysAndFilters() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(3) // Основной + getToyTags + getToyAttachments
+
+	masterID := uint64(1)
+	createdAt := time.Now().UTC()
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys (id, master_id, category_id, name, description, price, quantity, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		1, masterID, 2, "Toy 1", "Desc 1", 99.99, 5, createdAt, createdAt,
+		2, masterID, 3, "Toy 2", "Desc 2", 49.99, 3, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO tags (id, name, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?), (?, ?, ?, ?)",
+		10, "Tag 1", createdAt, createdAt,
+		20, "Tag 2", createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_tags_associations (id, toy_id, tag_id) "+
+			"VALUES (?, ?, ?), (?, ?, ?)",
+		1, 1, 10,
+		2, 1, 20,
+	)
+	s.NoError(err)
+
+	_, err = s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO toys_attachments (id, toy_id, link, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?)",
+		1, 1, "file1.jpg", createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	filters := &entities.ToysFilters{
+		//Search:              pointers.New("toy2"), // no ILike in sqlite
+		PriceCeil:           pointers.New[float32](1000),
+		PriceFloor:          pointers.New[float32](10),
+		QuantityFloor:       pointers.New[uint32](1),
+		CategoryID:          pointers.New[uint32](2),
+		TagIDs:              []uint32{10, 20},
+		CreatedAtOrderByAsc: pointers.New(true),
+	}
+
+	toys, err := s.toysRepository.GetMasterToys(s.ctx, masterID, nil, filters)
+	s.NoError(err)
+	s.NotEmpty(toys)
+	s.Equal(1, len(toys))
+	s.Equal(uint64(1), toys[0].MasterID)
+	s.Equal(uint32(2), toys[0].CategoryID)
+	s.Equal("Toy 1", toys[0].Name)
+	s.Equal("Desc 1", toys[0].Description)
+	s.InDelta(99.99, toys[0].Price, 0.01)
+	s.Equal(uint32(5), toys[0].Quantity)
+	s.Equal(2, len(toys[0].Tags))
+	s.Contains([]string{toys[0].Tags[0].Name, toys[0].Tags[1].Name}, "Tag 1")
+	s.Contains([]string{toys[0].Tags[0].Name, toys[0].Tags[1].Name}, "Tag 2")
+	s.Equal(1, len(toys[0].Attachments))
+	s.Equal("file1.jpg", toys[0].Attachments[0].Link)
 }
 
 func (s *ToysRepositoryTestSuite) TestGetToyByIDExisting() {
