@@ -42,20 +42,25 @@ func (service *ToysService) GetToyByID(ctx context.Context, id uint64) (*entitie
 	return toy, nil
 }
 
-func (service *ToysService) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
-	return service.toysRepository.GetToys(ctx, pagination)
+func (service *ToysService) GetToys(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
+) ([]entities.Toy, error) {
+	return service.toysRepository.GetToys(ctx, pagination, filters)
 }
 
-func (service *ToysService) CountToys(ctx context.Context) (uint64, error) {
-	return service.toysRepository.CountToys(ctx)
+func (service *ToysService) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
+	return service.toysRepository.CountToys(ctx, filters)
 }
 
 func (service *ToysService) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
 	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
-	return service.toysRepository.GetMasterToys(ctx, masterID, pagination)
+	return service.toysRepository.GetMasterToys(ctx, masterID, pagination, filters)
 }
 
 func (service *ToysService) AddToy(
@@ -81,7 +86,7 @@ func (service *ToysService) checkToyExistence(
 	ctx context.Context,
 	toyData entities.AddToyDTO,
 ) bool {
-	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID, nil)
+	toys, err := service.toysRepository.GetMasterToys(ctx, toyData.MasterID, nil, nil)
 	if err == nil {
 		for _, toy := range toys {
 			if toy.Name == toyData.Name && toy.CategoryID == toyData.CategoryID &&

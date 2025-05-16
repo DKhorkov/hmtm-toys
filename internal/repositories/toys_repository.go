@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -31,8 +32,10 @@ const (
 	masterIDColumnName              = "master_id"
 	attachmentLinkColumnName        = "link"
 	returningIDSuffix               = "RETURNING id"
-	DESC                            = "DESC"
-	ASC                             = "ASC"
+	createdAtColumnName             = "created_at"
+	updatedAtColumnName             = "updated_at"
+	desc                            = "desc"
+	asc                             = "ASC"
 )
 
 type ToysRepository struct {
@@ -56,7 +59,11 @@ func NewToysRepository(
 	}
 }
 
-func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pagination) ([]entities.Toy, error) {
+func (repo *ToysRepository) GetToys(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
+) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -73,8 +80,118 @@ func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pa
 	builder := sq.
 		Select(selectAllColumns).
 		From(toysTableName).
-		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar)
+
+	if filters != nil && filters.Search != nil && *filters.Search != "" {
+		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
+		builder = builder.Where(
+			sq.Or{
+				sq.ILike{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyNameColumnName,
+					): searchTerm,
+				},
+				sq.ILike{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyDescriptionColumnName,
+					): searchTerm,
+				},
+			},
+		)
+	}
+
+	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
+		priceConditions := sq.And{}
+		if filters.PriceFloor != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceFloor,
+				},
+			)
+		}
+
+		if filters.PriceCeil != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.LtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceCeil,
+				},
+			)
+		}
+
+		builder = builder.Where(priceConditions)
+	}
+
+	if filters != nil && filters.QuantityFloor != nil {
+		builder = builder.Where(
+			sq.GtOrEq{
+				fmt.Sprintf(
+					"%s.%s",
+					toysTableName,
+					toyQuantityColumnName,
+				): *filters.QuantityFloor,
+			},
+		)
+	}
+
+	if filters != nil && filters.CategoryID != nil {
+		builder = builder.Where(
+			sq.Eq{
+				fmt.Sprintf(
+					"%s.%s",
+					toysTableName,
+					categoryIDColumnName,
+				): *filters.CategoryID,
+			},
+		)
+	}
+
+	if filters != nil && len(filters.TagIDs) > 0 {
+		for _, tagID := range filters.TagIDs {
+			builder = builder.Where(
+				sq.Expr(
+					fmt.Sprintf(
+						"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+						toysAndTagsAssociationTableName,
+						toysAndTagsAssociationTableName,
+						toyIDColumnName,
+						toysTableName,
+						idColumnName,
+						toysAndTagsAssociationTableName,
+						tagIDColumnName,
+					),
+					tagID,
+				),
+			)
+		}
+	}
+
+	createdAtOrder := desc
+	if filters != nil && filters.CreatedAtOrderByAsc != nil && *filters.CreatedAtOrderByAsc {
+		createdAtOrder = asc
+	}
+
+	builder = builder.OrderBy(
+		fmt.Sprintf(
+			"%s.%s %s",
+			toysTableName,
+			createdAtColumnName,
+			createdAtOrder,
+		),
+	)
 
 	if pagination != nil && pagination.Limit != nil {
 		builder = builder.Limit(*pagination.Limit)
@@ -150,7 +267,7 @@ func (repo *ToysRepository) GetToys(ctx context.Context, pagination *entities.Pa
 	return toys, nil
 }
 
-func (repo *ToysRepository) CountToys(ctx context.Context) (uint64, error) {
+func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.ToysFilters) (uint64, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
 
@@ -164,11 +281,123 @@ func (repo *ToysRepository) CountToys(ctx context.Context) (uint64, error) {
 
 	defer db.CloseConnectionContext(ctx, connection, repo.logger)
 
-	stmt, params, err := sq.
+	builder := sq.
 		Select(selectCount).
 		From(toysTableName).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
+		PlaceholderFormat(sq.Dollar)
+
+	if filters != nil && filters.Search != nil && *filters.Search != "" {
+		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
+		builder = builder.Where(
+			sq.Or{
+				sq.ILike{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyNameColumnName,
+					): searchTerm,
+				},
+				sq.ILike{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyDescriptionColumnName,
+					): searchTerm,
+				},
+			},
+		)
+	}
+
+	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
+		priceConditions := sq.And{}
+		if filters.PriceFloor != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceFloor,
+				},
+			)
+		}
+
+		if filters.PriceCeil != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.LtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceCeil,
+				},
+			)
+		}
+
+		builder = builder.Where(priceConditions)
+	}
+
+	if filters != nil && filters.QuantityFloor != nil {
+		builder = builder.Where(
+			sq.GtOrEq{
+				fmt.Sprintf(
+					"%s.%s",
+					toysTableName,
+					toyQuantityColumnName,
+				): *filters.QuantityFloor,
+			},
+		)
+	}
+
+	if filters != nil && filters.CategoryID != nil {
+		builder = builder.Where(
+			sq.GtOrEq{
+				fmt.Sprintf(
+					"%s.%s",
+					toysTableName,
+					categoryIDColumnName,
+				): *filters.CategoryID,
+			},
+		)
+	}
+
+	if filters != nil && len(filters.TagIDs) > 0 {
+		for _, tagID := range filters.TagIDs {
+			builder = builder.Where(
+				sq.Expr(
+					fmt.Sprintf(
+						"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+						toysAndTagsAssociationTableName,
+						toysAndTagsAssociationTableName,
+						toyIDColumnName,
+						toysTableName,
+						idColumnName,
+						toysAndTagsAssociationTableName,
+						tagIDColumnName,
+					),
+					tagID,
+				),
+			)
+		}
+	}
+
+	createdAtOrder := desc
+	if filters != nil && filters.CreatedAtOrderByAsc != nil && *filters.CreatedAtOrderByAsc {
+		createdAtOrder = asc
+	}
+
+	builder = builder.OrderBy(
+		fmt.Sprintf(
+			"%s.%s %s",
+			toysTableName,
+			createdAtColumnName,
+			createdAtOrder,
+		),
+	)
+
+	stmt, params, err := builder.ToSql()
 	if err != nil {
 		return 0, err
 	}
@@ -185,6 +414,7 @@ func (repo *ToysRepository) GetMasterToys(
 	ctx context.Context,
 	masterID uint64,
 	pagination *entities.Pagination,
+	filters *entities.ToysFilters,
 ) ([]entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
@@ -203,8 +433,118 @@ func (repo *ToysRepository) GetMasterToys(
 		Select(selectAllColumns).
 		From(toysTableName).
 		Where(sq.Eq{masterIDColumnName: masterID}).
-		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
 		PlaceholderFormat(sq.Dollar)
+
+	if filters != nil && filters.Search != nil && *filters.Search != "" {
+		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
+		builder = builder.Where(
+			sq.Or{
+				sq.ILike{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyNameColumnName,
+					): searchTerm,
+				},
+				sq.ILike{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyDescriptionColumnName,
+					): searchTerm,
+				},
+			},
+		)
+	}
+
+	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
+		priceConditions := sq.And{}
+		if filters.PriceFloor != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceFloor,
+				},
+			)
+		}
+
+		if filters.PriceCeil != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.LtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceCeil,
+				},
+			)
+		}
+
+		builder = builder.Where(priceConditions)
+	}
+
+	if filters != nil && filters.QuantityFloor != nil {
+		builder = builder.Where(
+			sq.GtOrEq{
+				fmt.Sprintf(
+					"%s.%s",
+					toysTableName,
+					toyQuantityColumnName,
+				): *filters.QuantityFloor,
+			},
+		)
+	}
+
+	if filters != nil && filters.CategoryID != nil {
+		builder = builder.Where(
+			sq.GtOrEq{
+				fmt.Sprintf(
+					"%s.%s",
+					toysTableName,
+					categoryIDColumnName,
+				): *filters.CategoryID,
+			},
+		)
+	}
+
+	if filters != nil && len(filters.TagIDs) > 0 {
+		for _, tagID := range filters.TagIDs {
+			builder = builder.Where(
+				sq.Expr(
+					fmt.Sprintf(
+						"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+						toysAndTagsAssociationTableName,
+						toysAndTagsAssociationTableName,
+						toyIDColumnName,
+						toysTableName,
+						idColumnName,
+						toysAndTagsAssociationTableName,
+						tagIDColumnName,
+					),
+					tagID,
+				),
+			)
+		}
+	}
+
+	createdAtOrder := desc
+	if filters != nil && filters.CreatedAtOrderByAsc != nil && *filters.CreatedAtOrderByAsc {
+		createdAtOrder = asc
+	}
+
+	builder = builder.OrderBy(
+		fmt.Sprintf(
+			"%s.%s %s",
+			toysTableName,
+			createdAtColumnName,
+			createdAtOrder,
+		),
+	)
 
 	if pagination != nil && pagination.Limit != nil {
 		builder = builder.Limit(*pagination.Limit)

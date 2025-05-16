@@ -60,7 +60,7 @@ func (repo *MastersRepository) GetMasters(
 	builder := sq.
 		Select(selectAllColumns).
 		From(mastersTableName).
-		OrderBy(fmt.Sprintf("%s %s", idColumnName, DESC)).
+		OrderBy(fmt.Sprintf("%s %s", idColumnName, desc)).
 		PlaceholderFormat(sq.Dollar)
 
 	if pagination != nil && pagination.Limit != nil {

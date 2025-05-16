@@ -64,6 +64,7 @@ message GetToyOut {
 
 message GetToysIn {
   optional masters.Pagination pagination = 1;
+  optional ToysFilters filters = 2;
 }
 
 message GetToysOut {
@@ -73,11 +74,13 @@ message GetToysOut {
 message GetMasterToysIn {
   uint64 masterID = 1;
   optional masters.Pagination pagination = 2;
+  optional ToysFilters filters = 3;
 }
 
 message GetUserToysIn {
   uint64 userID = 1;
   optional masters.Pagination pagination = 2;
+  optional ToysFilters filters = 3;
 }
 
 message DeleteToyIn {
@@ -96,9 +99,19 @@ message UpdateToyIn {
 }
 
 message CountToysIn {
-
+  optional ToysFilters filters = 1;
 }
 
 message CountOut {
   uint64 count = 1;
+}
+
+message ToysFilters {
+  optional string search = 1;
+  optional float priceCeil = 2;  // max price
+  optional float priceFloor = 3;  // min price
+  optional uint32 quantityFloor = 4;  // min quantity
+  optional uint32 categoryID = 5;
+  repeated uint32 tagIDs = 6;
+  optional bool createdAtOrderByAsc = 7;
 }
