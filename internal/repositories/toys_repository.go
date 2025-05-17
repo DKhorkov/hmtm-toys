@@ -84,24 +84,25 @@ func (repo *ToysRepository) GetToys(
 
 	if filters != nil && filters.Search != nil && *filters.Search != "" {
 		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
-		builder = builder.Where(
-			sq.Or{
-				sq.ILike{
-					fmt.Sprintf(
-						"%s.%s",
-						toysTableName,
-						toyNameColumnName,
-					): searchTerm,
+		builder = builder.
+			Where(
+				sq.Or{
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyNameColumnName,
+						): searchTerm,
+					},
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyDescriptionColumnName,
+						): searchTerm,
+					},
 				},
-				sq.ILike{
-					fmt.Sprintf(
-						"%s.%s",
-						toysTableName,
-						toyDescriptionColumnName,
-					): searchTerm,
-				},
-			},
-		)
+			)
 	}
 
 	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
@@ -136,46 +137,49 @@ func (repo *ToysRepository) GetToys(
 	}
 
 	if filters != nil && filters.QuantityFloor != nil {
-		builder = builder.Where(
-			sq.GtOrEq{
-				fmt.Sprintf(
-					"%s.%s",
-					toysTableName,
-					toyQuantityColumnName,
-				): *filters.QuantityFloor,
-			},
-		)
+		builder = builder.
+			Where(
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyQuantityColumnName,
+					): *filters.QuantityFloor,
+				},
+			)
 	}
 
 	if filters != nil && filters.CategoryID != nil {
-		builder = builder.Where(
-			sq.Eq{
-				fmt.Sprintf(
-					"%s.%s",
-					toysTableName,
-					categoryIDColumnName,
-				): *filters.CategoryID,
-			},
-		)
+		builder = builder.
+			Where(
+				sq.Eq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						categoryIDColumnName,
+					): *filters.CategoryID,
+				},
+			)
 	}
 
 	if filters != nil && len(filters.TagIDs) > 0 {
 		for _, tagID := range filters.TagIDs {
-			builder = builder.Where(
-				sq.Expr(
-					fmt.Sprintf(
-						"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
-						toysAndTagsAssociationTableName,
-						toysAndTagsAssociationTableName,
-						toyIDColumnName,
-						toysTableName,
-						idColumnName,
-						toysAndTagsAssociationTableName,
-						tagIDColumnName,
+			builder = builder.
+				Where(
+					sq.Expr(
+						fmt.Sprintf(
+							"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+							toysAndTagsAssociationTableName,
+							toysAndTagsAssociationTableName,
+							toyIDColumnName,
+							toysTableName,
+							idColumnName,
+							toysAndTagsAssociationTableName,
+							tagIDColumnName,
+						),
+						tagID,
 					),
-					tagID,
-				),
-			)
+				)
 		}
 	}
 
@@ -184,14 +188,15 @@ func (repo *ToysRepository) GetToys(
 		createdAtOrder = asc
 	}
 
-	builder = builder.OrderBy(
-		fmt.Sprintf(
-			"%s.%s %s",
-			toysTableName,
-			createdAtColumnName,
-			createdAtOrder,
-		),
-	)
+	builder = builder.
+		OrderBy(
+			fmt.Sprintf(
+				"%s.%s %s",
+				toysTableName,
+				createdAtColumnName,
+				createdAtOrder,
+			),
+		)
 
 	if pagination != nil && pagination.Limit != nil {
 		builder = builder.Limit(*pagination.Limit)
@@ -288,24 +293,25 @@ func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.Toy
 
 	if filters != nil && filters.Search != nil && *filters.Search != "" {
 		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
-		builder = builder.Where(
-			sq.Or{
-				sq.ILike{
-					fmt.Sprintf(
-						"%s.%s",
-						toysTableName,
-						toyNameColumnName,
-					): searchTerm,
+		builder = builder.
+			Where(
+				sq.Or{
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyNameColumnName,
+						): searchTerm,
+					},
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyDescriptionColumnName,
+						): searchTerm,
+					},
 				},
-				sq.ILike{
-					fmt.Sprintf(
-						"%s.%s",
-						toysTableName,
-						toyDescriptionColumnName,
-					): searchTerm,
-				},
-			},
-		)
+			)
 	}
 
 	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
@@ -340,63 +346,53 @@ func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.Toy
 	}
 
 	if filters != nil && filters.QuantityFloor != nil {
-		builder = builder.Where(
-			sq.GtOrEq{
-				fmt.Sprintf(
-					"%s.%s",
-					toysTableName,
-					toyQuantityColumnName,
-				): *filters.QuantityFloor,
-			},
-		)
+		builder = builder.
+			Where(
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyQuantityColumnName,
+					): *filters.QuantityFloor,
+				},
+			)
 	}
 
 	if filters != nil && filters.CategoryID != nil {
-		builder = builder.Where(
-			sq.GtOrEq{
-				fmt.Sprintf(
-					"%s.%s",
-					toysTableName,
-					categoryIDColumnName,
-				): *filters.CategoryID,
-			},
-		)
+		builder = builder.
+			Where(
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						categoryIDColumnName,
+					): *filters.CategoryID,
+				},
+			)
 	}
 
 	if filters != nil && len(filters.TagIDs) > 0 {
 		for _, tagID := range filters.TagIDs {
-			builder = builder.Where(
-				sq.Expr(
-					fmt.Sprintf(
-						"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
-						toysAndTagsAssociationTableName,
-						toysAndTagsAssociationTableName,
-						toyIDColumnName,
-						toysTableName,
-						idColumnName,
-						toysAndTagsAssociationTableName,
-						tagIDColumnName,
+			builder = builder.
+				Where(
+					sq.Expr(
+						fmt.Sprintf(
+							"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+							toysAndTagsAssociationTableName,
+							toysAndTagsAssociationTableName,
+							toyIDColumnName,
+							toysTableName,
+							idColumnName,
+							toysAndTagsAssociationTableName,
+							tagIDColumnName,
+						),
+						tagID,
 					),
-					tagID,
-				),
-			)
+				)
 		}
 	}
 
-	createdAtOrder := desc
-	if filters != nil && filters.CreatedAtOrderByAsc != nil && *filters.CreatedAtOrderByAsc {
-		createdAtOrder = asc
-	}
-
-	builder = builder.OrderBy(
-		fmt.Sprintf(
-			"%s.%s %s",
-			toysTableName,
-			createdAtColumnName,
-			createdAtOrder,
-		),
-	)
-
+	// Для запросов COUNT сортировка не нужна, поэтому параметр CreatedAtOrderByAsc не используется
 	stmt, params, err := builder.ToSql()
 	if err != nil {
 		return 0, err
@@ -437,24 +433,25 @@ func (repo *ToysRepository) GetMasterToys(
 
 	if filters != nil && filters.Search != nil && *filters.Search != "" {
 		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
-		builder = builder.Where(
-			sq.Or{
-				sq.ILike{
-					fmt.Sprintf(
-						"%s.%s",
-						toysTableName,
-						toyNameColumnName,
-					): searchTerm,
+		builder = builder.
+			Where(
+				sq.Or{
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyNameColumnName,
+						): searchTerm,
+					},
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyDescriptionColumnName,
+						): searchTerm,
+					},
 				},
-				sq.ILike{
-					fmt.Sprintf(
-						"%s.%s",
-						toysTableName,
-						toyDescriptionColumnName,
-					): searchTerm,
-				},
-			},
-		)
+			)
 	}
 
 	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
@@ -489,46 +486,49 @@ func (repo *ToysRepository) GetMasterToys(
 	}
 
 	if filters != nil && filters.QuantityFloor != nil {
-		builder = builder.Where(
-			sq.GtOrEq{
-				fmt.Sprintf(
-					"%s.%s",
-					toysTableName,
-					toyQuantityColumnName,
-				): *filters.QuantityFloor,
-			},
-		)
+		builder = builder.
+			Where(
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyQuantityColumnName,
+					): *filters.QuantityFloor,
+				},
+			)
 	}
 
 	if filters != nil && filters.CategoryID != nil {
-		builder = builder.Where(
-			sq.GtOrEq{
-				fmt.Sprintf(
-					"%s.%s",
-					toysTableName,
-					categoryIDColumnName,
-				): *filters.CategoryID,
-			},
-		)
+		builder = builder.
+			Where(
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						categoryIDColumnName,
+					): *filters.CategoryID,
+				},
+			)
 	}
 
 	if filters != nil && len(filters.TagIDs) > 0 {
 		for _, tagID := range filters.TagIDs {
-			builder = builder.Where(
-				sq.Expr(
-					fmt.Sprintf(
-						"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
-						toysAndTagsAssociationTableName,
-						toysAndTagsAssociationTableName,
-						toyIDColumnName,
-						toysTableName,
-						idColumnName,
-						toysAndTagsAssociationTableName,
-						tagIDColumnName,
+			builder = builder.
+				Where(
+					sq.Expr(
+						fmt.Sprintf(
+							"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+							toysAndTagsAssociationTableName,
+							toysAndTagsAssociationTableName,
+							toyIDColumnName,
+							toysTableName,
+							idColumnName,
+							toysAndTagsAssociationTableName,
+							tagIDColumnName,
+						),
+						tagID,
 					),
-					tagID,
-				),
-			)
+				)
 		}
 	}
 
@@ -537,14 +537,15 @@ func (repo *ToysRepository) GetMasterToys(
 		createdAtOrder = asc
 	}
 
-	builder = builder.OrderBy(
-		fmt.Sprintf(
-			"%s.%s %s",
-			toysTableName,
-			createdAtColumnName,
-			createdAtOrder,
-		),
-	)
+	builder = builder.
+		OrderBy(
+			fmt.Sprintf(
+				"%s.%s %s",
+				toysTableName,
+				createdAtColumnName,
+				createdAtOrder,
+			),
+		)
 
 	if pagination != nil && pagination.Limit != nil {
 		builder = builder.Limit(*pagination.Limit)
