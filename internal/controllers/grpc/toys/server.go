@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/validation"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -24,6 +25,7 @@ var (
 	tagNotFoundError      = &customerrors.TagNotFoundError{}
 	masterNotFoundError   = &customerrors.MasterNotFoundError{}
 	categoryNotFoundError = &customerrors.CategoryNotFoundError{}
+	validationError       = &validation.Error{}
 )
 
 // RegisterServer handler (serverAPI) for ToysServer to gRPC server:.
@@ -46,7 +48,7 @@ func (api *ServerAPI) CountToys(ctx context.Context, in *toys.CountToysIn) (*toy
 			PriceCeil:           in.Filters.PriceCeil,
 			PriceFloor:          in.Filters.PriceFloor,
 			QuantityFloor:       in.Filters.QuantityFloor,
-			CategoryID:          in.Filters.CategoryID,
+			CategoryIDs:         in.Filters.CategoryIDs,
 			TagIDs:              in.Filters.TagIDs,
 			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
 		}
@@ -88,6 +90,8 @@ func (api *ServerAPI) UpdateToy(ctx context.Context, in *toys.UpdateToyIn) (*emp
 		)
 
 		switch {
+		case errors.As(err, &validationError):
+			return nil, &customgrpc.BaseError{Status: codes.FailedPrecondition, Message: err.Error()}
 		case errors.As(err, &toyNotFoundError):
 			return nil, &customgrpc.BaseError{Status: codes.NotFound, Message: err.Error()}
 		default:
@@ -149,7 +153,7 @@ func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.Ge
 			PriceCeil:           in.Filters.PriceCeil,
 			PriceFloor:          in.Filters.PriceFloor,
 			QuantityFloor:       in.Filters.QuantityFloor,
-			CategoryID:          in.Filters.CategoryID,
+			CategoryIDs:         in.Filters.CategoryIDs,
 			TagIDs:              in.Filters.TagIDs,
 			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
 		}
@@ -190,7 +194,7 @@ func (api *ServerAPI) GetMasterToys(
 			PriceCeil:           in.Filters.PriceCeil,
 			PriceFloor:          in.Filters.PriceFloor,
 			QuantityFloor:       in.Filters.QuantityFloor,
-			CategoryID:          in.Filters.CategoryID,
+			CategoryIDs:         in.Filters.CategoryIDs,
 			TagIDs:              in.Filters.TagIDs,
 			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
 		}
@@ -238,7 +242,7 @@ func (api *ServerAPI) GetUserToys(
 			PriceCeil:           in.Filters.PriceCeil,
 			PriceFloor:          in.Filters.PriceFloor,
 			QuantityFloor:       in.Filters.QuantityFloor,
-			CategoryID:          in.Filters.CategoryID,
+			CategoryIDs:         in.Filters.CategoryIDs,
 			TagIDs:              in.Filters.TagIDs,
 			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
 		}
@@ -293,6 +297,8 @@ func (api *ServerAPI) AddToy(ctx context.Context, in *toys.AddToyIn) (*toys.AddT
 		logging.LogErrorContext(ctx, api.logger, "Error occurred while trying to add new Toy", err)
 
 		switch {
+		case errors.As(err, &validationError):
+			return nil, &customgrpc.BaseError{Status: codes.FailedPrecondition, Message: err.Error()}
 		case errors.As(err, &masterNotFoundError),
 			errors.As(err, &categoryNotFoundError),
 			errors.As(err, &tagNotFoundError):

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/DKhorkov/hmtm-toys/internal/config"
-	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
+	"github.com/DKhorkov/libs/validation"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -26,11 +26,8 @@ const (
 
 var (
 	ctx              = context.Background()
-	validationConfig = config.ValidationConfig{
-		MasterInfoRegExps: []string{
-			"^[\\s\\S]{0,30}$",
-		},
-	}
+	cfg              = config.New()
+	validationConfig = cfg.Validation
 )
 
 func TestUseCases_GetTagByID(t *testing.T) {
@@ -472,7 +469,7 @@ func TestUseCases_GetToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -496,7 +493,7 @@ func TestUseCases_GetToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -582,7 +579,7 @@ func TestUseCases_CountToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -602,7 +599,7 @@ func TestUseCases_CountToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -680,7 +677,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -706,7 +703,7 @@ func TestUseCases_GetMasterToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -798,7 +795,7 @@ func TestUseCases_GetUserToys(t *testing.T) {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},
@@ -835,7 +832,7 @@ func TestUseCases_GetUserToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -1200,8 +1197,8 @@ func TestUseCases_AddToy(t *testing.T) {
 			toy: entities.RawAddToyDTO{
 				UserID:      userID,
 				CategoryID:  categoryID,
-				Name:        "test",
-				Description: "test",
+				Name:        "Игрушка",
+				Description: "Тестовая игрушка",
 				Quantity:    1,
 				Price:       110.5,
 				TagIDs:      []uint32{tagID},
@@ -1255,8 +1252,8 @@ func TestUseCases_AddToy(t *testing.T) {
 						entities.AddToyDTO{
 							MasterID:    masterID,
 							CategoryID:  categoryID,
-							Name:        "test",
-							Description: "test",
+							Name:        "Игрушка",
+							Description: "Тестовая игрушка",
 							Quantity:    1,
 							Price:       110.5,
 							TagIDs:      []uint32{tagID},
@@ -1273,8 +1270,8 @@ func TestUseCases_AddToy(t *testing.T) {
 			toy: entities.RawAddToyDTO{
 				UserID:      userID,
 				CategoryID:  categoryID,
-				Name:        "test",
-				Description: "test",
+				Name:        "Игрушка",
+				Description: "Тестовая игрушка",
 				Quantity:    1,
 				Price:       110.5,
 				TagIDs:      []uint32{tagID},
@@ -1301,8 +1298,8 @@ func TestUseCases_AddToy(t *testing.T) {
 			toy: entities.RawAddToyDTO{
 				UserID:      userID,
 				CategoryID:  categoryID,
-				Name:        "test",
-				Description: "test",
+				Name:        "Игрушка",
+				Description: "Тестовая игрушка",
 				Quantity:    1,
 				Price:       110.5,
 				TagIDs:      []uint32{tagID},
@@ -1341,8 +1338,8 @@ func TestUseCases_AddToy(t *testing.T) {
 			toy: entities.RawAddToyDTO{
 				UserID:      userID,
 				CategoryID:  categoryID,
-				Name:        "test",
-				Description: "test",
+				Name:        "Игрушка",
+				Description: "Тестовая игрушка",
 				Quantity:    1,
 				Price:       110.5,
 				TagIDs:      []uint32{tagID},
@@ -1383,6 +1380,66 @@ func TestUseCases_AddToy(t *testing.T) {
 					GetTagByID(gomock.Any(), tagID).
 					Return(nil, errors.New("test")).
 					Times(1)
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "invalid quantity",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "Игрушка",
+				Description: "Тестовая игрушка",
+				Quantity:    1_000_000,
+				Price:       110.5,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "invalid price",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "Игрушка",
+				Description: "Тестовая игрушка",
+				Quantity:    1,
+				Price:       1_000_000_000,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "invalid name",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "Мразь",
+				Description: "Тестовая игрушка",
+				Quantity:    1,
+				Price:       1_000_000_000,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
+			},
+			expected:      0,
+			errorExpected: true,
+		},
+		{
+			name: "invalid description",
+			toy: entities.RawAddToyDTO{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "test",
+				Description: "Конченная мразь",
+				Quantity:    1,
+				Price:       1_000_000_000,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test"},
 			},
 			expected:      0,
 			errorExpected: true,
@@ -1447,7 +1504,7 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 			name: "success",
 			master: entities.RegisterMasterDTO{
 				UserID: userID,
-				Info:   pointers.New[string]("test"),
+				Info:   pointers.New[string]("Мастер о себе"),
 			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -1473,7 +1530,7 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 						gomock.Any(),
 						entities.RegisterMasterDTO{
 							UserID: userID,
-							Info:   pointers.New[string]("test"),
+							Info:   pointers.New[string]("Мастер о себе"),
 						},
 					).
 					Return(masterID, nil).
@@ -1485,7 +1542,7 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 			name: "User not found",
 			master: entities.RegisterMasterDTO{
 				UserID: userID,
-				Info:   pointers.New[string]("test"),
+				Info:   pointers.New[string]("Мастер"),
 			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -1503,12 +1560,12 @@ func TestUseCases_RegisterMaster(t *testing.T) {
 			errorExpected: true,
 		},
 		{
-			name: "Master not found",
+			name: "Invalid master info",
 			master: entities.RegisterMasterDTO{
-				Info: pointers.New[string]("too long master info that would not work"),
+				Info: pointers.New[string]("Сука"),
 			},
 			errorExpected: true,
-			expectedError: &customerrors.InvalidMasterInfoError{},
+			expectedError: &validation.Error{},
 		},
 	}
 
@@ -1572,7 +1629,7 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 			name: "success",
 			master: entities.UpdateMasterDTO{
 				ID:   masterID,
-				Info: pointers.New[string]("test"),
+				Info: pointers.New[string]("Мастер о себе"),
 			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -1588,7 +1645,7 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 						&entities.Master{
 							ID:     masterID,
 							UserID: userID,
-							Info:   pointers.New[string]("test"),
+							Info:   pointers.New[string]("Какая-то инфа"),
 						},
 						nil,
 					).
@@ -1600,7 +1657,7 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 						gomock.Any(),
 						entities.UpdateMasterDTO{
 							ID:   masterID,
-							Info: pointers.New[string]("test"),
+							Info: pointers.New[string]("Мастер о себе"),
 						},
 					).
 					Return(nil).
@@ -1611,7 +1668,7 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 			name: "Master not found",
 			master: entities.UpdateMasterDTO{
 				ID:   masterID,
-				Info: pointers.New[string]("test"),
+				Info: pointers.New[string]("Мастер о себе"),
 			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
@@ -1629,13 +1686,13 @@ func TestUseCases_UpdateMaster(t *testing.T) {
 			errorExpected: true,
 		},
 		{
-			name: "Master not found",
+			name: "Invalid master info",
 			master: entities.UpdateMasterDTO{
 				ID:   masterID,
-				Info: pointers.New[string]("too long master info that would not work"),
+				Info: pointers.New[string]("invalid master info that would not work"),
 			},
 			errorExpected: true,
-			expectedError: &customerrors.InvalidMasterInfoError{},
+			expectedError: &validation.Error{},
 		},
 	}
 
@@ -1797,10 +1854,13 @@ func TestUseCases_CreateTags(t *testing.T) {
 			name: "success",
 			tags: []entities.CreateTagDTO{
 				{
-					Name: "test",
+					Name: "тестовыйТег",
 				},
 				{
-					Name: "newTag",
+					Name: "новыйТег",
+				},
+				{
+					Name: "новыйТег",
 				},
 			},
 			setupMocks: func(
@@ -1817,7 +1877,7 @@ func TestUseCases_CreateTags(t *testing.T) {
 						[]entities.Tag{
 							{
 								ID:   tagID,
-								Name: "test",
+								Name: "тестовыйтег",
 							},
 						},
 						nil,
@@ -1830,23 +1890,23 @@ func TestUseCases_CreateTags(t *testing.T) {
 						gomock.Any(),
 						[]entities.CreateTagDTO{
 							{
-								Name: "newTag",
+								Name: "новыйтег",
 							},
 						},
 					).
-					Return([]uint32{2}, nil).
+					Return([]uint32{2, 3}, nil).
 					Times(1)
 			},
-			expected: []uint32{2, tagID},
+			expected: []uint32{2, 3, tagID},
 		},
 		{
 			name: "get all Tags error",
 			tags: []entities.CreateTagDTO{
 				{
-					Name: "test",
+					Name: "тестовыйТег",
 				},
 				{
-					Name: "newTag",
+					Name: "новыйТег",
 				},
 			},
 			setupMocks: func(
@@ -1868,10 +1928,10 @@ func TestUseCases_CreateTags(t *testing.T) {
 			name: "create Tags error",
 			tags: []entities.CreateTagDTO{
 				{
-					Name: "test",
+					Name: "тестовыйТег",
 				},
 				{
-					Name: "newTag",
+					Name: "новыйТег",
 				},
 			},
 			setupMocks: func(
@@ -1888,7 +1948,7 @@ func TestUseCases_CreateTags(t *testing.T) {
 						[]entities.Tag{
 							{
 								ID:   tagID,
-								Name: "test",
+								Name: "тестовыйтег",
 							},
 						},
 						nil,
@@ -1901,12 +1961,24 @@ func TestUseCases_CreateTags(t *testing.T) {
 						gomock.Any(),
 						[]entities.CreateTagDTO{
 							{
-								Name: "newTag",
+								Name: "новыйтег",
 							},
 						},
 					).
 					Return(nil, errors.New("test")).
 					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "validation error",
+			tags: []entities.CreateTagDTO{
+				{
+					Name: "тестовыйТег",
+				},
+				{
+					Name: "Сука",
+				},
 			},
 			errorExpected: true,
 		},
@@ -1970,8 +2042,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 			toy: entities.RawUpdateToyDTO{
 				ID:          toyID,
 				CategoryID:  pointers.New[uint32](categoryID),
-				Name:        pointers.New[string]("test"),
-				Description: pointers.New[string]("test"),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Тестовая игрушка"),
 				Quantity:    pointers.New[uint32](1),
 				Price:       pointers.New[float32](110.5),
 				TagIDs:      []uint32{tagID, 2},
@@ -1991,8 +2063,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 						&entities.Toy{
 							ID:          toyID,
 							CategoryID:  categoryID,
-							Name:        "test",
-							Description: "test",
+							Name:        "Какая-то игрушка",
+							Description: "Какое-то описание",
 							Quantity:    1,
 							Price:       110.5,
 							Tags: []entities.Tag{
@@ -2060,8 +2132,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 						entities.UpdateToyDTO{
 							ID:                    toyID,
 							CategoryID:            pointers.New[uint32](categoryID),
-							Name:                  pointers.New[string]("test"),
-							Description:           pointers.New[string]("test"),
+							Name:                  pointers.New[string]("Игрушка"),
+							Description:           pointers.New[string]("Тестовая игрушка"),
 							Quantity:              pointers.New[uint32](1),
 							Price:                 pointers.New[float32](110.5),
 							TagIDsToAdd:           []uint32{2},
@@ -2079,8 +2151,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 			toy: entities.RawUpdateToyDTO{
 				ID:          toyID,
 				CategoryID:  pointers.New[uint32](categoryID),
-				Name:        pointers.New[string]("test"),
-				Description: pointers.New[string]("test"),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Тестовая игрушка"),
 				Quantity:    pointers.New[uint32](1),
 				Price:       pointers.New[float32](110.5),
 				TagIDs:      []uint32{tagID, 2},
@@ -2100,8 +2172,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 						&entities.Toy{
 							ID:          toyID,
 							CategoryID:  categoryID,
-							Name:        "test",
-							Description: "test",
+							Name:        "Какая-то игрушка",
+							Description: "Какое-то описание",
 							Quantity:    1,
 							Price:       110.5,
 							Tags: []entities.Tag{
@@ -2153,8 +2225,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 			toy: entities.RawUpdateToyDTO{
 				ID:          toyID,
 				CategoryID:  pointers.New[uint32](categoryID),
-				Name:        pointers.New[string]("test"),
-				Description: pointers.New[string]("test"),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Тестовая игрушка"),
 				Quantity:    pointers.New[uint32](1),
 				Price:       pointers.New[float32](110.5),
 				TagIDs:      []uint32{tagID, 2},
@@ -2174,8 +2246,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 						&entities.Toy{
 							ID:          toyID,
 							CategoryID:  categoryID,
-							Name:        "test",
-							Description: "test",
+							Name:        "Какая-то игрушка",
+							Description: "Какое-то описание",
 							Quantity:    1,
 							Price:       110.5,
 							Tags: []entities.Tag{
@@ -2216,8 +2288,8 @@ func TestUseCases_UpdateToy(t *testing.T) {
 			toy: entities.RawUpdateToyDTO{
 				ID:          toyID,
 				CategoryID:  pointers.New[uint32](categoryID),
-				Name:        pointers.New[string]("test"),
-				Description: pointers.New[string]("test"),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Тестовая игрушка"),
 				Quantity:    pointers.New[uint32](1),
 				Price:       pointers.New[float32](110.5),
 				TagIDs:      []uint32{tagID, 2},
@@ -2235,6 +2307,62 @@ func TestUseCases_UpdateToy(t *testing.T) {
 					GetToyByID(gomock.Any(), toyID).
 					Return(nil, errors.New("test")).
 					Times(1)
+			},
+			errorExpected: true,
+		},
+		{
+			name: "invalid quantity",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Тестовая игрушка"),
+				Quantity:    pointers.New[uint32](1_000_000),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			errorExpected: true,
+		},
+		{
+			name: "invalid price",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Тестовая игрушка"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](1_000_000_000),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			errorExpected: true,
+		},
+		{
+			name: "invalid name",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("Мразь"),
+				Description: pointers.New[string]("Тестовая игрушка"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
+			},
+			errorExpected: true,
+		},
+		{
+			name: "invalid description",
+			toy: entities.RawUpdateToyDTO{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("Игрушка"),
+				Description: pointers.New[string]("Сука"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110.5),
+				TagIDs:      []uint32{tagID, 2},
+				Attachments: []string{"oldAttachment", "newAttachment"},
 			},
 			errorExpected: true,
 		},

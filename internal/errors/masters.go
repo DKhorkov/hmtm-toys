@@ -45,25 +45,3 @@ func (e MasterAlreadyExistsError) Error() string {
 func (e MasterAlreadyExistsError) Unwrap() error {
 	return e.BaseErr
 }
-
-type InvalidMasterInfoError struct {
-	Message string
-	BaseErr error
-}
-
-func (e InvalidMasterInfoError) Error() string {
-	template := "invalid master info"
-	if e.Message != "" {
-		template = e.Message
-	}
-
-	if e.BaseErr != nil {
-		return fmt.Sprintf(template+". Base error: %v", e.BaseErr)
-	}
-
-	return template
-}
-
-func (e InvalidMasterInfoError) Unwrap() error {
-	return e.BaseErr
-}

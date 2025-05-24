@@ -254,7 +254,7 @@ func TestTagsServer_CreateTags(t *testing.T) {
 			},
 		},
 		{
-			name: "error",
+			name: "internal error",
 			in: &toys.CreateTagsIn{
 				Tags: []*toys.CreateTagIn{
 					{
@@ -283,6 +283,37 @@ func TestTagsServer_CreateTags(t *testing.T) {
 			},
 			errorExpected: true,
 			errorCode:     codes.Internal,
+		},
+		{
+			name: "validation error",
+			in: &toys.CreateTagsIn{
+				Tags: []*toys.CreateTagIn{
+					{
+						Name: "test",
+					},
+				},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CreateTags(
+						gomock.Any(),
+						[]entities.CreateTagDTO{
+							{
+								Name: "test",
+							},
+						},
+					).
+					Return(nil, validationError).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.FailedPrecondition,
 		},
 	}
 

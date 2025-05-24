@@ -168,7 +168,7 @@ func TestTagsServer_GetToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -187,7 +187,7 @@ func TestTagsServer_GetToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -218,7 +218,7 @@ func TestTagsServer_GetToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -237,7 +237,7 @@ func TestTagsServer_GetToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -299,7 +299,7 @@ func TestTagsServer_CountToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -314,7 +314,7 @@ func TestTagsServer_CountToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -334,7 +334,7 @@ func TestTagsServer_CountToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -349,7 +349,7 @@ func TestTagsServer_CountToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -416,7 +416,7 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -436,7 +436,7 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -468,7 +468,7 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -488,7 +488,7 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -555,7 +555,7 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 					PriceCeil:           pointers.New[float32](1000),
 					PriceFloor:          pointers.New[float32](10),
 					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
 					TagIDs:              []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
@@ -571,12 +571,11 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 							Offset: pointers.New[uint64](1),
 						},
 						&entities.ToysFilters{
-							Search:              pointers.New("toy2"),
-							PriceCeil:           pointers.New[float32](1000),
-							PriceFloor:          pointers.New[float32](10),
-							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
-							TagIDs:              []uint32{1},
+							Search:        pointers.New("toy2"),
+							PriceCeil:     pointers.New[float32](1000),
+							PriceFloor:    pointers.New[float32](10),
+							QuantityFloor: pointers.New[uint32](1),
+							CategoryIDs:   []uint32{1}, TagIDs: []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
 					).
@@ -603,12 +602,11 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 					Offset: pointers.New[uint64](1),
 				},
 				Filters: &toys.ToysFilters{
-					Search:              pointers.New("toy2"),
-					PriceCeil:           pointers.New[float32](1000),
-					PriceFloor:          pointers.New[float32](10),
-					QuantityFloor:       pointers.New[uint32](1),
-					CategoryID:          pointers.New[uint32](1),
-					TagIDs:              []uint32{1},
+					Search:        pointers.New("toy2"),
+					PriceCeil:     pointers.New[float32](1000),
+					PriceFloor:    pointers.New[float32](10),
+					QuantityFloor: pointers.New[uint32](1),
+					CategoryIDs:   []uint32{1}, TagIDs: []uint32{1},
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
@@ -627,7 +625,7 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 							PriceCeil:           pointers.New[float32](1000),
 							PriceFloor:          pointers.New[float32](10),
 							QuantityFloor:       pointers.New[uint32](1),
-							CategoryID:          pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
 							TagIDs:              []uint32{1},
 							CreatedAtOrderByAsc: pointers.New(true),
 						},
@@ -911,6 +909,45 @@ func TestTagsServer_AddToy(t *testing.T) {
 			errorExpected: true,
 			errorCode:     codes.Internal,
 		},
+		{
+			name: "validation error",
+			in: &toys.AddToyIn{
+				UserID:      userID,
+				CategoryID:  categoryID,
+				Name:        "test toy",
+				Description: "test description",
+				Quantity:    1,
+				Price:       110,
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test attachment"},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					AddToy(
+						gomock.Any(),
+						entities.RawAddToyDTO{
+							UserID:      userID,
+							CategoryID:  categoryID,
+							Name:        "test toy",
+							Description: "test description",
+							Quantity:    1,
+							Price:       110,
+							TagIDs:      []uint32{tagID},
+							Attachments: []string{"test attachment"},
+						},
+					).
+					Return(uint64(0), validationError).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.FailedPrecondition,
+		},
 	}
 
 	ctrl := gomock.NewController(t)
@@ -1145,6 +1182,45 @@ func TestTagsServer_UpdateToy(t *testing.T) {
 			},
 			errorExpected: true,
 			errorCode:     codes.Internal,
+		},
+		{
+			name: "validation error",
+			in: &toys.UpdateToyIn{
+				ID:          toyID,
+				CategoryID:  pointers.New[uint32](categoryID),
+				Name:        pointers.New[string]("test toy"),
+				Description: pointers.New[string]("test description"),
+				Quantity:    pointers.New[uint32](1),
+				Price:       pointers.New[float32](110),
+				TagIDs:      []uint32{tagID},
+				Attachments: []string{"test attachment"},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					UpdateToy(
+						gomock.Any(),
+						entities.RawUpdateToyDTO{
+							ID:          toyID,
+							CategoryID:  pointers.New[uint32](categoryID),
+							Name:        pointers.New[string]("test toy"),
+							Description: pointers.New[string]("test description"),
+							Quantity:    pointers.New[uint32](1),
+							Price:       pointers.New[float32](110),
+							TagIDs:      []uint32{tagID},
+							Attachments: []string{"test attachment"},
+						},
+					).
+					Return(validationError).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.FailedPrecondition,
 		},
 	}
 

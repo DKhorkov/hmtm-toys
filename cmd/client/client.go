@@ -68,7 +68,7 @@ func main() {
 				PriceCeil:           pointers.New[float32](1000),
 				PriceFloor:          pointers.New[float32](10),
 				QuantityFloor:       pointers.New[uint32](1),
-				CategoryID:          pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1, 2},
 				TagIDs:              []uint32{1},
 				CreatedAtOrderByAsc: pointers.New(true),
 			},

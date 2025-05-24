@@ -272,13 +272,44 @@ func New() Config {
 			},
 		},
 		Validation: ValidationConfig{
-			MasterInfoRegExps: loadenv.GetEnvAsSlice(
-				"MASTER_INFO_REGEXP",
-				[]string{
-					"^[\\s\\S]{0,1000}$",
-				},
-				";",
-			),
+			Master: MasterValidationConfig{
+				Info: loadenv.GetEnvAsSlice(
+					"MASTER_INFO_REGEXP",
+					[]string{
+						`^.{5,1000}$`,     // длина 5-1000 символов
+						`^[А-Яа-яЁё\s]+$`, // только кириллица и пробелы
+					},
+					";",
+				),
+			},
+			Toy: ToyValidationConfig{
+				Name: loadenv.GetEnvAsSlice(
+					"TOY_NAME_REGEXP",
+					[]string{
+						`^.{2,50}$`,       // длина 2-50 символов
+						`^[А-Яа-яЁё\s]+$`, // только кириллица и пробелы
+					},
+					";",
+				),
+				Description: loadenv.GetEnvAsSlice(
+					"TOY_DESCRIPTION_REGEXP",
+					[]string{
+						`^.{10,1000}$`,    // длина 10-1000 символов
+						`^[А-Яа-яЁё\s]+$`, // только кириллица и пробелы
+					},
+					";",
+				),
+			},
+			Tag: TagValidationConfig{
+				Name: loadenv.GetEnvAsSlice(
+					"TAG_NAME_REGEXP",
+					[]string{
+						`^.{2,20}$`,       // длина 2-20 символов
+						`^[А-Яа-яЁё\s]+$`, // только кириллица и пробелы
+					},
+					";",
+				),
+			},
 		},
 	}
 }
@@ -322,7 +353,22 @@ type ClientConfig struct {
 }
 
 type ValidationConfig struct {
-	MasterInfoRegExps []string // since Go's regex doesn't support backtracking.
+	Master MasterValidationConfig
+	Toy    ToyValidationConfig
+	Tag    TagValidationConfig
+}
+
+type MasterValidationConfig struct {
+	Info []string // since Go's regex doesn't support backtracking.
+}
+
+type ToyValidationConfig struct {
+	Name        []string // since Go's regex doesn't support backtracking.
+	Description []string // since Go's regex doesn't support backtracking.
+}
+
+type TagValidationConfig struct {
+	Name []string // since Go's regex doesn't support backtracking.
 }
 
 type Config struct {
