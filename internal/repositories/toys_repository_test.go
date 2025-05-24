@@ -257,7 +257,7 @@ func (s *ToysRepositoryTestSuite) TestGetToysWithExistingToysAndFilters() {
 		PriceCeil:           pointers.New[float32](1000),
 		PriceFloor:          pointers.New[float32](10),
 		QuantityFloor:       pointers.New[uint32](1),
-		CategoryID:          pointers.New[uint32](2),
+		CategoryIDs:         []uint32{2},
 		TagIDs:              []uint32{10, 20},
 		CreatedAtOrderByAsc: pointers.New(true),
 	}
@@ -344,7 +344,7 @@ func (s *ToysRepositoryTestSuite) TestCountToysWithExistingToysAndFilters() {
 		PriceCeil:           pointers.New[float32](1000),
 		PriceFloor:          pointers.New[float32](10),
 		QuantityFloor:       pointers.New[uint32](1),
-		CategoryID:          pointers.New[uint32](2),
+		CategoryIDs:         []uint32{2},
 		TagIDs:              []uint32{10, 20},
 		CreatedAtOrderByAsc: pointers.New(true),
 	}
@@ -481,7 +481,7 @@ func (s *ToysRepositoryTestSuite) TestGetMasterToysWithExistingToysAndFilters() 
 		PriceCeil:           pointers.New[float32](1000),
 		PriceFloor:          pointers.New[float32](10),
 		QuantityFloor:       pointers.New[uint32](1),
-		CategoryID:          pointers.New[uint32](2),
+		CategoryIDs:         []uint32{2},
 		TagIDs:              []uint32{10, 20},
 		CreatedAtOrderByAsc: pointers.New(true),
 	}

@@ -149,7 +149,7 @@ func (repo *ToysRepository) GetToys(
 			)
 	}
 
-	if filters != nil && filters.CategoryID != nil {
+	if filters != nil && filters.CategoryIDs != nil {
 		builder = builder.
 			Where(
 				sq.Eq{
@@ -157,7 +157,7 @@ func (repo *ToysRepository) GetToys(
 						"%s.%s",
 						toysTableName,
 						categoryIDColumnName,
-					): *filters.CategoryID,
+					): filters.CategoryIDs,
 				},
 			)
 	}
@@ -358,15 +358,15 @@ func (repo *ToysRepository) CountToys(ctx context.Context, filters *entities.Toy
 			)
 	}
 
-	if filters != nil && filters.CategoryID != nil {
+	if filters != nil && filters.CategoryIDs != nil {
 		builder = builder.
 			Where(
-				sq.GtOrEq{
+				sq.Eq{
 					fmt.Sprintf(
 						"%s.%s",
 						toysTableName,
 						categoryIDColumnName,
-					): *filters.CategoryID,
+					): filters.CategoryIDs,
 				},
 			)
 	}
@@ -498,15 +498,15 @@ func (repo *ToysRepository) GetMasterToys(
 			)
 	}
 
-	if filters != nil && filters.CategoryID != nil {
+	if filters != nil && filters.CategoryIDs != nil {
 		builder = builder.
 			Where(
-				sq.GtOrEq{
+				sq.Eq{
 					fmt.Sprintf(
 						"%s.%s",
 						toysTableName,
 						categoryIDColumnName,
-					): *filters.CategoryID,
+					): filters.CategoryIDs,
 				},
 			)
 	}

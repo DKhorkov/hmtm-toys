@@ -111,7 +111,7 @@ message ToysFilters {
   optional float priceCeil = 2;  // max price
   optional float priceFloor = 3;  // min price
   optional uint32 quantityFloor = 4;  // min quantity
-  optional uint32 categoryID = 5;
+  repeated uint32 categoryIDs = 5;
   repeated uint32 tagIDs = 6;
   optional bool createdAtOrderByAsc = 7;
 }

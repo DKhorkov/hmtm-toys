@@ -2,13 +2,20 @@ package usecases
 
 import (
 	"context"
+	"strings"
 
 	"github.com/DKhorkov/libs/validation"
 
 	"github.com/DKhorkov/hmtm-toys/internal/config"
 	"github.com/DKhorkov/hmtm-toys/internal/entities"
-	customerrors "github.com/DKhorkov/hmtm-toys/internal/errors"
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
+)
+
+const (
+	priceCeil     = 1_000_000
+	priceFloor    = 1
+	quantityCeil  = 1_000
+	quantityFloor = 1
 )
 
 type UseCases struct {
@@ -100,6 +107,32 @@ func (useCases *UseCases) AddToy(
 	ctx context.Context,
 	rawToyData entities.RawAddToyDTO,
 ) (uint64, error) {
+	if !validation.ValidateValueByRules(
+		rawToyData.Name,
+		useCases.validationConfig.Toy.Name,
+	) || validation.ContainsForbiddenWords(
+		rawToyData.Name,
+	) {
+		return 0, &validation.Error{Message: "invalid toy name"}
+	}
+
+	if !validation.ValidateValueByRules(
+		rawToyData.Description,
+		useCases.validationConfig.Toy.Description,
+	) || validation.ContainsForbiddenWords(
+		rawToyData.Description,
+	) {
+		return 0, &validation.Error{Message: "invalid toy description"}
+	}
+
+	if rawToyData.Price > priceCeil || rawToyData.Price < priceFloor {
+		return 0, &validation.Error{Message: "invalid toy price"}
+	}
+
+	if rawToyData.Quantity > quantityCeil || rawToyData.Quantity < quantityFloor {
+		return 0, &validation.Error{Message: "invalid toy quantity"}
+	}
+
 	master, err := useCases.GetMasterByUserID(ctx, rawToyData.UserID)
 	if err != nil {
 		return 0, err
@@ -149,11 +182,13 @@ func (useCases *UseCases) RegisterMaster(
 	masterData entities.RegisterMasterDTO,
 ) (uint64, error) {
 	if masterData.Info != nil &&
-		!validation.ValidateValueByRules(
+		(!validation.ValidateValueByRules(
 			*masterData.Info,
-			useCases.validationConfig.MasterInfoRegExps,
-		) {
-		return 0, &customerrors.InvalidMasterInfoError{}
+			useCases.validationConfig.Master.Info,
+		) || validation.ContainsForbiddenWords(
+			*masterData.Info,
+		)) {
+		return 0, &validation.Error{Message: "invalid master info"}
 	}
 
 	if _, err := useCases.ssoService.GetUserByID(ctx, masterData.UserID); err != nil {
@@ -167,28 +202,48 @@ func (useCases *UseCases) CreateTags(
 	ctx context.Context,
 	tagsData []entities.CreateTagDTO,
 ) ([]uint32, error) {
-	allTags, err := useCases.GetAllTags(ctx)
+	for _, tag := range tagsData {
+		if !validation.ValidateValueByRules(
+			tag.Name,
+			useCases.validationConfig.Tag.Name,
+		) || validation.ContainsForbiddenWords(
+			tag.Name,
+		) {
+			return nil, &validation.Error{Message: "invalid tag name: " + tag.Name}
+		}
+	}
+
+	existingTags, err := useCases.GetAllTags(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	allTagsSet := make(map[string]uint32)
-	for _, tag := range allTags {
-		allTagsSet[tag.Name] = tag.ID
+	existingTagsSet := make(map[string]uint32)
+	for _, tag := range existingTags {
+		existingTagsSet[tag.Name] = tag.ID
 	}
 
-	var existingTagIDs []uint32
+	uniqueTags := make(map[string]struct{}, len(tagsData))
+
+	for _, tag := range tagsData {
+		lowerCaseTagName := strings.ToLower(tag.Name)
+		if _, ok := uniqueTags[lowerCaseTagName]; !ok {
+			uniqueTags[lowerCaseTagName] = struct{}{}
+		}
+	}
 
 	var tagsToCreate []entities.CreateTagDTO
 
-	for _, tag := range tagsData {
-		if _, ok := allTagsSet[tag.Name]; ok {
-			existingTagIDs = append(existingTagIDs, allTagsSet[tag.Name])
+	var existingTagIDs []uint32
+
+	for tag := range uniqueTags {
+		if _, ok := existingTagsSet[tag]; ok {
+			existingTagIDs = append(existingTagIDs, existingTagsSet[tag])
 
 			continue
 		}
 
-		tagsToCreate = append(tagsToCreate, tag)
+		tagsToCreate = append(tagsToCreate, entities.CreateTagDTO{Name: tag})
 	}
 
 	createdTagIDs, err := useCases.tagsService.CreateTags(ctx, tagsToCreate)
@@ -213,6 +268,34 @@ func (useCases *UseCases) UpdateToy(
 	ctx context.Context,
 	rawToyData entities.RawUpdateToyDTO,
 ) error {
+	if rawToyData.Name != nil &&
+		(!validation.ValidateValueByRules(
+			*rawToyData.Name,
+			useCases.validationConfig.Toy.Name,
+		) || validation.ContainsForbiddenWords(
+			*rawToyData.Name,
+		)) {
+		return &validation.Error{Message: "invalid toy name"}
+	}
+
+	if rawToyData.Description != nil &&
+		(!validation.ValidateValueByRules(
+			*rawToyData.Description,
+			useCases.validationConfig.Toy.Description,
+		) || validation.ContainsForbiddenWords(
+			*rawToyData.Description,
+		)) {
+		return &validation.Error{Message: "invalid toy description"}
+	}
+
+	if rawToyData.Price != nil && (*rawToyData.Price > priceCeil || *rawToyData.Price < priceFloor) {
+		return &validation.Error{Message: "invalid toy price"}
+	}
+
+	if rawToyData.Quantity != nil && (*rawToyData.Quantity > quantityCeil || *rawToyData.Quantity < quantityFloor) {
+		return &validation.Error{Message: "invalid toy quantity"}
+	}
+
 	toy, err := useCases.GetToyByID(ctx, rawToyData.ID)
 	if err != nil {
 		return err
@@ -311,11 +394,13 @@ func (useCases *UseCases) UpdateMaster(
 	masterData entities.UpdateMasterDTO,
 ) error {
 	if masterData.Info != nil &&
-		!validation.ValidateValueByRules(
+		(!validation.ValidateValueByRules(
 			*masterData.Info,
-			useCases.validationConfig.MasterInfoRegExps,
-		) {
-		return &customerrors.InvalidMasterInfoError{}
+			useCases.validationConfig.Master.Info,
+		) || validation.ContainsForbiddenWords(
+			*masterData.Info,
+		)) {
+		return &validation.Error{Message: "invalid master info"}
 	}
 
 	if _, err := useCases.GetMasterByID(ctx, masterData.ID); err != nil {

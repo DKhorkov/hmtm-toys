@@ -6,7 +6,7 @@ toolchain go1.23.6
 
 require (
 	github.com/DKhorkov/hmtm-sso v1.4.1
-	github.com/DKhorkov/libs v1.8.0
+	github.com/DKhorkov/libs v1.8.2
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.2.0
 	github.com/mattn/go-sqlite3 v1.14.24

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/DKhorkov/libs/logging"
+	"github.com/DKhorkov/libs/validation"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -19,7 +20,10 @@ import (
 	"github.com/DKhorkov/hmtm-toys/internal/interfaces"
 )
 
-var tagNotFoundError = &customerrors.TagNotFoundError{}
+var (
+	tagNotFoundError = &customerrors.TagNotFoundError{}
+	validationError  = &validation.Error{}
+)
 
 // RegisterServer handler (serverAPI) for TagsServer to gRPC server:.
 func RegisterServer(gRPCServer *grpc.Server, useCases interfaces.UseCases, logger logging.Logger) {
@@ -54,7 +58,12 @@ func (api *ServerAPI) CreateTags(
 			err,
 		)
 
-		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+		switch {
+		case errors.As(err, &validationError):
+			return nil, &customgrpc.BaseError{Status: codes.FailedPrecondition, Message: err.Error()}
+		default:
+			return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+		}
 	}
 
 	processedTags := make([]*toys.CreateTagOut, len(tagIDs))
