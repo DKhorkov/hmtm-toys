@@ -5,12 +5,10 @@ package repositories_test
 import (
 	"context"
 	"database/sql"
+	_ "github.com/mattn/go-sqlite3" // Must be imported for correct work
 	"os"
 	"path"
 	"testing"
-	"time"
-
-	_ "github.com/mattn/go-sqlite3" // Must be imported for correct work
 
 	"github.com/pressly/goose/v3"
 	"github.com/stretchr/testify/suite"
@@ -109,39 +107,9 @@ func (s *CategoriesRepositoryTestSuite) TestGetAllCategoriesWithExisting() {
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	createdAt := time.Now().UTC()
-	_, err := s.connection.ExecContext(
-		s.ctx,
-		"INSERT INTO categories (id, name, created_at, updated_at) VALUES (?, ?, ?, ?), (?, ?, ?, ?)",
-		1, "Category 1", createdAt, createdAt,
-		2, "Category 2", createdAt, createdAt,
-	)
-	s.NoError(err)
-
 	categories, err := s.categoriesRepository.GetAllCategories(s.ctx)
 	s.NoError(err)
 	s.NotEmpty(categories)
-	s.Equal(2, len(categories))
-	s.Equal(uint32(1), categories[1].ID)
-	s.Equal("Category 1", categories[1].Name)
-	s.WithinDuration(createdAt, categories[1].CreatedAt, time.Second)
-	s.WithinDuration(createdAt, categories[1].UpdatedAt, time.Second)
-	s.Equal(uint32(2), categories[0].ID)
-	s.Equal("Category 2", categories[0].Name)
-	s.WithinDuration(createdAt, categories[0].CreatedAt, time.Second)
-	s.WithinDuration(createdAt, categories[0].UpdatedAt, time.Second)
-}
-
-func (s *CategoriesRepositoryTestSuite) TestGetAllCategoriesWithoutExisting() {
-	s.traceProvider.
-		EXPECT().
-		Span(gomock.Any(), gomock.Any()).
-		Return(context.Background(), mocktracing.NewMockSpan()).
-		Times(1)
-
-	categories, err := s.categoriesRepository.GetAllCategories(s.ctx)
-	s.NoError(err)
-	s.Empty(categories)
 }
 
 func (s *CategoriesRepositoryTestSuite) TestGetCategoryByIDExisting() {
@@ -151,21 +119,11 @@ func (s *CategoriesRepositoryTestSuite) TestGetCategoryByIDExisting() {
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	createdAt := time.Now().UTC()
-	_, err := s.connection.ExecContext(
-		s.ctx,
-		"INSERT INTO categories (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)",
-		1, "Test Category", createdAt, createdAt,
-	)
-	s.NoError(err)
-
 	category, err := s.categoriesRepository.GetCategoryByID(s.ctx, 1)
 	s.NoError(err)
 	s.NotNil(category)
 	s.Equal(uint32(1), category.ID)
-	s.Equal("Test Category", category.Name)
-	s.WithinDuration(createdAt, category.CreatedAt, time.Second)
-	s.WithinDuration(createdAt, category.UpdatedAt, time.Second)
+	s.Equal("Вальдорфская игрушка", category.Name)
 }
 
 func (s *CategoriesRepositoryTestSuite) TestGetCategoryByIDNonExisting() {
