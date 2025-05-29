@@ -89,6 +89,14 @@ func (useCases *UseCases) GetMasterToys(
 	return useCases.toysService.GetMasterToys(ctx, masterID, pagination, filters)
 }
 
+func (useCases *UseCases) CountMasterToys(
+	ctx context.Context,
+	masterID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	return useCases.toysService.CountMasterToys(ctx, masterID, filters)
+}
+
 func (useCases *UseCases) GetUserToys(
 	ctx context.Context,
 	userID uint64,
@@ -101,6 +109,19 @@ func (useCases *UseCases) GetUserToys(
 	}
 
 	return useCases.GetMasterToys(ctx, master.ID, pagination, filters)
+}
+
+func (useCases *UseCases) CountUserToys(
+	ctx context.Context,
+	userID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	master, err := useCases.GetMasterByUserID(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return useCases.toysService.CountMasterToys(ctx, master.ID, filters)
 }
 
 func (useCases *UseCases) AddToy(

@@ -650,6 +650,232 @@ func TestUseCases_CountToys(t *testing.T) {
 	}
 }
 
+func TestUseCases_CountMasterToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		masterID   uint64
+		filters    *entities.ToysFilters
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			masterID: masterID,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				_ *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				toysService.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+		validationConfig,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.CountMasterToys(ctx, tc.masterID, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_CountUserToys(t *testing.T) {
+	testCases := []struct {
+		name       string
+		userID     uint64
+		filters    *entities.ToysFilters
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name:   "success",
+			userID: userID,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(
+						&entities.Master{ID: masterID, UserID: userID},
+						nil,
+					).
+					Times(1)
+
+				toysService.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+		{
+			name:   "master with provided userID not found",
+			userID: userID,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				toysService *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					GetMasterByUserID(gomock.Any(), userID).
+					Return(nil, errors.New("master not found")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+		validationConfig,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.CountUserToys(ctx, tc.userID, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestUseCases_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name       string

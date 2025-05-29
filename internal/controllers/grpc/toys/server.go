@@ -40,6 +40,64 @@ type ServerAPI struct {
 	logger   logging.Logger
 }
 
+func (api *ServerAPI) CountMasterToys(ctx context.Context, in *toys.CountMasterToysIn) (*toys.CountOut, error) {
+	var filters *entities.ToysFilters
+	if in.Filters != nil {
+		filters = &entities.ToysFilters{
+			Search:              in.Filters.Search,
+			PriceCeil:           in.Filters.PriceCeil,
+			PriceFloor:          in.Filters.PriceFloor,
+			QuantityFloor:       in.Filters.QuantityFloor,
+			CategoryIDs:         in.Filters.CategoryIDs,
+			TagIDs:              in.Filters.TagIDs,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	count, err := api.useCases.CountMasterToys(ctx, in.GetMasterID(), filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to count Toys for Master with ID=%d", in.GetMasterID()),
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	return &toys.CountOut{Count: count}, nil
+}
+
+func (api *ServerAPI) CountUserToys(ctx context.Context, in *toys.CountUserToysIn) (*toys.CountOut, error) {
+	var filters *entities.ToysFilters
+	if in.Filters != nil {
+		filters = &entities.ToysFilters{
+			Search:              in.Filters.Search,
+			PriceCeil:           in.Filters.PriceCeil,
+			PriceFloor:          in.Filters.PriceFloor,
+			QuantityFloor:       in.Filters.QuantityFloor,
+			CategoryIDs:         in.Filters.CategoryIDs,
+			TagIDs:              in.Filters.TagIDs,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	count, err := api.useCases.CountUserToys(ctx, in.GetUserID(), filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			fmt.Sprintf("Error occurred while trying to count Toys for User with ID=%d", in.GetUserID()),
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	return &toys.CountOut{Count: count}, nil
+}
+
 func (api *ServerAPI) CountToys(ctx context.Context, in *toys.CountToysIn) (*toys.CountOut, error) {
 	var filters *entities.ToysFilters
 	if in.Filters != nil {
