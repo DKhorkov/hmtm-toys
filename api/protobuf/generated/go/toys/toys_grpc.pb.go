@@ -24,7 +24,9 @@ type ToysServiceClient interface {
 	GetToys(ctx context.Context, in *GetToysIn, opts ...grpc.CallOption) (*GetToysOut, error)
 	CountToys(ctx context.Context, in *CountToysIn, opts ...grpc.CallOption) (*CountOut, error)
 	GetMasterToys(ctx context.Context, in *GetMasterToysIn, opts ...grpc.CallOption) (*GetToysOut, error)
+	CountMasterToys(ctx context.Context, in *CountMasterToysIn, opts ...grpc.CallOption) (*CountOut, error)
 	GetUserToys(ctx context.Context, in *GetUserToysIn, opts ...grpc.CallOption) (*GetToysOut, error)
+	CountUserToys(ctx context.Context, in *CountUserToysIn, opts ...grpc.CallOption) (*CountOut, error)
 	DeleteToy(ctx context.Context, in *DeleteToyIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateToy(ctx context.Context, in *UpdateToyIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -82,9 +84,27 @@ func (c *toysServiceClient) GetMasterToys(ctx context.Context, in *GetMasterToys
 	return out, nil
 }
 
+func (c *toysServiceClient) CountMasterToys(ctx context.Context, in *CountMasterToysIn, opts ...grpc.CallOption) (*CountOut, error) {
+	out := new(CountOut)
+	err := c.cc.Invoke(ctx, "/toys.ToysService/CountMasterToys", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *toysServiceClient) GetUserToys(ctx context.Context, in *GetUserToysIn, opts ...grpc.CallOption) (*GetToysOut, error) {
 	out := new(GetToysOut)
 	err := c.cc.Invoke(ctx, "/toys.ToysService/GetUserToys", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *toysServiceClient) CountUserToys(ctx context.Context, in *CountUserToysIn, opts ...grpc.CallOption) (*CountOut, error) {
+	out := new(CountOut)
+	err := c.cc.Invoke(ctx, "/toys.ToysService/CountUserToys", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +138,9 @@ type ToysServiceServer interface {
 	GetToys(context.Context, *GetToysIn) (*GetToysOut, error)
 	CountToys(context.Context, *CountToysIn) (*CountOut, error)
 	GetMasterToys(context.Context, *GetMasterToysIn) (*GetToysOut, error)
+	CountMasterToys(context.Context, *CountMasterToysIn) (*CountOut, error)
 	GetUserToys(context.Context, *GetUserToysIn) (*GetToysOut, error)
+	CountUserToys(context.Context, *CountUserToysIn) (*CountOut, error)
 	DeleteToy(context.Context, *DeleteToyIn) (*emptypb.Empty, error)
 	UpdateToy(context.Context, *UpdateToyIn) (*emptypb.Empty, error)
 	mustEmbedUnimplementedToysServiceServer()
@@ -143,8 +165,14 @@ func (UnimplementedToysServiceServer) CountToys(context.Context, *CountToysIn) (
 func (UnimplementedToysServiceServer) GetMasterToys(context.Context, *GetMasterToysIn) (*GetToysOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasterToys not implemented")
 }
+func (UnimplementedToysServiceServer) CountMasterToys(context.Context, *CountMasterToysIn) (*CountOut, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CountMasterToys not implemented")
+}
 func (UnimplementedToysServiceServer) GetUserToys(context.Context, *GetUserToysIn) (*GetToysOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserToys not implemented")
+}
+func (UnimplementedToysServiceServer) CountUserToys(context.Context, *CountUserToysIn) (*CountOut, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CountUserToys not implemented")
 }
 func (UnimplementedToysServiceServer) DeleteToy(context.Context, *DeleteToyIn) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteToy not implemented")
@@ -255,6 +283,24 @@ func _ToysService_GetMasterToys_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ToysService_CountMasterToys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountMasterToysIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToysServiceServer).CountMasterToys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/toys.ToysService/CountMasterToys",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToysServiceServer).CountMasterToys(ctx, req.(*CountMasterToysIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ToysService_GetUserToys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserToysIn)
 	if err := dec(in); err != nil {
@@ -269,6 +315,24 @@ func _ToysService_GetUserToys_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ToysServiceServer).GetUserToys(ctx, req.(*GetUserToysIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ToysService_CountUserToys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountUserToysIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToysServiceServer).CountUserToys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/toys.ToysService/CountUserToys",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToysServiceServer).CountUserToys(ctx, req.(*CountUserToysIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,8 +401,16 @@ var ToysService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ToysService_GetMasterToys_Handler,
 		},
 		{
+			MethodName: "CountMasterToys",
+			Handler:    _ToysService_CountMasterToys_Handler,
+		},
+		{
 			MethodName: "GetUserToys",
 			Handler:    _ToysService_GetUserToys_Handler,
+		},
+		{
+			MethodName: "CountUserToys",
+			Handler:    _ToysService_CountUserToys_Handler,
 		},
 		{
 			MethodName: "DeleteToy",

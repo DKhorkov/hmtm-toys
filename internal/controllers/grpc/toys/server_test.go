@@ -394,6 +394,238 @@ func TestTagsServer_CountToys(t *testing.T) {
 	}
 }
 
+func TestTagsServer_CountMasterToys(t *testing.T) {
+	testCases := []struct {
+		name          string
+		in            *toys.CountMasterToysIn
+		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		expected      *toys.CountOut
+		errorExpected bool
+		errorCode     codes.Code
+	}{
+		{
+			name: "success",
+			in: &toys.CountMasterToysIn{
+				MasterID: masterID,
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: &toys.CountOut{
+				Count: 1,
+			},
+		},
+		{
+			name: "error",
+			in: &toys.CountMasterToysIn{
+				MasterID: masterID,
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						masterID,
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("some error")).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.Internal,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	usecases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	tagsServer := &ServerAPI{
+		logger:   logger,
+		useCases: usecases,
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(usecases, logger)
+			}
+
+			actual, err := tagsServer.CountMasterToys(ctx, tc.in)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.Equal(t, tc.errorCode, status.Code(err))
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestTagsServer_CountUserToys(t *testing.T) {
+	testCases := []struct {
+		name          string
+		in            *toys.CountUserToysIn
+		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		expected      *toys.CountOut
+		errorExpected bool
+		errorCode     codes.Code
+	}{
+		{
+			name: "success",
+			in: &toys.CountUserToysIn{
+				UserID: userID,
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CountUserToys(
+						gomock.Any(),
+						userID,
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: &toys.CountOut{
+				Count: 1,
+			},
+		},
+		{
+			name: "error",
+			in: &toys.CountUserToysIn{
+				UserID: userID,
+				Filters: &toys.ToysFilters{
+					Search:              pointers.New("toy2"),
+					PriceCeil:           pointers.New[float32](1000),
+					PriceFloor:          pointers.New[float32](10),
+					QuantityFloor:       pointers.New[uint32](1),
+					CategoryIDs:         []uint32{1},
+					TagIDs:              []uint32{1},
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				usecases.
+					EXPECT().
+					CountUserToys(
+						gomock.Any(),
+						userID,
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("some error")).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.Internal,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	usecases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	tagsServer := &ServerAPI{
+		logger:   logger,
+		useCases: usecases,
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(usecases, logger)
+			}
+
+			actual, err := tagsServer.CountUserToys(ctx, tc.in)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.Equal(t, tc.errorCode, status.Code(err))
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestTagsServer_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string

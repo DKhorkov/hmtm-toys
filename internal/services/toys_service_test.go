@@ -340,6 +340,107 @@ func TestToysService_CountToys(t *testing.T) {
 	}
 }
 
+func TestToysService_CountMasterToys(t *testing.T) {
+	testCases := []struct {
+		name          string
+		masterID      uint64
+		filters       *entities.ToysFilters
+		expected      uint64
+		setupMocks    func(toysRepository *mockrepositories.MockToysRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			masterID: 1,
+			expected: 1,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+		},
+		{
+			name:     "error",
+			masterID: 1,
+			filters: &entities.ToysFilters{
+				Search:              pointers.New("toy2"),
+				PriceCeil:           pointers.New[float32](1000),
+				PriceFloor:          pointers.New[float32](10),
+				QuantityFloor:       pointers.New[uint32](1),
+				CategoryIDs:         []uint32{1},
+				TagIDs:              []uint32{1},
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(toysRepository *mockrepositories.MockToysRepository, _ *loggermock.MockLogger) {
+				toysRepository.
+					EXPECT().
+					CountMasterToys(
+						gomock.Any(),
+						uint64(1),
+						&entities.ToysFilters{
+							Search:              pointers.New("toy2"),
+							PriceCeil:           pointers.New[float32](1000),
+							PriceFloor:          pointers.New[float32](10),
+							QuantityFloor:       pointers.New[uint32](1),
+							CategoryIDs:         []uint32{1},
+							TagIDs:              []uint32{1},
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	mockController := gomock.NewController(t)
+	toysRepository := mockrepositories.NewMockToysRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	toysService := services.NewToysService(toysRepository, logger)
+	ctx := context.Background()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(toysRepository, logger)
+			}
+
+			actual, err := toysService.CountMasterToys(ctx, tc.masterID, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestToysService_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string

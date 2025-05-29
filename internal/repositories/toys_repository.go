@@ -621,6 +621,145 @@ func (repo *ToysRepository) GetMasterToys(
 	return toys, nil
 }
 
+func (repo *ToysRepository) CountMasterToys(
+	ctx context.Context,
+	masterID uint64,
+	filters *entities.ToysFilters,
+) (uint64, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
+	builder := sq.
+		Select(selectCount).
+		From(toysTableName).
+		Where(sq.Eq{masterIDColumnName: masterID}).
+		PlaceholderFormat(sq.Dollar)
+
+	if filters != nil && filters.Search != nil && *filters.Search != "" {
+		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
+		builder = builder.
+			Where(
+				sq.Or{
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyNameColumnName,
+						): searchTerm,
+					},
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							toysTableName,
+							toyDescriptionColumnName,
+						): searchTerm,
+					},
+				},
+			)
+	}
+
+	if filters != nil && (filters.PriceFloor != nil || filters.PriceCeil != nil) {
+		priceConditions := sq.And{}
+		if filters.PriceFloor != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceFloor,
+				},
+			)
+		}
+
+		if filters.PriceCeil != nil {
+			priceConditions = append(
+				priceConditions,
+				sq.LtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyPriceColumnName,
+					): *filters.PriceCeil,
+				},
+			)
+		}
+
+		builder = builder.Where(priceConditions)
+	}
+
+	if filters != nil && filters.QuantityFloor != nil {
+		builder = builder.
+			Where(
+				sq.GtOrEq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						toyQuantityColumnName,
+					): *filters.QuantityFloor,
+				},
+			)
+	}
+
+	if filters != nil && filters.CategoryIDs != nil {
+		builder = builder.
+			Where(
+				sq.Eq{
+					fmt.Sprintf(
+						"%s.%s",
+						toysTableName,
+						categoryIDColumnName,
+					): filters.CategoryIDs,
+				},
+			)
+	}
+
+	if filters != nil && len(filters.TagIDs) > 0 {
+		for _, tagID := range filters.TagIDs {
+			builder = builder.
+				Where(
+					sq.Expr(
+						fmt.Sprintf(
+							"EXISTS (SELECT 1 FROM %s WHERE %s.%s = %s.%s AND %s.%s = ?)",
+							toysAndTagsAssociationTableName,
+							toysAndTagsAssociationTableName,
+							toyIDColumnName,
+							toysTableName,
+							idColumnName,
+							toysAndTagsAssociationTableName,
+							tagIDColumnName,
+						),
+						tagID,
+					),
+				)
+		}
+	}
+
+	// Для запросов COUNT сортировка не нужна, поэтому параметр CreatedAtOrderByAsc не используется
+	stmt, params, err := builder.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	var count uint64
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (repo *ToysRepository) GetToyByID(ctx context.Context, id uint64) (*entities.Toy, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()

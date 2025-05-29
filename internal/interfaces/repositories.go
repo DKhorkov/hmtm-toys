@@ -18,6 +18,7 @@ type ToysRepository interface {
 		pagination *entities.Pagination,
 		filters *entities.ToysFilters,
 	) ([]entities.Toy, error)
+	CountMasterToys(ctx context.Context, masterID uint64, filters *entities.ToysFilters) (uint64, error)
 	DeleteToy(ctx context.Context, id uint64) error
 	UpdateToy(ctx context.Context, toyData entities.UpdateToyDTO) error
 }

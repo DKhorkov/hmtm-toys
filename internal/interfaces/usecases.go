@@ -35,12 +35,14 @@ type UseCases interface {
 		pagination *entities.Pagination,
 		filters *entities.ToysFilters,
 	) ([]entities.Toy, error)
+	CountMasterToys(ctx context.Context, masterID uint64, filters *entities.ToysFilters) (uint64, error)
 	GetUserToys(
 		ctx context.Context,
 		userID uint64,
 		pagination *entities.Pagination,
 		filters *entities.ToysFilters,
 	) ([]entities.Toy, error)
+	CountUserToys(ctx context.Context, userID uint64, filters *entities.ToysFilters) (uint64, error)
 	DeleteToy(ctx context.Context, id uint64) error
 	UpdateToy(ctx context.Context, rawToyData entities.RawUpdateToyDTO) error
 }
