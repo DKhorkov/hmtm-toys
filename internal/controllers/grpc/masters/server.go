@@ -40,8 +40,11 @@ func (api *ServerAPI) UpdateMaster(
 	in *toys.UpdateMasterIn,
 ) (*emptypb.Empty, error) {
 	masterData := entities.UpdateMasterDTO{
-		ID:   in.GetID(),
-		Info: in.Info,
+		ID: in.GetID(),
+	}
+
+	if in != nil {
+		masterData.Info = in.Info
 	}
 
 	if err := api.useCases.UpdateMaster(ctx, masterData); err != nil {
@@ -118,7 +121,7 @@ func (api *ServerAPI) GetMaster(
 // GetMasters handler returns all Masters.
 func (api *ServerAPI) GetMasters(ctx context.Context, in *toys.GetMastersIn) (*toys.GetMastersOut, error) {
 	var pagination *entities.Pagination
-	if in.Pagination != nil {
+	if in.GetPagination() != nil {
 		pagination = &entities.Pagination{
 			Limit:  in.Pagination.Limit,
 			Offset: in.Pagination.Offset,
@@ -152,7 +155,10 @@ func (api *ServerAPI) RegisterMaster(
 ) (*toys.RegisterMasterOut, error) {
 	masterData := entities.RegisterMasterDTO{
 		UserID: in.GetUserID(),
-		Info:   in.Info,
+	}
+
+	if in != nil {
+		masterData.Info = in.Info
 	}
 
 	masterID, err := api.useCases.RegisterMaster(ctx, masterData)
