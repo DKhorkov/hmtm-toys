@@ -42,7 +42,7 @@ type ServerAPI struct {
 
 func (api *ServerAPI) CountMasterToys(ctx context.Context, in *toys.CountMasterToysIn) (*toys.CountOut, error) {
 	var filters *entities.ToysFilters
-	if in.Filters != nil {
+	if in.GetFilters() != nil {
 		filters = &entities.ToysFilters{
 			Search:              in.Filters.Search,
 			PriceCeil:           in.Filters.PriceCeil,
@@ -71,7 +71,7 @@ func (api *ServerAPI) CountMasterToys(ctx context.Context, in *toys.CountMasterT
 
 func (api *ServerAPI) CountUserToys(ctx context.Context, in *toys.CountUserToysIn) (*toys.CountOut, error) {
 	var filters *entities.ToysFilters
-	if in.Filters != nil {
+	if in.GetFilters() != nil {
 		filters = &entities.ToysFilters{
 			Search:              in.Filters.Search,
 			PriceCeil:           in.Filters.PriceCeil,
@@ -100,7 +100,7 @@ func (api *ServerAPI) CountUserToys(ctx context.Context, in *toys.CountUserToysI
 
 func (api *ServerAPI) CountToys(ctx context.Context, in *toys.CountToysIn) (*toys.CountOut, error) {
 	var filters *entities.ToysFilters
-	if in.Filters != nil {
+	if in.GetFilters() != nil {
 		filters = &entities.ToysFilters{
 			Search:              in.Filters.Search,
 			PriceCeil:           in.Filters.PriceCeil,
@@ -130,13 +130,16 @@ func (api *ServerAPI) CountToys(ctx context.Context, in *toys.CountToysIn) (*toy
 func (api *ServerAPI) UpdateToy(ctx context.Context, in *toys.UpdateToyIn) (*emptypb.Empty, error) {
 	toyData := entities.RawUpdateToyDTO{
 		ID:          in.GetID(),
-		CategoryID:  in.CategoryID,
-		Name:        in.Name,
-		Description: in.Description,
-		Price:       in.Price,
-		Quantity:    in.Quantity,
 		TagIDs:      in.GetTagIDs(),
 		Attachments: in.GetAttachments(),
+	}
+
+	if in != nil {
+		toyData.CategoryID = in.CategoryID
+		toyData.Name = in.Name
+		toyData.Description = in.Description
+		toyData.Price = in.Price
+		toyData.Quantity = in.Quantity
 	}
 
 	if err := api.useCases.UpdateToy(ctx, toyData); err != nil {
@@ -205,7 +208,7 @@ func (api *ServerAPI) GetToy(ctx context.Context, in *toys.GetToyIn) (*toys.GetT
 // GetToys handler returns all Toys.
 func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.GetToysOut, error) {
 	var filters *entities.ToysFilters
-	if in.Filters != nil {
+	if in.GetFilters() != nil {
 		filters = &entities.ToysFilters{
 			Search:              in.Filters.Search,
 			PriceCeil:           in.Filters.PriceCeil,
@@ -218,7 +221,7 @@ func (api *ServerAPI) GetToys(ctx context.Context, in *toys.GetToysIn) (*toys.Ge
 	}
 
 	var pagination *entities.Pagination
-	if in.Pagination != nil {
+	if in.GetPagination() != nil {
 		pagination = &entities.Pagination{
 			Limit:  in.Pagination.Limit,
 			Offset: in.Pagination.Offset,
@@ -246,7 +249,7 @@ func (api *ServerAPI) GetMasterToys(
 	in *toys.GetMasterToysIn,
 ) (*toys.GetToysOut, error) {
 	var filters *entities.ToysFilters
-	if in.Filters != nil {
+	if in.GetFilters() != nil {
 		filters = &entities.ToysFilters{
 			Search:              in.Filters.Search,
 			PriceCeil:           in.Filters.PriceCeil,
@@ -259,7 +262,7 @@ func (api *ServerAPI) GetMasterToys(
 	}
 
 	var pagination *entities.Pagination
-	if in.Pagination != nil {
+	if in.GetPagination() != nil {
 		pagination = &entities.Pagination{
 			Limit:  in.Pagination.Limit,
 			Offset: in.Pagination.Offset,
@@ -294,7 +297,7 @@ func (api *ServerAPI) GetUserToys(
 	in *toys.GetUserToysIn,
 ) (*toys.GetToysOut, error) {
 	var filters *entities.ToysFilters
-	if in.Filters != nil {
+	if in.GetFilters() != nil {
 		filters = &entities.ToysFilters{
 			Search:              in.Filters.Search,
 			PriceCeil:           in.Filters.PriceCeil,
@@ -307,7 +310,7 @@ func (api *ServerAPI) GetUserToys(
 	}
 
 	var pagination *entities.Pagination
-	if in.Pagination != nil {
+	if in.GetPagination() != nil {
 		pagination = &entities.Pagination{
 			Limit:  in.Pagination.Limit,
 			Offset: in.Pagination.Offset,
