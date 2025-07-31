@@ -194,8 +194,16 @@ func (useCases *UseCases) GetMasterByUserID(
 	return useCases.mastersService.GetMasterByUserID(ctx, userID)
 }
 
-func (useCases *UseCases) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
-	return useCases.mastersService.GetMasters(ctx, pagination)
+func (useCases *UseCases) GetMasters(
+	ctx context.Context,
+	pagination *entities.Pagination,
+	filters *entities.MastersFilters,
+) ([]entities.Master, error) {
+	return useCases.mastersService.GetMasters(ctx, pagination, filters)
+}
+
+func (useCases *UseCases) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	return useCases.mastersService.CountMasters(ctx, filters)
 }
 
 func (useCases *UseCases) RegisterMaster(

@@ -154,6 +154,7 @@ func TestMastersService_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name          string
 		pagination    *entities.Pagination
+		filters       *entities.MastersFilters
 		expected      []entities.Master
 		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
 		errorExpected bool
@@ -164,6 +165,10 @@ func TestMastersService_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New[bool](true),
+			},
 			expected: []entities.Master{{ID: 1}},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
@@ -173,6 +178,10 @@ func TestMastersService_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New[bool](true),
 						},
 					).
 					Return(
@@ -190,6 +199,10 @@ func TestMastersService_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New[bool](true),
+			},
 			expected: []entities.Master{},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
@@ -199,6 +212,10 @@ func TestMastersService_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New[bool](true),
 						},
 					).
 					Return([]entities.Master{}, nil).
@@ -211,6 +228,10 @@ func TestMastersService_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New[bool](true),
+			},
 			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
 				mastersRepository.
 					EXPECT().
@@ -219,6 +240,10 @@ func TestMastersService_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New[bool](true),
 						},
 					).
 					Return(nil, errors.New("test error")).
@@ -240,7 +265,7 @@ func TestMastersService_GetMasters(t *testing.T) {
 				tc.setupMocks(mastersRepository, logger)
 			}
 
-			masters, err := mastersService.GetMasters(ctx, tc.pagination)
+			masters, err := mastersService.GetMasters(ctx, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -249,6 +274,82 @@ func TestMastersService_GetMasters(t *testing.T) {
 
 			assert.Len(t, masters, len(tc.expected))
 			assert.Equal(t, tc.expected, masters)
+		})
+	}
+}
+
+func TestMastersService_CountMasters(t *testing.T) {
+	testCases := []struct {
+		name          string
+		filters       *entities.MastersFilters
+		expected      uint64
+		setupMocks    func(mastersRepository *mockrepositories.MockMastersRepository, logger *loggermock.MockLogger)
+		errorExpected bool
+	}{
+		{
+			name:     "success",
+			expected: 1,
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+		},
+		{
+			name: "error",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(mastersRepository *mockrepositories.MockMastersRepository, _ *loggermock.MockLogger) {
+				mastersRepository.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("test")).
+					Times(1)
+			},
+			errorExpected: true,
+		},
+	}
+
+	mockController := gomock.NewController(t)
+	mastersRepository := mockrepositories.NewMockMastersRepository(mockController)
+	logger := loggermock.NewMockLogger(mockController)
+	mastersService := services.NewMastersService(mastersRepository, logger)
+	ctx := context.Background()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(mastersRepository, logger)
+			}
+
+			actual, err := mastersService.CountMasters(ctx, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }

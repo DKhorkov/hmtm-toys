@@ -41,6 +41,21 @@ func (m *MockMastersService) EXPECT() *MockMastersServiceMockRecorder {
 	return m.recorder
 }
 
+// CountMasters mocks base method.
+func (m *MockMastersService) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountMasters", ctx, filters)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountMasters indicates an expected call of CountMasters.
+func (mr *MockMastersServiceMockRecorder) CountMasters(ctx, filters any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountMasters", reflect.TypeOf((*MockMastersService)(nil).CountMasters), ctx, filters)
+}
+
 // GetMasterByID mocks base method.
 func (m *MockMastersService) GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error) {
 	m.ctrl.T.Helper()
@@ -72,18 +87,18 @@ func (mr *MockMastersServiceMockRecorder) GetMasterByUserID(ctx, userID any) *go
 }
 
 // GetMasters mocks base method.
-func (m *MockMastersService) GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error) {
+func (m *MockMastersService) GetMasters(ctx context.Context, pagination *entities.Pagination, filters *entities.MastersFilters) ([]entities.Master, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination)
+	ret := m.ctrl.Call(m, "GetMasters", ctx, pagination, filters)
 	ret0, _ := ret[0].([]entities.Master)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMasters indicates an expected call of GetMasters.
-func (mr *MockMastersServiceMockRecorder) GetMasters(ctx, pagination any) *gomock.Call {
+func (mr *MockMastersServiceMockRecorder) GetMasters(ctx, pagination, filters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockMastersService)(nil).GetMasters), ctx, pagination)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasters", reflect.TypeOf((*MockMastersService)(nil).GetMasters), ctx, pagination, filters)
 }
 
 // RegisterMaster mocks base method.

@@ -33,11 +33,11 @@ const (
 	userID   uint64 = 1
 )
 
-func TestTagsServer_GetMaster(t *testing.T) {
+func TestMastersServer_GetMaster(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetMasterIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetMasterOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -47,8 +47,8 @@ func TestTagsServer_GetMaster(t *testing.T) {
 			in: &toys.GetMasterIn{
 				ID: masterID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterByID(gomock.Any(), masterID).
 					Return(master, nil).
@@ -61,8 +61,8 @@ func TestTagsServer_GetMaster(t *testing.T) {
 			in: &toys.GetMasterIn{
 				ID: masterID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterByID(gomock.Any(), masterID).
 					Return(nil, &customerrors.MasterNotFoundError{}).
@@ -81,8 +81,8 @@ func TestTagsServer_GetMaster(t *testing.T) {
 			in: &toys.GetMasterIn{
 				ID: masterID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterByID(gomock.Any(), masterID).
 					Return(nil, errors.New("some error")).
@@ -99,20 +99,20 @@ func TestTagsServer_GetMaster(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	mastersServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetMaster(ctx, tc.in)
+			actual, err := mastersServer.GetMaster(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -125,11 +125,11 @@ func TestTagsServer_GetMaster(t *testing.T) {
 	}
 }
 
-func TestTagsServer_GetMasterByUser(t *testing.T) {
+func TestMastersServer_GetMasterByUser(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetMasterByUserIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetMasterOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -139,8 +139,8 @@ func TestTagsServer_GetMasterByUser(t *testing.T) {
 			in: &toys.GetMasterByUserIn{
 				UserID: userID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), userID).
 					Return(master, nil).
@@ -153,8 +153,8 @@ func TestTagsServer_GetMasterByUser(t *testing.T) {
 			in: &toys.GetMasterByUserIn{
 				UserID: userID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), userID).
 					Return(nil, &customerrors.MasterNotFoundError{}).
@@ -173,8 +173,8 @@ func TestTagsServer_GetMasterByUser(t *testing.T) {
 			in: &toys.GetMasterByUserIn{
 				UserID: userID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterByUserID(gomock.Any(), userID).
 					Return(nil, errors.New("some error")).
@@ -191,20 +191,20 @@ func TestTagsServer_GetMasterByUser(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	mastersServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetMasterByUser(ctx, tc.in)
+			actual, err := mastersServer.GetMasterByUser(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -217,11 +217,11 @@ func TestTagsServer_GetMasterByUser(t *testing.T) {
 	}
 }
 
-func TestTagsServer_GetMasters(t *testing.T) {
+func TestMastersServer_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetMastersIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetMastersOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -233,15 +233,23 @@ func TestTagsServer_GetMasters(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New[bool](true),
+				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasters(
 						gomock.Any(),
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New[bool](true),
 						},
 					).
 					Return(
@@ -265,15 +273,23 @@ func TestTagsServer_GetMasters(t *testing.T) {
 					Limit:  pointers.New[uint64](1),
 					Offset: pointers.New[uint64](1),
 				},
+				Filters: &toys.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New[bool](true),
+				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasters(
 						gomock.Any(),
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New[bool](true),
 						},
 					).
 					Return(nil, errors.New("some error")).
@@ -290,20 +306,20 @@ func TestTagsServer_GetMasters(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	mastersServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetMasters(ctx, tc.in)
+			actual, err := mastersServer.GetMasters(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -316,11 +332,103 @@ func TestTagsServer_GetMasters(t *testing.T) {
 	}
 }
 
-func TestTagsServer_RegisterMaster(t *testing.T) {
+func TestMastersServer_CountMasters(t *testing.T) {
+	testCases := []struct {
+		name          string
+		in            *toys.CountMastersIn
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		expected      *toys.CountOut
+		errorExpected bool
+		errorCode     codes.Code
+	}{
+		{
+			name: "success",
+			in: &toys.CountMastersIn{
+				Filters: &toys.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: &toys.CountOut{
+				Count: 1,
+			},
+		},
+		{
+			name: "error",
+			in: &toys.CountMastersIn{
+				Filters: &toys.MastersFilters{
+					Search:              pointers.New("test"),
+					CreatedAtOrderByAsc: pointers.New(true),
+				},
+			},
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(0), errors.New("some error")).
+					Times(1)
+
+				logger.
+					EXPECT().
+					ErrorContext(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1)
+			},
+			errorExpected: true,
+			errorCode:     codes.Internal,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	useCases := mockusecases.NewMockUseCases(ctrl)
+	logger := mocklogger.NewMockLogger(ctrl)
+	mastersServer := &ServerAPI{
+		logger:   logger,
+		useCases: useCases,
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(useCases, logger)
+			}
+
+			actual, err := mastersServer.CountMasters(ctx, tc.in)
+			if tc.errorExpected {
+				require.Error(t, err)
+				require.Equal(t, tc.errorCode, status.Code(err))
+			} else {
+				require.NoError(t, err)
+			}
+
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestMastersServer_RegisterMaster(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.RegisterMasterIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.RegisterMasterOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -331,8 +439,8 @@ func TestTagsServer_RegisterMaster(t *testing.T) {
 				UserID: userID,
 				Info:   pointers.New[string]("test"),
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					RegisterMaster(
 						gomock.Any(),
@@ -354,8 +462,8 @@ func TestTagsServer_RegisterMaster(t *testing.T) {
 				UserID: userID,
 				Info:   pointers.New[string]("test"),
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					RegisterMaster(
 						gomock.Any(),
@@ -381,8 +489,8 @@ func TestTagsServer_RegisterMaster(t *testing.T) {
 				UserID: userID,
 				Info:   pointers.New[string]("test"),
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					RegisterMaster(
 						gomock.Any(),
@@ -405,20 +513,20 @@ func TestTagsServer_RegisterMaster(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	mastersServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.RegisterMaster(ctx, tc.in)
+			actual, err := mastersServer.RegisterMaster(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -431,11 +539,11 @@ func TestTagsServer_RegisterMaster(t *testing.T) {
 	}
 }
 
-func TestTagsServer_UpdateMaster(t *testing.T) {
+func TestMastersServer_UpdateMaster(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.UpdateMasterIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		errorExpected bool
 		errorCode     codes.Code
 	}{
@@ -445,8 +553,8 @@ func TestTagsServer_UpdateMaster(t *testing.T) {
 				ID:   masterID,
 				Info: pointers.New[string]("test"),
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateMaster(
 						gomock.Any(),
@@ -465,8 +573,8 @@ func TestTagsServer_UpdateMaster(t *testing.T) {
 				ID:   masterID,
 				Info: pointers.New[string]("test"),
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateMaster(
 						gomock.Any(),
@@ -492,8 +600,8 @@ func TestTagsServer_UpdateMaster(t *testing.T) {
 				ID:   masterID,
 				Info: pointers.New[string]("test"),
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateMaster(
 						gomock.Any(),
@@ -516,20 +624,20 @@ func TestTagsServer_UpdateMaster(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	mastersServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			_, err := tagsServer.UpdateMaster(ctx, tc.in)
+			_, err := mastersServer.UpdateMaster(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))

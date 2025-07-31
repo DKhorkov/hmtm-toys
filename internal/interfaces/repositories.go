@@ -25,7 +25,12 @@ type ToysRepository interface {
 
 //go:generate mockgen -source=repositories.go  -destination=../../mocks/repositories/masters_repository.go -exclude_interfaces=TagsRepository,CategoriesRepository,ToysRepository,SsoRepository -package=mockrepositories
 type MastersRepository interface {
-	GetMasters(ctx context.Context, pagination *entities.Pagination) ([]entities.Master, error)
+	GetMasters(
+		ctx context.Context,
+		pagination *entities.Pagination,
+		filters *entities.MastersFilters,
+	) ([]entities.Master, error)
+	CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error)
 	GetMasterByID(ctx context.Context, id uint64) (*entities.Master, error)
 	GetMasterByUserID(ctx context.Context, userID uint64) (*entities.Master, error)
 	RegisterMaster(

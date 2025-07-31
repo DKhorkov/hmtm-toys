@@ -55,11 +55,11 @@ const (
 	userID       uint64 = 1
 )
 
-func TestTagsServer_GetToy(t *testing.T) {
+func TestToysServer_GetToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetToyIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetToyOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -69,8 +69,8 @@ func TestTagsServer_GetToy(t *testing.T) {
 			in: &toys.GetToyIn{
 				ID: toyID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetToyByID(gomock.Any(), toyID).
 					Return(toy, nil).
@@ -83,8 +83,8 @@ func TestTagsServer_GetToy(t *testing.T) {
 			in: &toys.GetToyIn{
 				ID: toyID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetToyByID(gomock.Any(), toyID).
 					Return(nil, &customerrors.ToyNotFoundError{}).
@@ -103,8 +103,8 @@ func TestTagsServer_GetToy(t *testing.T) {
 			in: &toys.GetToyIn{
 				ID: toyID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetToyByID(gomock.Any(), toyID).
 					Return(nil, errors.New("some error")).
@@ -121,20 +121,20 @@ func TestTagsServer_GetToy(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetToy(ctx, tc.in)
+			actual, err := toysServer.GetToy(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -147,11 +147,11 @@ func TestTagsServer_GetToy(t *testing.T) {
 	}
 }
 
-func TestTagsServer_GetToys(t *testing.T) {
+func TestToysServer_GetToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetToysIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetToysOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -173,8 +173,8 @@ func TestTagsServer_GetToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetToys(
 						gomock.Any(),
@@ -223,8 +223,8 @@ func TestTagsServer_GetToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetToys(
 						gomock.Any(),
@@ -256,20 +256,20 @@ func TestTagsServer_GetToys(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetToys(ctx, tc.in)
+			actual, err := toysServer.GetToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -282,11 +282,11 @@ func TestTagsServer_GetToys(t *testing.T) {
 	}
 }
 
-func TestTagsServer_CountToys(t *testing.T) {
+func TestToysServer_CountToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.CountToysIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.CountOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -304,8 +304,8 @@ func TestTagsServer_CountToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					CountToys(
 						gomock.Any(),
@@ -339,8 +339,8 @@ func TestTagsServer_CountToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					CountToys(
 						gomock.Any(),
@@ -368,20 +368,20 @@ func TestTagsServer_CountToys(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.CountToys(ctx, tc.in)
+			actual, err := toysServer.CountToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -394,11 +394,11 @@ func TestTagsServer_CountToys(t *testing.T) {
 	}
 }
 
-func TestTagsServer_CountMasterToys(t *testing.T) {
+func TestToysServer_CountMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.CountMasterToysIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.CountOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -417,8 +417,8 @@ func TestTagsServer_CountMasterToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					CountMasterToys(
 						gomock.Any(),
@@ -454,8 +454,8 @@ func TestTagsServer_CountMasterToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					CountMasterToys(
 						gomock.Any(),
@@ -484,20 +484,20 @@ func TestTagsServer_CountMasterToys(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.CountMasterToys(ctx, tc.in)
+			actual, err := toysServer.CountMasterToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -510,11 +510,11 @@ func TestTagsServer_CountMasterToys(t *testing.T) {
 	}
 }
 
-func TestTagsServer_CountUserToys(t *testing.T) {
+func TestToysServer_CountUserToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.CountUserToysIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.CountOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -533,8 +533,8 @@ func TestTagsServer_CountUserToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					CountUserToys(
 						gomock.Any(),
@@ -570,8 +570,8 @@ func TestTagsServer_CountUserToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					CountUserToys(
 						gomock.Any(),
@@ -600,20 +600,20 @@ func TestTagsServer_CountUserToys(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.CountUserToys(ctx, tc.in)
+			actual, err := toysServer.CountUserToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -626,11 +626,11 @@ func TestTagsServer_CountUserToys(t *testing.T) {
 	}
 }
 
-func TestTagsServer_GetMasterToys(t *testing.T) {
+func TestToysServer_GetMasterToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetMasterToysIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetToysOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -653,8 +653,8 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterToys(
 						gomock.Any(),
@@ -705,8 +705,8 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetMasterToys(
 						gomock.Any(),
@@ -739,20 +739,20 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetMasterToys(ctx, tc.in)
+			actual, err := toysServer.GetMasterToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -765,11 +765,11 @@ func TestTagsServer_GetMasterToys(t *testing.T) {
 	}
 }
 
-func TestTagsServer_GetUserToys(t *testing.T) {
+func TestToysServer_GetUserToys(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.GetUserToysIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.GetToysOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -792,8 +792,8 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetUserToys(
 						gomock.Any(),
@@ -842,8 +842,8 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 					CreatedAtOrderByAsc: pointers.New(true),
 				},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					GetUserToys(
 						gomock.Any(),
@@ -876,20 +876,20 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.GetUserToys(ctx, tc.in)
+			actual, err := toysServer.GetUserToys(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -902,11 +902,11 @@ func TestTagsServer_GetUserToys(t *testing.T) {
 	}
 }
 
-func TestTagsServer_AddToy(t *testing.T) {
+func TestToysServer_AddToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.AddToyIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		expected      *toys.AddToyOut
 		errorExpected bool
 		errorCode     codes.Code
@@ -923,8 +923,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -958,8 +958,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -997,8 +997,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -1036,8 +1036,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -1075,8 +1075,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -1114,8 +1114,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -1153,8 +1153,8 @@ func TestTagsServer_AddToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					AddToy(
 						gomock.Any(),
@@ -1183,20 +1183,20 @@ func TestTagsServer_AddToy(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			actual, err := tagsServer.AddToy(ctx, tc.in)
+			actual, err := toysServer.AddToy(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -1209,11 +1209,11 @@ func TestTagsServer_AddToy(t *testing.T) {
 	}
 }
 
-func TestTagsServer_DeleteToy(t *testing.T) {
+func TestToysServer_DeleteToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.DeleteToyIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		errorExpected bool
 		errorCode     codes.Code
 	}{
@@ -1222,8 +1222,8 @@ func TestTagsServer_DeleteToy(t *testing.T) {
 			in: &toys.DeleteToyIn{
 				ID: toyID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					DeleteToy(gomock.Any(), toyID).
 					Return(nil).
@@ -1235,8 +1235,8 @@ func TestTagsServer_DeleteToy(t *testing.T) {
 			in: &toys.DeleteToyIn{
 				ID: toyID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					DeleteToy(gomock.Any(), toyID).
 					Return(&customerrors.ToyNotFoundError{}).
@@ -1255,8 +1255,8 @@ func TestTagsServer_DeleteToy(t *testing.T) {
 			in: &toys.DeleteToyIn{
 				ID: toyID,
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					DeleteToy(gomock.Any(), toyID).
 					Return(errors.New("test error")).
@@ -1273,20 +1273,20 @@ func TestTagsServer_DeleteToy(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			_, err := tagsServer.DeleteToy(ctx, tc.in)
+			_, err := toysServer.DeleteToy(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))
@@ -1297,11 +1297,11 @@ func TestTagsServer_DeleteToy(t *testing.T) {
 	}
 }
 
-func TestTagsServer_UpdateToy(t *testing.T) {
+func TestToysServer_UpdateToy(t *testing.T) {
 	testCases := []struct {
 		name          string
 		in            *toys.UpdateToyIn
-		setupMocks    func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
+		setupMocks    func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger)
 		errorExpected bool
 		errorCode     codes.Code
 	}{
@@ -1317,8 +1317,8 @@ func TestTagsServer_UpdateToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, _ *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateToy(
 						gomock.Any(),
@@ -1349,8 +1349,8 @@ func TestTagsServer_UpdateToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateToy(
 						gomock.Any(),
@@ -1388,8 +1388,8 @@ func TestTagsServer_UpdateToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateToy(
 						gomock.Any(),
@@ -1427,8 +1427,8 @@ func TestTagsServer_UpdateToy(t *testing.T) {
 				TagIDs:      []uint32{tagID},
 				Attachments: []string{"test attachment"},
 			},
-			setupMocks: func(usecases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
-				usecases.
+			setupMocks: func(useCases *mockusecases.MockUseCases, logger *mocklogger.MockLogger) {
+				useCases.
 					EXPECT().
 					UpdateToy(
 						gomock.Any(),
@@ -1457,20 +1457,20 @@ func TestTagsServer_UpdateToy(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	usecases := mockusecases.NewMockUseCases(ctrl)
+	useCases := mockusecases.NewMockUseCases(ctrl)
 	logger := mocklogger.NewMockLogger(ctrl)
-	tagsServer := &ServerAPI{
+	toysServer := &ServerAPI{
 		logger:   logger,
-		useCases: usecases,
+		useCases: useCases,
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setupMocks != nil {
-				tc.setupMocks(usecases, logger)
+				tc.setupMocks(useCases, logger)
 			}
 
-			_, err := tagsServer.UpdateToy(ctx, tc.in)
+			_, err := toysServer.UpdateToy(ctx, tc.in)
 			if tc.errorExpected {
 				require.Error(t, err)
 				require.Equal(t, tc.errorCode, status.Code(err))

@@ -115,22 +115,22 @@ func (s *MastersRepositoryTestSuite) TestGetMastersWithExisting() {
 	)
 	s.NoError(err)
 
-	masters, err := s.mastersRepository.GetMasters(s.ctx, nil)
+	masters, err := s.mastersRepository.GetMasters(s.ctx, nil, nil)
 
 	// Reversed order
 	s.NoError(err)
 	s.NotEmpty(masters)
 	s.Equal(2, len(masters))
-	s.Equal(uint64(1), masters[1].UserID)
-	s.NotNil(masters[1].Info)
-	s.Equal(*info1, *masters[1].Info)
-	s.WithinDuration(createdAt, masters[1].CreatedAt, time.Second)
-	s.WithinDuration(createdAt, masters[1].UpdatedAt, time.Second)
-	s.Equal(uint64(2), masters[0].UserID)
+	s.Equal(uint64(1), masters[0].UserID)
 	s.NotNil(masters[0].Info)
-	s.Equal(*info2, *masters[0].Info)
+	s.Equal(*info1, *masters[0].Info)
 	s.WithinDuration(createdAt, masters[0].CreatedAt, time.Second)
 	s.WithinDuration(createdAt, masters[0].UpdatedAt, time.Second)
+	s.Equal(uint64(2), masters[1].UserID)
+	s.NotNil(masters[1].Info)
+	s.Equal(*info2, *masters[1].Info)
+	s.WithinDuration(createdAt, masters[1].CreatedAt, time.Second)
+	s.WithinDuration(createdAt, masters[1].UpdatedAt, time.Second)
 }
 
 func (s *MastersRepositoryTestSuite) TestGetMastersWithoutExisting() {
@@ -140,7 +140,7 @@ func (s *MastersRepositoryTestSuite) TestGetMastersWithoutExisting() {
 		Return(context.Background(), mocktracing.NewMockSpan()).
 		Times(1)
 
-	masters, err := s.mastersRepository.GetMasters(s.ctx, nil)
+	masters, err := s.mastersRepository.GetMasters(s.ctx, nil, nil)
 	s.NoError(err)
 	s.Empty(masters)
 }
@@ -169,9 +169,102 @@ func (s *MastersRepositoryTestSuite) TestGetMastersWithExistingMastersAndPaginat
 		Offset: pointers.New[uint64](2),
 	}
 
-	masters, err := s.mastersRepository.GetMasters(s.ctx, pagination)
+	masters, err := s.mastersRepository.GetMasters(s.ctx, pagination, nil)
 	s.NoError(err)
 	s.Empty(masters)
+}
+
+func (s *MastersRepositoryTestSuite) TestGetMastersWithExistingMastersAndFilters() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	createdAt := time.Now().UTC()
+	info1 := pointers.New("Master Info 1")
+	info2 := pointers.New("Master Info 2")
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO masters (id, user_id, info, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)",
+		1, 1, info1, createdAt, createdAt,
+		2, 2, info2, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	filters := &entities.MastersFilters{
+		//Search:              pointers.New("test"), // no ILike in sqlite
+		CreatedAtOrderByAsc: pointers.New(true),
+	}
+
+	masters, err := s.mastersRepository.GetMasters(s.ctx, nil, filters)
+	s.NoError(err)
+	s.NotEmpty(masters)
+	s.Equal(2, len(masters))
+	s.Equal(uint64(1), masters[0].UserID)
+	s.NotNil(masters[0].Info)
+	s.Equal(*info1, *masters[0].Info)
+	s.WithinDuration(createdAt, masters[0].CreatedAt, time.Second)
+	s.WithinDuration(createdAt, masters[0].UpdatedAt, time.Second)
+	s.Equal(uint64(2), masters[1].UserID)
+	s.NotNil(masters[1].Info)
+	s.Equal(*info2, *masters[1].Info)
+	s.WithinDuration(createdAt, masters[1].CreatedAt, time.Second)
+	s.WithinDuration(createdAt, masters[1].UpdatedAt, time.Second)
+}
+
+func (s *MastersRepositoryTestSuite) TestCountMastersWithExistingMasters() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	createdAt := time.Now().UTC()
+	info1 := pointers.New("Master Info 1")
+	info2 := pointers.New("Master Info 2")
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO masters (id, user_id, info, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)",
+		1, 1, info1, createdAt, createdAt,
+		2, 2, info2, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	count, err := s.mastersRepository.CountMasters(s.ctx, nil)
+	s.NoError(err)
+	s.Equal(uint64(2), count)
+}
+
+func (s *MastersRepositoryTestSuite) TestCountMastersWithExistingMastersAndFilters() {
+	s.traceProvider.
+		EXPECT().
+		Span(gomock.Any(), gomock.Any()).
+		Return(context.Background(), mocktracing.NewMockSpan()).
+		Times(1)
+
+	createdAt := time.Now().UTC()
+	info1 := pointers.New("Master Info 1")
+	info2 := pointers.New("Master Info 2")
+	_, err := s.connection.ExecContext(
+		s.ctx,
+		"INSERT INTO masters (id, user_id, info, created_at, updated_at) "+
+			"VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)",
+		1, 1, info1, createdAt, createdAt,
+		2, 2, info2, createdAt, createdAt,
+	)
+	s.NoError(err)
+
+	filters := &entities.MastersFilters{
+		//Search:              pointers.New("test"), // no ILike in sqlite
+		CreatedAtOrderByAsc: pointers.New(true),
+	}
+
+	count, err := s.mastersRepository.CountMasters(s.ctx, filters)
+	s.NoError(err)
+	s.Equal(uint64(2), count)
 }
 
 func (s *MastersRepositoryTestSuite) TestGetMasterByIDExisting() {

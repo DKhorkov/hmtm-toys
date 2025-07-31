@@ -1230,6 +1230,7 @@ func TestUseCases_GetMasters(t *testing.T) {
 	testCases := []struct {
 		name       string
 		pagination *entities.Pagination
+		filters    *entities.MastersFilters
 		setupMocks func(
 			tagsService *mockservices.MockTagsService,
 			categoriesService *mockservices.MockCategoriesService,
@@ -1246,6 +1247,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 				Limit:  pointers.New[uint64](1),
 				Offset: pointers.New[uint64](1),
 			},
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("test"),
+				CreatedAtOrderByAsc: pointers.New[bool](true),
+			},
 			setupMocks: func(
 				_ *mockservices.MockTagsService,
 				_ *mockservices.MockCategoriesService,
@@ -1260,6 +1265,10 @@ func TestUseCases_GetMasters(t *testing.T) {
 						&entities.Pagination{
 							Limit:  pointers.New[uint64](1),
 							Offset: pointers.New[uint64](1),
+						},
+						&entities.MastersFilters{
+							Search:              pointers.New("test"),
+							CreatedAtOrderByAsc: pointers.New[bool](true),
 						},
 					).
 					Return(
@@ -1309,7 +1318,7 @@ func TestUseCases_GetMasters(t *testing.T) {
 				)
 			}
 
-			actual, err := useCases.GetMasters(ctx, tc.pagination)
+			actual, err := useCases.GetMasters(ctx, tc.pagination, tc.filters)
 			if tc.errorExpected {
 				require.Error(t, err)
 			} else {
@@ -1317,6 +1326,88 @@ func TestUseCases_GetMasters(t *testing.T) {
 			}
 
 			require.Len(t, actual, len(tc.expected))
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestUseCases_CountMasters(t *testing.T) {
+	testCases := []struct {
+		name       string
+		filters    *entities.MastersFilters
+		setupMocks func(
+			tagsService *mockservices.MockTagsService,
+			categoriesService *mockservices.MockCategoriesService,
+			mastersService *mockservices.MockMastersService,
+			toysService *mockservices.MockToysService,
+			ssoService *mockservices.MockSsoService,
+		)
+		expected      uint64
+		errorExpected bool
+	}{
+		{
+			name: "success",
+			filters: &entities.MastersFilters{
+				Search:              pointers.New("testInfo"),
+				CreatedAtOrderByAsc: pointers.New(true),
+			},
+			setupMocks: func(
+				_ *mockservices.MockTagsService,
+				_ *mockservices.MockCategoriesService,
+				mastersService *mockservices.MockMastersService,
+				_ *mockservices.MockToysService,
+				_ *mockservices.MockSsoService,
+			) {
+				mastersService.
+					EXPECT().
+					CountMasters(
+						gomock.Any(),
+						&entities.MastersFilters{
+							Search:              pointers.New("testInfo"),
+							CreatedAtOrderByAsc: pointers.New(true),
+						},
+					).
+					Return(uint64(1), nil).
+					Times(1)
+			},
+			expected: 1,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	tagsService := mockservices.NewMockTagsService(ctrl)
+	categoriesService := mockservices.NewMockCategoriesService(ctrl)
+	mastersService := mockservices.NewMockMastersService(ctrl)
+	toysService := mockservices.NewMockToysService(ctrl)
+	ssoService := mockservices.NewMockSsoService(ctrl)
+	useCases := New(
+		tagsService,
+		categoriesService,
+		mastersService,
+		toysService,
+		ssoService,
+		validationConfig,
+	)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.setupMocks != nil {
+				tc.setupMocks(
+					tagsService,
+					categoriesService,
+					mastersService,
+					toysService,
+					ssoService,
+				)
+			}
+
+			actual, err := useCases.CountMasters(ctx, tc.filters)
+			if tc.errorExpected {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
 			require.Equal(t, tc.expected, actual)
 		})
 	}

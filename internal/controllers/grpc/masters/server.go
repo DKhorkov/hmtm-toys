@@ -35,6 +35,30 @@ type ServerAPI struct {
 	logger   logging.Logger
 }
 
+func (api *ServerAPI) CountMasters(ctx context.Context, in *toys.CountMastersIn) (*toys.CountOut, error) {
+	var filters *entities.MastersFilters
+	if in.GetFilters() != nil {
+		filters = &entities.MastersFilters{
+			Search:              in.Filters.Search,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	count, err := api.useCases.CountMasters(ctx, filters)
+	if err != nil {
+		logging.LogErrorContext(
+			ctx,
+			api.logger,
+			"Error occurred while trying to count Masters",
+			err,
+		)
+
+		return nil, &customgrpc.BaseError{Status: codes.Internal, Message: err.Error()}
+	}
+
+	return &toys.CountOut{Count: count}, nil
+}
+
 func (api *ServerAPI) UpdateMaster(
 	ctx context.Context,
 	in *toys.UpdateMasterIn,
@@ -128,7 +152,15 @@ func (api *ServerAPI) GetMasters(ctx context.Context, in *toys.GetMastersIn) (*t
 		}
 	}
 
-	masters, err := api.useCases.GetMasters(ctx, pagination)
+	var filters *entities.MastersFilters
+	if in.GetFilters() != nil {
+		filters = &entities.MastersFilters{
+			Search:              in.Filters.Search,
+			CreatedAtOrderByAsc: in.Filters.CreatedAtOrderByAsc,
+		}
+	}
+
+	masters, err := api.useCases.GetMasters(ctx, pagination, filters)
 	if err != nil {
 		logging.LogErrorContext(
 			ctx,

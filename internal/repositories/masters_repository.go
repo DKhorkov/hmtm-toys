@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/DKhorkov/libs/db"
 	"github.com/DKhorkov/libs/logging"
@@ -43,6 +44,7 @@ func NewMastersRepository(
 func (repo *MastersRepository) GetMasters(
 	ctx context.Context,
 	pagination *entities.Pagination,
+	filters *entities.MastersFilters,
 ) ([]entities.Master, error) {
 	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
 	defer span.End()
@@ -60,8 +62,38 @@ func (repo *MastersRepository) GetMasters(
 	builder := sq.
 		Select(selectAllColumns).
 		From(mastersTableName).
-		OrderBy(fmt.Sprintf("%s %s", idColumnName, desc)).
 		PlaceholderFormat(sq.Dollar)
+
+	if filters != nil && filters.Search != nil && *filters.Search != "" {
+		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
+		builder = builder.
+			Where(
+				sq.Or{
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							mastersTableName,
+							masterInfoColumnName,
+						): searchTerm,
+					},
+				},
+			)
+	}
+
+	createdAtOrder := desc
+	if filters != nil && filters.CreatedAtOrderByAsc != nil && *filters.CreatedAtOrderByAsc {
+		createdAtOrder = asc
+	}
+
+	builder = builder.
+		OrderBy(
+			fmt.Sprintf(
+				"%s.%s %s",
+				mastersTableName,
+				createdAtColumnName,
+				createdAtOrder,
+			),
+		)
 
 	if pagination != nil && pagination.Limit != nil {
 		builder = builder.Limit(*pagination.Limit)
@@ -115,6 +147,55 @@ func (repo *MastersRepository) GetMasters(
 	}
 
 	return masters, nil
+}
+
+func (repo *MastersRepository) CountMasters(ctx context.Context, filters *entities.MastersFilters) (uint64, error) {
+	ctx, span := repo.traceProvider.Span(ctx, tracing.CallerName(tracing.DefaultSkipLevel))
+	defer span.End()
+
+	span.AddEvent(repo.spanConfig.Events.Start.Name, repo.spanConfig.Events.Start.Opts...)
+	defer span.AddEvent(repo.spanConfig.Events.End.Name, repo.spanConfig.Events.End.Opts...)
+
+	connection, err := repo.dbConnector.Connection(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	defer db.CloseConnectionContext(ctx, connection, repo.logger)
+
+	builder := sq.
+		Select(selectCount).
+		From(mastersTableName).
+		PlaceholderFormat(sq.Dollar)
+
+	if filters != nil && filters.Search != nil && *filters.Search != "" {
+		searchTerm := "%" + strings.ToLower(*filters.Search) + "%"
+		builder = builder.
+			Where(
+				sq.Or{
+					sq.ILike{
+						fmt.Sprintf(
+							"%s.%s",
+							mastersTableName,
+							masterInfoColumnName,
+						): searchTerm,
+					},
+				},
+			)
+	}
+
+	// Для запросов COUNT сортировка не нужна, поэтому параметр CreatedAtOrderByAsc не используется
+	stmt, params, err := builder.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	var count uint64
+	if err = connection.QueryRowContext(ctx, stmt, params...).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (repo *MastersRepository) GetMasterByUserID(

@@ -13,6 +13,7 @@ service MastersService {
   rpc GetMaster(GetMasterIn) returns (GetMasterOut) {}
   rpc GetMasterByUser(GetMasterByUserIn) returns (GetMasterOut) {}
   rpc GetMasters(GetMastersIn) returns (GetMastersOut) {}
+  rpc CountMasters(CountMastersIn) returns (CountOut) {}
   rpc UpdateMaster(UpdateMasterIn) returns (google.protobuf.Empty) {}
 }
 
@@ -44,6 +45,7 @@ message Pagination {
 
 message GetMastersIn {
   optional Pagination pagination = 1;
+  optional MastersFilters filters = 2;
 }
 
 message GetMastersOut {
@@ -57,4 +59,17 @@ message GetMasterByUserIn {
 message UpdateMasterIn {
   uint64 ID = 1;
   optional string info = 2;
+}
+
+message CountMastersIn {
+  optional MastersFilters filters = 1;
+}
+
+message MastersFilters {
+  optional string search = 1;
+  optional bool createdAtOrderByAsc = 7;
+}
+
+message CountOut {
+  uint64 count = 1;
 }
