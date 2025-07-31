@@ -1,6 +1,6 @@
 ###
 
-grpcurl -proto api/protobuf/protofiles/toys/masters.proto -plaintext -d '{"pagination": {"limit": 2,"offset": 3}}' localhost:8060 masters.MastersService.GetMasters
+grpcurl -proto api/protobuf/protofiles/toys/masters.proto -plaintext -d '{"pagination": {"limit": 2,"offset": 3}, "filters": {"search": "test"}}' localhost:8060 masters.MastersService.GetMasters
 
 ###
 
@@ -9,3 +9,8 @@ grpcurl -proto api/protobuf/protofiles/toys/toys.proto -plaintext -d '{"paginati
 ###
 
 grpcurl -proto api/protobuf/protofiles/toys/toys.proto -plaintext -d '' localhost:8060 toys.ToysService.CountToys
+
+
+###
+
+grpcurl -proto api/protobuf/protofiles/toys/masters.proto -plaintext -d '{"filters": {"search": "test"}}' localhost:8060 masters.MastersService.CountMasters

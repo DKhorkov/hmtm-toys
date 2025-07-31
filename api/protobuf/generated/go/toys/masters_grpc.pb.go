@@ -23,6 +23,7 @@ type MastersServiceClient interface {
 	GetMaster(ctx context.Context, in *GetMasterIn, opts ...grpc.CallOption) (*GetMasterOut, error)
 	GetMasterByUser(ctx context.Context, in *GetMasterByUserIn, opts ...grpc.CallOption) (*GetMasterOut, error)
 	GetMasters(ctx context.Context, in *GetMastersIn, opts ...grpc.CallOption) (*GetMastersOut, error)
+	CountMasters(ctx context.Context, in *CountMastersIn, opts ...grpc.CallOption) (*CountOut, error)
 	UpdateMaster(ctx context.Context, in *UpdateMasterIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -70,6 +71,15 @@ func (c *mastersServiceClient) GetMasters(ctx context.Context, in *GetMastersIn,
 	return out, nil
 }
 
+func (c *mastersServiceClient) CountMasters(ctx context.Context, in *CountMastersIn, opts ...grpc.CallOption) (*CountOut, error) {
+	out := new(CountOut)
+	err := c.cc.Invoke(ctx, "/masters.MastersService/CountMasters", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *mastersServiceClient) UpdateMaster(ctx context.Context, in *UpdateMasterIn, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/masters.MastersService/UpdateMaster", in, out, opts...)
@@ -87,6 +97,7 @@ type MastersServiceServer interface {
 	GetMaster(context.Context, *GetMasterIn) (*GetMasterOut, error)
 	GetMasterByUser(context.Context, *GetMasterByUserIn) (*GetMasterOut, error)
 	GetMasters(context.Context, *GetMastersIn) (*GetMastersOut, error)
+	CountMasters(context.Context, *CountMastersIn) (*CountOut, error)
 	UpdateMaster(context.Context, *UpdateMasterIn) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMastersServiceServer()
 }
@@ -106,6 +117,9 @@ func (UnimplementedMastersServiceServer) GetMasterByUser(context.Context, *GetMa
 }
 func (UnimplementedMastersServiceServer) GetMasters(context.Context, *GetMastersIn) (*GetMastersOut, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMasters not implemented")
+}
+func (UnimplementedMastersServiceServer) CountMasters(context.Context, *CountMastersIn) (*CountOut, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CountMasters not implemented")
 }
 func (UnimplementedMastersServiceServer) UpdateMaster(context.Context, *UpdateMasterIn) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMaster not implemented")
@@ -195,6 +209,24 @@ func _MastersService_GetMasters_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MastersService_CountMasters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountMastersIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MastersServiceServer).CountMasters(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/masters.MastersService/CountMasters",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MastersServiceServer).CountMasters(ctx, req.(*CountMastersIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MastersService_UpdateMaster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateMasterIn)
 	if err := dec(in); err != nil {
@@ -235,6 +267,10 @@ var MastersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMasters",
 			Handler:    _MastersService_GetMasters_Handler,
+		},
+		{
+			MethodName: "CountMasters",
+			Handler:    _MastersService_CountMasters_Handler,
 		},
 		{
 			MethodName: "UpdateMaster",

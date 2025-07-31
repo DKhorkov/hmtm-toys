@@ -14,11 +14,11 @@ service ToysService {
   rpc AddToy(AddToyIn) returns (AddToyOut) {}
   rpc GetToy(GetToyIn) returns (GetToyOut) {}
   rpc GetToys(GetToysIn) returns (GetToysOut) {}
-  rpc CountToys(CountToysIn) returns (CountOut) {}
+  rpc CountToys(CountToysIn) returns (masters.CountOut) {}
   rpc GetMasterToys(GetMasterToysIn) returns (GetToysOut) {}
-  rpc CountMasterToys(CountMasterToysIn) returns (CountOut) {}
+  rpc CountMasterToys(CountMasterToysIn) returns (masters.CountOut) {}
   rpc GetUserToys(GetUserToysIn) returns (GetToysOut) {}
-  rpc CountUserToys(CountUserToysIn) returns (CountOut) {}
+  rpc CountUserToys(CountUserToysIn) returns (masters.CountOut) {}
   rpc DeleteToy(DeleteToyIn) returns (google.protobuf.Empty) {}
   rpc UpdateToy(UpdateToyIn) returns (google.protobuf.Empty) {}
 }
@@ -112,10 +112,6 @@ message CountMasterToysIn {
 message CountUserToysIn {
   uint64 userID = 1;
   optional ToysFilters filters = 2;
-}
-
-message CountOut {
-  uint64 count = 1;
 }
 
 message ToysFilters {
