@@ -79,8 +79,3 @@ type ToysFilters struct {
 	TagIDs              []uint32 `json:"tagIds,omitempty"`
 	CreatedAtOrderByAsc *bool    `json:"createdAtOrderByAsc,omitempty"`
 }
-
-type MastersFilters struct {
-	Search              *string `json:"search,omitempty"`
-	CreatedAtOrderByAsc *bool   `json:"createdAtOrderByAsc,omitempty"`
-}
