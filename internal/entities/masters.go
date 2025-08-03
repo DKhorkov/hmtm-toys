@@ -19,3 +19,8 @@ type UpdateMasterDTO struct {
 	ID   uint64  `json:"id"`
 	Info *string `json:"info,omitempty"`
 }
+
+type MastersFilters struct {
+	Search              *string `json:"search,omitempty"`
+	CreatedAtOrderByAsc *bool   `json:"createdAtOrderByAsc,omitempty"`
+}
